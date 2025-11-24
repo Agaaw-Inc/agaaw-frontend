@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import { Globe, Users, ShieldCheck } from "lucide-react";
 
 const FEATURES = [
@@ -24,35 +27,70 @@ export default function WhyChooseSection() {
       <div className="mx-auto max-w-7xl px-6">
 
         {/* Title */}
-        <h2 className="text-center text-2xl font-semibold text-codgray">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: false }}
+          className="text-center text-2xl font-semibold text-codgray"
+        >
           Why Choose Agaaw?
-        </h2>
+        </motion.h2>
 
         {/* Subtitle */}
-        <p className="mx-auto mt-2 max-w-xl text-center text-bombay">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          viewport={{ once: false }}
+          className="mx-auto mt-2 max-w-xl text-center text-bombay"
+        >
           A platform built to provide authentic mentorship, transparent guidance,
           and global opportunities.
-        </p>
+        </motion.p>
 
         {/* Cards */}
         <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((item, idx) => {
             const Icon = item.icon;
+
             return (
-              <div
+              <motion.div
                 key={idx}
-                className="flex flex-col items-center rounded-2xl bg-white p-8 shadow-sm border border-bombay/20 transition hover:shadow-md"
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.7,
+                  delay: idx * 0.15,
+                  ease: "easeOut",
+                }}
+                viewport={{ once: false }}
+
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow:
+                    "0 0 18px rgba(29, 122, 133, 0.35), 0 0 30px rgba(29, 122, 133, 0.18)",
+                  transition: { duration: 0.25, ease: "easeOut" },
+                }}
+
+                className="flex flex-col items-center rounded-2xl bg-white p-8 
+                           shadow-sm border border-bombay/20"
               >
+                {/* Icon Bubble */}
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-elm/10 text-elm mb-4">
                   <Icon size={26} strokeWidth={2} />
                 </div>
 
-                <h3 className="text-lg font-semibold text-codgray">{item.title}</h3>
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-codgray">
+                  {item.title}
+                </h3>
 
+                {/* Description */}
                 <p className="mt-2 text-center text-sm text-bombay">
                   {item.desc}
                 </p>
-              </div>
+              </motion.div>
             );
           })}
         </div>

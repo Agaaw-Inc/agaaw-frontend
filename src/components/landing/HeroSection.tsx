@@ -42,7 +42,7 @@ export default function HeroSection() {
           </div>
 
           <div className="text-left leading-tight">
-            <p className="font-semibold text-codgray">Register as Consultant</p>
+            <p className="font-semibold text-codgray">Register as Mentor</p>
             <p className="text-xs text-bombay">Help others achieve their dreams</p>
           </div>
         </Link>
