@@ -3,10 +3,22 @@
 import Image from "next/image";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
+  const router = useRouter();
+
   const roleLabel =
     role === "student" ? "Register as a Student" : "Register as a Mentor";
+
+  // 🔥 GO TO DASHBOARD ON CLICK
+  const handleRegister = () => {
+    if (role === "student") {
+      router.push("/dashboard/student");
+    } else {
+      router.push("/dashboard/mentor");
+    }
+  };
 
   return (
     <div className="flex flex-col space-y-6">
@@ -60,7 +72,10 @@ export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
       </div>
 
       <div className="flex justify-center">
-        <Button className="w-1/2 flex justify-center items-center">
+        <Button
+          className="w-1/2 flex justify-center items-center"
+          onClick={handleRegister} 
+        >
           Create Account
         </Button>
       </div>
