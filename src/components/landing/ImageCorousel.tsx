@@ -9,19 +9,19 @@ const slides = [
     id: 1,
     title: "Start Your Journey",
     subtitle: "Connect with students already living your dream abroad",
-    image: "/carousell1.jpg",
+    image: "/image01.jpg",
   },
   {
     id: 2,
     title: "Find Your Mentor",
     subtitle: "Get guidance from real students studying abroad",
-    image: "/carousel2.jpg",
+    image: "/image02.jpg",
   },
   {
     id: 3,
     title: "Achieve Your Dream",
     subtitle: "Explore scholarships and top universities worldwide",
-    image: "/carousel3.jpg",
+    image: "/harvard-university.jpg",
   },
 ];
 
@@ -55,9 +55,8 @@ export default function ImageCarousel() {
           {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className={`absolute inset-0 transition-opacity duration-700 ${
-                current === index ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 transition-opacity duration-700 ${current === index ? "opacity-100" : "opacity-0"
+                }`}
             >
               <Image
                 src={slide.image}
@@ -101,9 +100,8 @@ export default function ImageCarousel() {
             <button
               key={slide.id}
               onClick={() => setCurrent(index)}
-              className={`h-2.5 w-2.5 rounded-full transition ${
-                current === index ? "bg-elm" : "bg-bombay/40"
-              }`}
+              className={`h-2.5 w-2.5 rounded-full transition ${current === index ? "bg-elm" : "bg-bombay/40"
+                }`}
             />
           ))}
         </div>

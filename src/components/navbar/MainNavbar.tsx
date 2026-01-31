@@ -11,7 +11,7 @@ export default function MainNavbar() {
         {/* Logo + Title */}
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/agaaw_logo_01.png"    
+            src="/agaaw_logo_01.png"
             alt="Agaaw Logo"
             width={38}
             height={38}
@@ -27,6 +27,21 @@ export default function MainNavbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-5">
+          <Link
+            href="/scholarships"
+          >
+            Scholarships
+          </Link>
+          <Link
+            href="/countries"
+          >
+            Countries
+          </Link>
+          <Link
+            href="/about"
+          >
+            About
+          </Link>
 
           <Link
             href="/login"
