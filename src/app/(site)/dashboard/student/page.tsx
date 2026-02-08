@@ -1,8 +1,8 @@
 import DashboardHeader from "@/components/dashboard/common/DashboardHeader";
 import MetricCard from "@/components/dashboard/common/MetricCard";
 import MentorsSection from "@/components/dashboard/student/MentorsSection";
-import ScholarshipsPreviewSection from "@/components/dashboard/student/ScholarshipsPreviewSection";
-import CountriesPreviewSection from "@/components/dashboard/student/CountriesPreviewSection";
+import ScholarshipsPreview from "@/components/scholarships/ScholarshipsPreview";
+import CountriesPreview from "@/components/countries/CountriesPreview";
 
 import { Users, University, TrendingUp } from "lucide-react";
 
@@ -29,8 +29,8 @@ export default function StudentDashboardPage() {
 
       {/* Main Content Grid: Scholarships & Countries */}
       <div className="space-y-8">
-        <ScholarshipsPreviewSection />
-        <CountriesPreviewSection />
+        <ScholarshipsPreview />
+        <CountriesPreview />
       </div>
 
       {/* Keep the old news/events as a lower priority or remove if strictly following 'like agaaw_scholarships' 

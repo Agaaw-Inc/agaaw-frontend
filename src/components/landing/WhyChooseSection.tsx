@@ -73,8 +73,7 @@ export default function WhyChooseSection() {
                   transition: { duration: 0.25, ease: "easeOut" },
                 }}
 
-                className="flex flex-col items-center rounded-2xl bg-white p-8 
-                           shadow-sm border border-bombay/20"
+                className="flex flex-col items-center rounded-2xl bg-white p-8 shadow-sm border border-bombay/20"
               >
                 {/* Icon Bubble */}
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-elm/10 text-elm mb-4">

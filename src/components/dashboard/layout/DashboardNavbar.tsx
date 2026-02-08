@@ -13,7 +13,7 @@ export default function DashboardNavbar() {
 
   return (
     <nav className="w-full bg-light border-b border-bombay/30 px-6 py-3 flex items-center justify-between sticky top-0 z-50">
-      
+
       {/* Logo */}
       <div className="flex items-center gap-2">
         <Image
@@ -41,9 +41,7 @@ export default function DashboardNavbar() {
         {/* Sign Out */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm 
-                     border border-bombay/40 text-codgray 
-                     hover:bg-bombay/10 transition"
+          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm border border-bombay/40 text-codgray hover:bg-bombay/10 transition"
         >
           <LogOut className="h-4 w-4" />
           Sign Out

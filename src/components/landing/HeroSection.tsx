@@ -19,7 +19,7 @@ export default function HeroSection() {
 
         {/* Student */}
         <Link
-          href="auth/register/student"
+          href="/register/student"
           className="flex items-center gap-4 rounded-xl border border-bombay/40 bg-white px-7 py-5 text-sm shadow-sm transition hover:border-elm hover:shadow-md"
         >
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-elm/10 text-elm">
@@ -34,7 +34,7 @@ export default function HeroSection() {
 
         {/* Consultant */}
         <Link
-          href="auth/register/mentor"
+          href="/register/mentor"
           className="flex items-center gap-4 rounded-xl border border-bombay/40 bg-white px-7 py-5 text-sm shadow-sm transition hover:border-elm hover:shadow-md"
         >
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-elm/10 text-elm">

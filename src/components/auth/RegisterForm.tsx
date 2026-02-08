@@ -5,14 +5,34 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RegisterSchema, RegisterType } from "@/lib/validators/auth";
+import Link from "next/link";
+import { useState } from "react";
+
 export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   const roleLabel =
     role === "student" ? "Register as a Student" : "Register as a Mentor";
 
-  // 🔥 GO TO DASHBOARD ON CLICK
-  const handleRegister = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterType>({
+    resolver: zodResolver(RegisterSchema),
+  });
+
+  const onSubmit = async (data: RegisterType) => {
+    setLoading(true);
+    // Mock registration delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log(`Registered as ${role} with:`, data);
+    setLoading(false);
+
     if (role === "student") {
       router.push("/dashboard/student");
     } else {
@@ -47,38 +67,72 @@ export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
       </div>
 
       {/* Form Inputs */}
-      <div className="space-y-3">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
         <div>
           <label className="text-sm font-medium text-codgray">Full Name</label>
-          <Input placeholder="Enter your full name" />
+          <Input
+            placeholder="Enter your full name"
+            {...register("fullName")}
+          />
+          {errors.fullName && (
+            <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>
+          )}
         </div>
 
         <div>
           <label className="text-sm font-medium text-codgray">Email</label>
-          <Input placeholder="Enter your email" type="email" />
+          <Input
+            placeholder="Enter your email"
+            type="email"
+            {...register("email")}
+          />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+          )}
         </div>
 
         <div>
           <label className="text-sm font-medium text-codgray">Password</label>
-          <Input placeholder="Create a password" type="password" />
+          <Input
+            placeholder="Create a password"
+            type="password"
+            {...register("password")}
+          />
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+          )}
         </div>
 
         <div>
           <label className="text-sm font-medium text-codgray">
             Confirm Password
           </label>
-          <Input placeholder="Confirm your password" type="password" />
+          <Input
+            placeholder="Confirm your password"
+            type="password"
+            {...register("confirmPassword")}
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>
+          )}
         </div>
-      </div>
 
-      <div className="flex justify-center">
-        <Button
-          className="w-1/2 flex justify-center items-center"
-          onClick={handleRegister} 
-        >
-          Create Account
-        </Button>
-      </div>
+        <div className="flex justify-center pt-2">
+          <Button
+            className="w-1/2 flex justify-center items-center"
+            disabled={loading}
+          >
+            {loading ? "Creating Account..." : "Create Account"}
+          </Button>
+        </div>
+      </form>
+
+      <p className="text-center text-xs text-bombay">
+        Already have an account?{" "}
+        <Link href="/login" className="text-elm hover:underline">
+          Sign In
+        </Link>
+      </p>
 
     </div>
   );
