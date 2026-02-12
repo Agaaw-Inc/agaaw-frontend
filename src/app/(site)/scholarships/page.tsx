@@ -1,4 +1,6 @@
 import ScholarshipCard from "@/components/scholarships/ScholarshipCard";
+import MainNavbar from "@/components/navbar/MainNavbar";
+import Footer from "@/components/landing/Footer";
 
 const scholarships = [
   {
@@ -23,21 +25,25 @@ const scholarships = [
 
 export default function ScholarshipsPage() {
   return (
-    <section className="py-20 px-6 max-w-6xl mx-auto">
-      <h1 className="text-4xl font-bold mb-10 text-center">
-        All <span className="text-teal-700">Scholarships</span>
-      </h1>
+    <>
+      <MainNavbar />
+      <section className="py-20 px-6 max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold mb-10 text-center">
+          All <span className="text-teal-700">Scholarships</span>
+        </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-        {scholarships.map((sch) => (
-          <ScholarshipCard
-            key={sch.slug}
-            title={sch.title}
-            university={sch.university}
-            deadline={sch.deadline}
-          />
-        ))}
-      </div>
-    </section>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          {scholarships.map((sch) => (
+            <ScholarshipCard
+              key={sch.slug}
+              title={sch.title}
+              university={sch.university}
+              deadline={sch.deadline}
+            />
+          ))}
+        </div>
+      </section>
+      <Footer />
+    </>
   );
 }
