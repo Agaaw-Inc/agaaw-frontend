@@ -1,13 +1,18 @@
 import CountryCard from "@/components/countries/CountryCard";
+import MainNavbar from "@/components/navbar/MainNavbar";
+import Footer from "@/components/landing/Footer";
 
 const countries = [
-    { name: "Canada", image: "/images/countries/canada.jpg" },
-    { name: "Germany", image: "/images/countries/germany.jpg" },
-    { name: "Australia", image: "/images/countries/australia.jpg" },
+    { name: "Canada", image: "/countries/canada.jpg" },
+    { name: "Germany", image: "/countries/germany.jpg" },
+    { name: "Australia", image: "/countries/australia.jpg" },
 ];
 
 export default function CountriesPage() {
     return (
+<>
+<MainNavbar />
+        
         <section className="py-20 px-6 max-w-6xl mx-auto">
             <h1 className="text-4xl font-bold mb-10 text-center">
                 Explore <span className="text-teal-700">Countries</span>
@@ -23,5 +28,9 @@ export default function CountriesPage() {
                 ))}
             </div>
         </section>
+        <Footer />
+
+</>
+        
     );
 }
