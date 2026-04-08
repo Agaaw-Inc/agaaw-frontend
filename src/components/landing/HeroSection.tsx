@@ -1,52 +1,51 @@
 import Link from "next/link";
-import { BookOpen, UserRoundCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <section className="bg-[#f6f6f8] py-24 text-center px-6">
-      {/* Main Title */}
-      <h1 className="text-4xl font-semibold text-codgray">Agaaw</h1>
-      <p className="mt-2 text-lg text-codgray/80">Fly to your Future</p>
+    <section className="relative h-[80vh] min-h-[600px] w-full flex items-center justify-center md:justify-start overflow-hidden">
+      {/* Background Video */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="./videos/agaaw-hero.mp4" type="video/mp4" />
+      </video>
 
-      {/* Subtitle */}
-      <p className="mx-auto mt-6 max-w-2xl text-base text-codgray/70 leading-relaxed">
-        Your all-in-one platform for studying abroad. Connect with mentors,
-        find scholarships, and make your dreams a reality.
-      </p>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/50 sm:bg-black/40 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
 
-      {/* Role Cards */}
-      <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+      {/* Content */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 text-left">
+        <div className="max-w-2xl">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight drop-shadow-md leading-[1.1]">
+            Fly to your <span className="text-elm drop-shadow-lg">Future</span>
+          </h1>
 
-        {/* Student */}
-        <Link
-          href="/register/student"
-          className="flex items-center gap-4 rounded-xl border border-bombay/40 bg-white px-7 py-5 text-sm shadow-sm transition hover:border-elm hover:shadow-md"
-        >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-elm/10 text-elm">
-            <BookOpen size={20} strokeWidth={2} />
+          <p className="mt-6 text-lg sm:text-xl md:text-2xl text-white/90 font-medium drop-shadow-md leading-relaxed">
+            Your all-in-one platform for studying abroad. Connect with mentors,
+            find scholarships, and make your dreams a reality.
+          </p>
+
+          <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
+            <Link
+              href="/register/student"
+              className="group w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-elm text-white rounded-lg font-bold text-lg shadow-lg hover:bg-elm/90 transition-all"
+            >
+              Start Your Journey
+              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/register/mentor"
+              className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-lg font-bold text-lg border border-white/30 hover:bg-white/20 transition-all text-center"
+            >
+              Become a Mentor
+            </Link>
           </div>
-
-          <div className="text-left leading-tight">
-            <p className="font-semibold text-codgray">Register as Student</p>
-            <p className="text-xs text-bombay">Find your dream university</p>
-          </div>
-        </Link>
-
-        {/* Consultant */}
-        <Link
-          href="/register/mentor"
-          className="flex items-center gap-4 rounded-xl border border-bombay/40 bg-white px-7 py-5 text-sm shadow-sm transition hover:border-elm hover:shadow-md"
-        >
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-elm/10 text-elm">
-            <UserRoundCheck size={20} strokeWidth={2} />
-          </div>
-
-          <div className="text-left leading-tight">
-            <p className="font-semibold text-codgray">Register as Mentor</p>
-            <p className="text-xs text-bombay">Help others achieve their dreams</p>
-          </div>
-        </Link>
-
+        </div>
       </div>
     </section>
   );
