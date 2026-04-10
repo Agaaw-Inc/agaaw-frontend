@@ -45,11 +45,11 @@ export default function ImageCarousel() {
   };
 
   return (
-    <section className="bg-white py-20">
-      <div className="mx-auto max-w-5xl px-6 text-center">
+    <section className="bg-white py-12 md:py-20">
+      <div className="mx-auto max-w-7xl px-6 text-center">
 
         {/* IMAGE CONTAINER */}
-        <div className="relative mx-auto h-80 w-full max-w-4xl overflow-hidden rounded-2xl shadow-sm">
+        <div className="relative mx-auto h-[400px] lg:h-[440px] w-full overflow-hidden rounded-[2rem] shadow-2xl">
 
           {/* Slides */}
           {slides.map((slide, index) => (
@@ -68,11 +68,11 @@ export default function ImageCarousel() {
           ))}
 
           {/* TEXT OVERLAY — CENTERED */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white drop-shadow-lg">
-            <h2 className="text-2xl font-semibold md:text-3xl">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/40 drop-shadow-lg px-6">
+            <h2 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight mb-4 text-center">
               {slides[current].title}
             </h2>
-            <p className="mt-2 text-sm md:text-base opacity-90">
+            <p className="text-gray-200 text-base md:text-lg max-w-2xl leading-relaxed text-center">
               {slides[current].subtitle}
             </p>
           </div>

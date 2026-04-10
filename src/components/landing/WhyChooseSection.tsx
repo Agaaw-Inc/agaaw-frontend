@@ -32,7 +32,7 @@ export default function WhyChooseSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: false }}
-          className="text-center text-2xl font-semibold text-codgray"
+          className="text-center text-4xl md:text-5xl font-medium tracking-tight leading-tight text-codgray"
         >
           Why Choose Agaaw?
         </motion.h2>
@@ -43,7 +43,7 @@ export default function WhyChooseSection() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           viewport={{ once: false }}
-          className="mx-auto mt-2 max-w-xl text-center text-bombay"
+          className="mx-auto mt-4 max-w-2xl text-center text-base md:text-lg text-bombay leading-relaxed"
         >
           A platform built to provide authentic mentorship, transparent guidance,
           and global opportunities.
@@ -81,12 +81,12 @@ export default function WhyChooseSection() {
                 </div>
 
                 {/* Title */}
-                <h3 className="text-lg font-semibold text-codgray">
+                <h3 className="text-xl font-semibold text-codgray">
                   {item.title}
                 </h3>
 
                 {/* Description */}
-                <p className="mt-2 text-center text-sm text-bombay">
+                <p className="mt-2 text-center text-base text-bombay">
                   {item.desc}
                 </p>
               </motion.div>

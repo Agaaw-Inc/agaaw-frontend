@@ -6,15 +6,15 @@ export default function Footer() {
   return (
     <footer className="border-t border-bombay/20 bg-codgray">
       <div className="mx-auto max-w-7xl px-6 py-12">
-        
+
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
-          
+
           {/* 1. Brand Section */}
           <div className="flex flex-col items-center md:items-start gap-4">
             <div className="flex items-center gap-2">
               <Image
-                src="/Agaaw_logo_noBG.png"   
+                src="/Agaaw_logo_noBG.png"
                 alt="Agaaw Logo"
                 width={40}
                 height={40}
@@ -25,11 +25,6 @@ export default function Footer() {
             <p className="text-sm text-bombay leading-relaxed">
               Empowering your journey to success. Fly to your future with our expert guidance.
             </p>
-            <div className="flex gap-4 mt-2">
-              <Link href="#" className="text-bombay hover:text-white transition-colors"><Facebook size={20} /></Link>
-              <Link href="#" className="text-bombay hover:text-white transition-colors"><Linkedin size={20} /></Link>
-              <Link href="#" className="text-bombay hover:text-white transition-colors"><Twitter size={20} /></Link>
-            </div>
           </div>
 
           {/* 2. Navigation Links */}
@@ -39,7 +34,9 @@ export default function Footer() {
               <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
               <Link href="/services" className="hover:text-white transition-colors">Our Services</Link>
               <Link href="/careers" className="hover:text-white transition-colors">Careers</Link>
-              <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+              <Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link>
+              <a href="tel:+12345678900" className="hover:text-white transition-colors">01511878728</a>
+              <a href="mailto:info@agaaw.com" className="hover:text-white transition-colors">info@agaaw.com</a>
             </nav>
           </div>
 
@@ -58,19 +55,24 @@ export default function Footer() {
             <h4 className="text-white font-semibold uppercase tracking-wider text-sm">Stay Updated</h4>
             <p className="text-sm text-bombay">Subscribe to get the latest news and offers.</p>
             <form className="relative flex mt-2">
-              <input 
-                type="email" 
-                placeholder="Enter your email" 
+              <input
+                type="email"
+                placeholder="Enter your email"
                 className="w-full bg-bombay/10 border border-bombay/20 rounded-lg py-2 px-4 text-sm text-white focus:outline-none focus:border-white/40 transition-all"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="absolute right-1 top-1 bottom-1 bg-white text-codgray px-3 rounded-md hover:bg-bombay transition-colors"
                 aria-label="Subscribe"
               >
                 <Send size={16} />
               </button>
             </form>
+            <div className="flex gap-5 mt-4 justify-center md:justify-start">
+              <Link href="https://www.facebook.com/share/1DJG3UuAEP/" className="text-bombay hover:text-white transition-colors"><Facebook size={26} /></Link>
+              <Link href="#" className="text-bombay hover:text-white transition-colors"><Linkedin size={26} /></Link>
+              <Link href="#" className="text-bombay hover:text-white transition-colors"><Twitter size={26} /></Link>
+            </div>
           </div>
 
         </div>
@@ -78,7 +80,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-bombay/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-bombay/60">
           <p>© {new Date().getFullYear()} Agaaw. All rights reserved.</p>
-          <div className="flex gap-6">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
             <span>Made with ❤️ for your future</span>
           </div>
         </div>
