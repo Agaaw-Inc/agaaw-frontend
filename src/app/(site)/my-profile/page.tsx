@@ -1,18 +1,19 @@
 "use client";
 
 import ProfilePage from "@/components/profile/ProfilePage";
-import { getMentorByUsername } from "@/lib/mock/profileData";
+import {
+  getProfileByUsername,
+  CURRENT_USER_USERNAME,
+  CURRENT_USER_ROLE,
+} from "@/lib/mock/profileData";
 
-// Simulated logged-in mentor — in production this comes from auth context
-const MENTOR_USERNAME = "arif-rahman";
-
-export default function MentorProfileEditPage() {
-  const profile = getMentorByUsername(MENTOR_USERNAME);
+export default function MyProfilePage() {
+  const profile = getProfileByUsername(CURRENT_USER_USERNAME);
 
   if (!profile) {
     return (
       <div className="min-h-screen bg-gray-50/50 flex items-center justify-center">
-        <p className="text-gray-500">Mentor profile not found</p>
+        <p className="text-gray-500">Profile not found</p>
       </div>
     );
   }
@@ -24,8 +25,8 @@ export default function MentorProfileEditPage() {
           profile={profile}
           viewMode="own"
           isOwner={true}
-          currentUserUsername={MENTOR_USERNAME}
-          currentUserRole="mentor"
+          currentUserUsername={CURRENT_USER_USERNAME}
+          currentUserRole={CURRENT_USER_ROLE}
         />
       </main>
     </div>

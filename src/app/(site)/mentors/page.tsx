@@ -2,19 +2,10 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import DashboardHeader from "@/components/dashboard/common/DashboardHeader";
-import { Search, Filter, MessageSquare } from "lucide-react";
-
-// Extended Mock Data
-const ALL_MENTORS = Array.from({ length: 24 }).map((_, i) => ({
-    id: i,
-    name: `Mentor ${i + 1}`,
-    role: i % 3 === 0 ? "Software Engineer" : i % 3 === 1 ? "Data Scientist" : "Product Manager",
-    company: ["Google", "Microsoft", "Amazon", "Meta", "Netflix"][i % 5],
-    university: ["Harvard University", "MIT", "Stanford", "Oxford", "Cambridge"][i % 5],
-    image: `https://i.pravatar.cc/150?u=${i + 10}`,
-    expertise: ["Career Guidance", "Resume Review", "Mock Interview"],
-}));
+import { Search, Filter, Eye, MapPin } from "lucide-react";
+import { MOCK_MENTORS } from "@/lib/mock/profileData";
 
 export default function MentorsPage() {
     return (
@@ -42,9 +33,10 @@ export default function MentorsPage() {
 
             {/* Mentors Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {ALL_MENTORS.map((mentor) => (
-                    <div
-                        key={mentor.id}
+                {MOCK_MENTORS.map((mentor) => (
+                    <Link
+                        key={mentor.username}
+                        href={`/profile/${mentor.username}`}
                         className="group bg-white rounded-xl border border-gray-100 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all hover:border-teal-100"
                     >
                         <div className="relative w-24 h-24 mb-4 rounded-full overflow-hidden ring-4 ring-gray-50 group-hover:ring-teal-50 transition-all">
@@ -57,20 +49,21 @@ export default function MentorsPage() {
                         </div>
 
                         <h3 className="text-lg font-bold text-gray-900">{mentor.name}</h3>
-                        <p className="text-teal-600 font-medium text-sm mb-1">{mentor.role}</p>
-                        <p className="text-gray-500 text-sm mb-4">at {mentor.company}</p>
+                        <p className="text-teal-600 font-medium text-sm mb-1">{mentor.expertise[0]}</p>
+                        <p className="text-gray-500 text-sm mb-1">{mentor.countryFlag} {mentor.country}</p>
 
                         <div className="w-full border-t border-gray-100 my-4"></div>
 
                         <div className="text-xs text-gray-500 mb-6 space-y-1">
                             <p>🎓 {mentor.university}</p>
+                            <p>⭐ {mentor.stats.rating} ({mentor.stats.totalReviews} reviews)</p>
                         </div>
 
-                        <button className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-teal-50 text-teal-700 font-semibold rounded-lg hover:bg-teal-100 transition-colors">
-                            <MessageSquare className="w-4 h-4" />
-                            Connect
-                        </button>
-                    </div>
+                        <span className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-teal-50 text-teal-700 font-semibold rounded-lg group-hover:bg-teal-100 transition-colors">
+                            <Eye className="w-4 h-4" />
+                            View Profile
+                        </span>
+                    </Link>
                 ))}
             </div>
         </div>

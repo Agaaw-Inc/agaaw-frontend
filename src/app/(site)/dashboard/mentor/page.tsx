@@ -5,6 +5,7 @@ import {
   CheckCircle2, Circle, ArrowRight, Clock, Sparkles
 } from "lucide-react";
 import { MOCK_BLOGS } from "@/lib/mock/blogData";
+import { MOCK_STUDENTS } from "@/lib/mock/profileData";
 
 /* ─── Hero Banner ─────────────────────────────────────────────────── */
 function HeroBanner() {
@@ -201,6 +202,7 @@ function RecentBlogs() {
 }
 
 /* ─── Upcoming Sessions ──────────────────────────────────────────── */
+// Some random students from MOCK_STUDENTS
 const SESSIONS = [
   { student: "John Smith", title: "Application Review", datetime: "Apr 10, 2026 · 2:00 PM" },
   { student: "Emily Chen", title: "University Selection", datetime: "Apr 11, 2026 · 10:00 AM" },
@@ -223,12 +225,14 @@ function UpcomingSessions() {
               {s.student.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900">{s.student}</p>
+              <Link href={`/profile/${s.student}`} className="hover:text-teal-700 transition-colors">
+                <p className="text-sm font-medium text-gray-900">{s.student}</p>
+              </Link>
               <p className="text-xs text-gray-500">{s.title}</p>
-            </div>
-            <div className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
-              <Clock size={11} />
-              <span className="hidden sm:inline">{s.datetime}</span>
+              {/* show the datetime in the right side of the card */}
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs text-gray-400">{s.datetime}</span>
+              </div>
             </div>
           </div>
         ))}

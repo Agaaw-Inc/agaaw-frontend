@@ -5,15 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { MOCK_MENTORS } from "@/lib/mock/profileData";
 
-// Mock Data for Mentors
-const MENTORS = Array.from({ length: 15 }).map((_, i) => ({
-    id: i,
-    name: `Mentor ${i + 1}`,
-    role: "Senior Engineer",
-    company: "Google",
-    image: `https://i.pravatar.cc/150?u=${i + 10}`, // using random avatars
-}));
+// Build a larger list by repeating mentors for the marquee effect
+const MENTORS = [
+    ...MOCK_MENTORS,
+    ...MOCK_MENTORS,
+    ...MOCK_MENTORS,
+].map((m, i) => ({ ...m, _key: `${m.username}-${i}` }));
 
 export default function MentorsSection() {
     return (
@@ -60,8 +59,12 @@ function MentorsList() {
                 repeat: Infinity,
             }}
         >
-            {MENTORS.map((mentor, index) => (
-                <div key={`${mentor.id}-${index}`} className="flex flex-col items-center group cursor-pointer w-[100px]">
+            {MENTORS.map((mentor) => (
+                <Link
+                    key={mentor._key}
+                    href={`/profile/${mentor.username}`}
+                    className="flex flex-col items-center group cursor-pointer w-[100px]"
+                >
                     <div className="relative w-20 h-20 rounded-full overflow-hidden border-2 border-transparent group-hover:border-teal-500 transition-colors shadow-sm">
                         <Image
                             src={mentor.image}
@@ -74,9 +77,9 @@ function MentorsList() {
                         {mentor.name}
                     </p>
                     <p className="text-xs text-gray-500 text-center truncate w-full">
-                        {mentor.role}
+                        {mentor.expertise[0]}
                     </p>
-                </div>
+                </Link>
             ))}
         </motion.div>
     );
