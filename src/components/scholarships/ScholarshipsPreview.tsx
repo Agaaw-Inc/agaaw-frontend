@@ -5,17 +5,33 @@ const sampleScholarships = [
     title: "DAAD Scholarship",
     university: "German Academic Exchange Service",
     deadline: "Dec 15, 2025",
+    image: "/images/image03.jpg",
   },
   {
     title: "Erasmus Mundus",
     university: "European Union",
     deadline: "Jan 5, 2026",
+    image: "/images/image04.png",
   },
   {
     title: "Fulbright Scholarship",
     university: "U.S. Government",
     deadline: "Oct 1, 2025",
+    image: "/images/image05.png",
   },
+  {
+    title: "Murdoch University",
+    university: "Australian Government",
+    deadline: "Mar 8, 2026",
+    image: "/images/image06.png",
+  },
+  {
+    title: "MEXT",
+    university: "Japan Government",
+    deadline: "Apr 15, 2026",
+    image: "/images/image07.png",
+  },
+
 ];
 
 export default function ScholarshipsPreview() {
@@ -33,6 +49,7 @@ export default function ScholarshipsPreview() {
               title={sch.title}
               university={sch.university}
               deadline={sch.deadline}
+              image={sch.image}
             />
           ))}
         </div>

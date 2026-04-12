@@ -46,7 +46,7 @@ export default function WhyChooseSection() {
           className="mx-auto mt-4 max-w-2xl text-center text-base md:text-lg text-bombay leading-relaxed"
         >
           A platform built to provide authentic mentorship, transparent guidance,
-          and global opportunities.
+          and global opportunities.Transforming aspirations into achievements with reliable pathways to success.
         </motion.p>
 
         {/* Cards */}
