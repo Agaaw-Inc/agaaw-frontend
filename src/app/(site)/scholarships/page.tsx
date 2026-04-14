@@ -29,16 +29,16 @@ const scholarships = [
     title: "Murdoch University",
     university: "Australian Government",
     deadline: "Mar 8, 2026",
+    slug: "murdoch-university",
     image: "/images/image06.png",
   },
   {
     title: "MEXT",
     university: "Japan Government",
     deadline: "Apr 15, 2026",
+    slug: "mext",
     image: "/images/image07.png",
   },
-
-
 ];
 
 export default function ScholarshipsPage() {
