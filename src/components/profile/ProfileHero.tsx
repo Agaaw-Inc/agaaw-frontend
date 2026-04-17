@@ -15,6 +15,9 @@ import {
   Edit3,
   CheckCircle,
   Clock,
+  AlertTriangle,
+  CheckCircle2,
+  ChevronRight,
 } from "lucide-react";
 import type { UserProfile, MentorProfile, StudentProfile } from "@/data/profileTypes";
 
@@ -29,7 +32,40 @@ export default function ProfileHero({ profile, isOwner, viewMode }: ProfileHeroP
   const mentorProfile = isMentor ? (profile as MentorProfile) : null;
   const studentProfile = !isMentor ? (profile as StudentProfile) : null;
 
+  // Completion Tracker Logic
+  let completionPercentage = 0;
+  let missingItems: { label: string }[] = [];
+  
+  if (isMentor && isOwner && mentorProfile) {
+    const items = [
+      { key: 'name', label: 'Full name', isComplete: !!mentorProfile.name },
+      { key: 'university', label: 'Currently studying university name', isComplete: !!mentorProfile.university },
+      { key: 'department', label: 'Currently studying department', isComplete: !!mentorProfile.department },
+      { key: 'country', label: 'Currently studying country', isComplete: !!mentorProfile.country },
+      { key: 'services', label: 'Create minimum one service', isComplete: mentorProfile.services && mentorProfile.services.length > 0 },
+      { key: 'universityIdCard', label: 'Insert attachment: University ID card', isComplete: !!mentorProfile.universityIdCard },
+      { key: 'address', label: 'Address', isComplete: !!mentorProfile.address },
+      { key: 'phoneNumber', label: 'Phone number', isComplete: !!mentorProfile.phoneNumber },
+      { key: 'expertise', label: 'Expertise filled', isComplete: mentorProfile.expertise && mentorProfile.expertise.length > 0 },
+      { key: 'hourly_rate', label: 'Hourly rate', isComplete: typeof mentorProfile.hourly_rate === 'number' },
+      { key: 'experience_years', label: 'Experience (years)', isComplete: typeof mentorProfile.experience_years === 'number' },
+      { key: 'bio', label: 'Bio', isComplete: !!mentorProfile.bio },
+      { key: 'languages', label: 'Languages', isComplete: mentorProfile.languages && mentorProfile.languages.length > 0 },
+      { key: 'portfolio_link', label: 'Portfolio link', isComplete: !!mentorProfile.portfolio_link },
+    ];
+    
+    const completedCount = items.filter(i => i.isComplete).length;
+    completionPercentage = Math.round((completedCount / items.length) * 100);
+    missingItems = items.filter(i => !i.isComplete);
+  }
+
+  // Calculate SVG attributes for circular progress
+  const radius = 68; // Based on 144px width/height standard
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (completionPercentage / 100) * circumference;
+
   return (
+    <div className="space-y-6">
     <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-teal-700 via-teal-600 to-emerald-500 shadow-xl">
       {/* Decorative elements */}
       <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
@@ -39,20 +75,45 @@ export default function ProfileHero({ profile, isOwner, viewMode }: ProfileHeroP
       <div className="relative p-8 md:p-10">
         <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
           {/* Avatar */}
-          <div className="relative shrink-0 group">
-            <div className="w-28 h-28 md:w-32 md:h-32 rounded-2xl overflow-hidden border-4 border-white/20 shadow-2xl">
+          <div className="relative shrink-0 group flex flex-col items-center">
+            {/* Circular Progress (shown only to owner) */}
+            {isMentor && isOwner && (
+              <div className="absolute inset-[-12px] z-0 pointer-events-none">
+                <svg className="w-full h-full -rotate-90 drop-shadow-md">
+                  <circle cx="50%" cy="50%" r="48%" stroke="rgba(255,255,255,0.2)" strokeWidth="6" fill="transparent" />
+                  <circle 
+                    cx="50%" cy="50%" r="48%" 
+                    stroke="#10b981" // emerald-500
+                    strokeWidth="6" fill="transparent" 
+                    strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    className="transition-all duration-1000 ease-out"
+                  />
+                </svg>
+              </div>
+            )}
+            
+            <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl z-10 bg-teal-800">
               <Image
                 src={profile.image}
                 alt={profile.name}
-                width={128}
-                height={128}
+                width={144}
+                height={144}
                 className="object-cover w-full h-full"
               />
+              {isOwner && (
+                <button className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                  <Camera size={24} className="text-white" />
+                </button>
+              )}
             </div>
-            {isOwner && (
-              <button className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <Camera size={24} className="text-white" />
-              </button>
+
+            {/* Percentage Badge */}
+            {isMentor && isOwner && (
+              <div className="absolute -bottom-2 -right-2 md:bottom-2 md:-right-2 bg-white text-teal-700 font-bold text-sm md:text-base px-2.5 py-0.5 rounded-full shadow-lg border-2 border-teal-500 z-20">
+                {completionPercentage}%
+              </div>
             )}
             {/* Availability / Status badge */}
             {mentorProfile && (
@@ -187,6 +248,43 @@ export default function ProfileHero({ profile, isOwner, viewMode }: ProfileHeroP
           </div>
         </div>
       </div>
+    </div>
+
+    {/* Missing Profile Items */}
+    {isMentor && isOwner && (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col gap-4">
+        {completionPercentage === 100 ? (
+          <div className="text-center p-4">
+            <CheckCircle2 size={32} className="text-emerald-500 mx-auto mb-2" />
+            <h3 className="text-lg font-bold text-gray-900">100% Profile Completion</h3>
+            <p className="text-sm text-gray-500 mt-1">Your profile is complete! Once verified by an admin, the verified badge will appear.</p>
+          </div>
+        ) : (
+          <>
+            <div className="text-center pb-2 border-b border-gray-50">
+              <h3 className="text-lg font-bold text-gray-900">{completionPercentage}% Profile Completion</h3>
+              <p className="text-sm text-gray-500 mt-1">Complete your profile to 100% to get verified by an admin.</p>
+            </div>
+            {missingItems.length > 0 && (
+              <div className="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                <h3 className="text-sm font-semibold text-amber-800 flex items-center gap-2 mb-3">
+                  <AlertTriangle size={16} />
+                  Missing Requirements ({missingItems.length})
+                </h3>
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {missingItems.map((item, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-sm text-amber-700">
+                      <ChevronRight size={14} className="mt-0.5 shrink-0" />
+                      {item.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    )}
     </div>
   );
 }

@@ -15,6 +15,11 @@ import {
   GraduationCap,
   ToggleLeft,
   ToggleRight,
+  Mail,
+  Phone,
+  Building,
+  Home,
+  FileText
 } from "lucide-react";
 
 // Country list for the select dropdown
@@ -46,6 +51,11 @@ interface MentorInfoSectionProps {
   languages: string[];
   is_available: boolean;
   bio: string;
+  department?: string;
+  universityIdCard?: string;
+  address?: string;
+  eduMail?: string;
+  phoneNumber?: string;
   isOwner: boolean;
 }
 
@@ -59,6 +69,11 @@ export default function MentorInfoSection({
   languages,
   is_available,
   bio,
+  department = "",
+  universityIdCard = "",
+  address = "",
+  eduMail = "",
+  phoneNumber = "",
   isOwner,
 }: MentorInfoSectionProps) {
   const [editing, setEditing] = useState(false);
@@ -72,6 +87,11 @@ export default function MentorInfoSection({
   const [localLanguages, setLocalLanguages] = useState(languages);
   const [localAvailable, setLocalAvailable] = useState(is_available);
   const [localBio, setLocalBio] = useState(bio);
+  const [localDepartment, setLocalDepartment] = useState(department);
+  const [localUniversityIdCard, setLocalUniversityIdCard] = useState(universityIdCard);
+  const [localAddress, setLocalAddress] = useState(address);
+  const [localEduMail, setLocalEduMail] = useState(eduMail);
+  const [localPhoneNumber, setLocalPhoneNumber] = useState(phoneNumber);
   const [newLang, setNewLang] = useState("");
 
   const handleSave = () => {
@@ -88,6 +108,11 @@ export default function MentorInfoSection({
     setLocalLanguages(languages);
     setLocalAvailable(is_available);
     setLocalBio(bio);
+    setLocalDepartment(department);
+    setLocalUniversityIdCard(universityIdCard);
+    setLocalAddress(address);
+    setLocalEduMail(eduMail);
+    setLocalPhoneNumber(phoneNumber);
     setEditing(false);
   };
 
@@ -116,12 +141,44 @@ export default function MentorInfoSection({
             value={localUniversity}
             gradient="from-teal-500 to-emerald-500"
           />
+          {localDepartment && (
+            <InfoCard
+              icon={Building}
+              label="Department"
+              value={localDepartment}
+              gradient="from-cyan-500 to-blue-500"
+            />
+          )}
           <InfoCard
             icon={MapPin}
             label="Country"
             value={`${countryFlag} ${localCountry}`}
             gradient="from-blue-500 to-indigo-500"
           />
+          {localAddress && (
+            <InfoCard
+              icon={Home}
+              label="Address"
+              value={localAddress}
+              gradient="from-teal-400 to-emerald-400"
+            />
+          )}
+          {localEduMail && (
+            <InfoCard
+              icon={Mail}
+              label="Edu Mail"
+              value={localEduMail}
+              gradient="from-blue-400 to-cyan-400"
+            />
+          )}
+          {localPhoneNumber && (
+            <InfoCard
+              icon={Phone}
+              label="Phone"
+              value={localPhoneNumber}
+              gradient="from-violet-400 to-purple-400"
+            />
+          )}
           <InfoCard
             icon={Briefcase}
             label="Experience"
@@ -257,18 +314,32 @@ export default function MentorInfoSection({
       {/* ─── Editing: form fields ───────────────────────────────── */}
       {editing && (
         <div className="space-y-5">
-          {/* University */}
-          <div>
-            <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
-              Current University
-            </label>
-            <input
-              type="text"
-              value={localUniversity}
-              onChange={(e) => setLocalUniversity(e.target.value)}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
-              placeholder="e.g. University of Oxford"
-            />
+          {/* University & Department */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                Current University
+              </label>
+              <input
+                type="text"
+                value={localUniversity}
+                onChange={(e) => setLocalUniversity(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                placeholder="e.g. University of Oxford"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                Department
+              </label>
+              <input
+                type="text"
+                value={localDepartment}
+                onChange={(e) => setLocalDepartment(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                placeholder="e.g. Computer Science"
+              />
+            </div>
           </div>
 
           {/* Country */}
@@ -287,6 +358,61 @@ export default function MentorInfoSection({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Contact & Verification Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                Address
+              </label>
+              <input
+                type="text"
+                value={localAddress}
+                onChange={(e) => setLocalAddress(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                placeholder="e.g. 123 Main St, London"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                Edu Mail
+              </label>
+              <input
+                type="email"
+                value={localEduMail}
+                onChange={(e) => setLocalEduMail(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                placeholder="e.g. you@university.edu"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                value={localPhoneNumber}
+                onChange={(e) => setLocalPhoneNumber(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                placeholder="e.g. +44 1234 5678"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">
+                University ID Card (Attachment)
+              </label>
+              <div className="relative flex items-center">
+                <FileText size={16} className="absolute left-3 text-gray-400" />
+                <input
+                  type="text"
+                  value={localUniversityIdCard}
+                  onChange={(e) => setLocalUniversityIdCard(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"
+                  placeholder="e.g. filename.jpg"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Experience & Hourly Rate */}

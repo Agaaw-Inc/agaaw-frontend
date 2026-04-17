@@ -104,6 +104,13 @@ export default function UsersPage() {
     }
   };
 
+  const handleVerify = (user: User) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, is_verified: true } : u))
+    );
+    setToast(`Mentor ${user.name} verified successfully. Notification sent.`);
+  };
+
   const TABS: { key: RoleFilter; label: string }[] = [
     { key: "all", label: "All Users" },
     { key: "student", label: "Students" },
@@ -229,6 +236,15 @@ export default function UsersPage() {
                   {/* Actions */}
                   <td className="px-5 py-4 text-right">
                     <div className="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {!user.is_verified && user.role === "mentor" && (
+                        <button
+                          onClick={() => handleVerify(user)}
+                          className="p-2 rounded-lg hover:bg-emerald-50 text-amber-500 hover:text-emerald-600 transition-colors"
+                          title="Verify Mentor"
+                        >
+                          <ShieldCheck size={15} />
+                        </button>
+                      )}
                       <button
                         id={`edit-user-${user.id}`}
                         onClick={() => setModal({ open: true, mode: "edit", user })}

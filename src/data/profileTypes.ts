@@ -69,6 +69,11 @@ export interface MentorProfile {
   portfolio_link: string;
   languages: string[];
   is_available: boolean;
+  department?: string;
+  universityIdCard?: string;
+  address?: string;
+  eduMail?: string;
+  phoneNumber?: string;
   // ─────────────────────────────────────────────────
   availability: string; // display label: "Available", "Busy", "Away"
   isVerified: boolean;

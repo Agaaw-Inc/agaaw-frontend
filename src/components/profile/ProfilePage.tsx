@@ -65,6 +65,11 @@ export default function ProfilePage({
             languages={mentorProfile.languages}
             is_available={mentorProfile.is_available}
             bio={mentorProfile.bio}
+            department={mentorProfile.department}
+            universityIdCard={mentorProfile.universityIdCard}
+            address={mentorProfile.address}
+            eduMail={mentorProfile.eduMail}
+            phoneNumber={mentorProfile.phoneNumber}
             isOwner={isOwner}
           />
           <ExpertiseSection
