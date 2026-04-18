@@ -5,6 +5,9 @@ interface ScholarshipCardProps {
     university: string;
     deadline: string;
     image: string;
+    slug: string;
+    funding?: string;
+    amount?: string;
 }
 
 export default function ScholarshipCard({
@@ -12,6 +15,9 @@ export default function ScholarshipCard({
     university,
     deadline,
     image,
+    slug,
+    funding,
+    amount,
 }: ScholarshipCardProps) {
     return (
         <div className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition bg-white flex flex-col h-full">
@@ -23,7 +29,7 @@ export default function ScholarshipCard({
                 <div className="mt-auto border-t border-bombay/10 pt-4 mt-4">
                     <p className="text-sm text-red-600 font-medium">Deadline: {deadline}</p>
                     <Link
-                        href={`/scholarships/${title.toLowerCase().replace(/ /g, "-")}`}
+                        href={`/scholarships/${slug}`}
                         className="inline-block mt-2 text-elm font-semibold hover:underline transition-colors"
                     >
                         View Details →

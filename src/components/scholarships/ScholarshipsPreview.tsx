@@ -6,32 +6,41 @@ const sampleScholarships = [
     university: "German Academic Exchange Service",
     deadline: "Dec 15, 2025",
     image: "/images/image03.jpg",
+    funding: "Fully Funded",
+    amount: "€1,200/Mo"
   },
   {
     title: "Erasmus Mundus",
     university: "European Union",
     deadline: "Jan 5, 2026",
     image: "/images/image04.png",
+    funding: "Full Tuition",
+    amount: "Varies"
   },
   {
     title: "Fulbright Scholarship",
     university: "U.S. Government",
     deadline: "Oct 1, 2025",
     image: "/images/image05.png",
+    funding: "Fully Funded",
+    amount: "$45k/Yr"
   },
   {
     title: "Murdoch University",
     university: "Australian Government",
     deadline: "Mar 8, 2026",
     image: "/images/image06.png",
+    funding: "Scholarship",
+    amount: "$20k/Yr"
   },
   {
     title: "MEXT",
     university: "Japan Government",
     deadline: "Apr 15, 2026",
     image: "/images/image07.png",
+    funding: "Fully Funded",
+    amount: "¥145k/Mo"
   },
-
 ];
 
 export default function ScholarshipsPreview() {
@@ -50,6 +59,8 @@ export default function ScholarshipsPreview() {
               university={sch.university}
               deadline={sch.deadline}
               image={sch.image}
+              funding={sch.funding}
+              amount={sch.amount}
             />
           ))}
         </div>

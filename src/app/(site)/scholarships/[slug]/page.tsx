@@ -1,11 +1,11 @@
 import { SCHOLARSHIPS } from "@/data/scholarships";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
-import { 
-    MapPin, 
-    GraduationCap, 
-    CalendarClock, 
-    CheckCircle2, 
+import {
+    MapPin,
+    GraduationCap,
+    CalendarClock,
+    CheckCircle2,
     ChevronRight,
     ExternalLink,
     Award,
@@ -45,7 +45,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
             <MainNavbar />
-            
+
             {/* Hero Section */}
             <div className="bg-teal-900 border-b border-teal-800 text-white pt-20 pb-24 px-6">
                 <div className="max-w-5xl mx-auto">
@@ -53,7 +53,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                         <ChevronRight className="w-4 h-4 mr-1 rotate-180" />
                         Back to Scholarships
                     </Link>
-                    
+
                     <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start justify-between">
                         <div className="flex-1">
                             <span className="inline-block px-4 py-1.5 bg-teal-800/50 text-teal-100 rounded-full text-xs font-bold tracking-widest uppercase mb-6 border border-teal-700/50">
@@ -66,7 +66,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                 {scholarship.description}
                             </p>
                         </div>
-                        
+
                         {/* Meta Info Box */}
                         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 w-full md:w-auto md:min-w-[300px] shrink-0 mt-4 md:mt-0 shadow-xl shadow-teal-950/20">
                             <h3 className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-5">Quick Details</h3>
@@ -101,7 +101,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
             {/* Main Content Area */}
             <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                    
+
                     {/* Left Column (Details) */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Benefits Card */}
@@ -148,7 +148,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                 </div>
                                 <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Application Steps</h2>
                             </div>
-                            
+
                             <div className="space-y-0 relative before:absolute before:inset-0 before:ml-[1.1rem] md:before:mx-auto md:before:translate-x-0 before:h-full before:w-[2px] before:bg-gradient-to-b before:from-blue-200 before:via-blue-200 before:to-transparent">
                                 {scholarship.applicationSteps.map((step, idx) => (
                                     <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group py-6">

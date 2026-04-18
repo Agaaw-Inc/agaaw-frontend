@@ -10,6 +10,9 @@ export interface Scholarship {
     eligibility: string[];
     applicationSteps: string[];
     officialLink: string;
+    image: string;
+    funding: string;
+    amount: string;
 }
 
 export interface Country {
@@ -23,4 +26,5 @@ export interface Country {
     visaPolicy: string;
     avgCost: string;
     jobOpportunities: string[];
+    image: string;
 }

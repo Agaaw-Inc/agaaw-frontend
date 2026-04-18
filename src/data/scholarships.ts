@@ -3,11 +3,14 @@ import { Scholarship } from "./types";
 export const SCHOLARSHIPS: Record<string, Scholarship> = {
     "daad-scholarship": {
         slug: "daad-scholarship",
-        name: "DAAD Scholarship",
+        name: "DAAD Research Grants",
         provider: "German Academic Exchange Service (DAAD)",
         country: "Germany",
         level: "Masters / PhD",
-        deadline: "Dec 15, 2025",
+        deadline: "Oct 31, 2024",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDOP5tT0L-rq0khpm211Yhz4wD30vstIUBUBlWzT0mtQsMa0D1FNMXOVcy2Bjnymp3KNUfw3qMiVbKz2VMbIpyF0OuXFpjpkK_Yfyg0xp1JE5FauQPefMfS6_uC-pDXyYNqrg5waMAhilHRXmI2sFZ5OrhpTM8OfRQmaXJvc8-hfXG9Q5wKIxHI9Gy9v0m2aICtaK-CJoQ9Ptqqy5c_RmETJYp7Vb2pphO1jKZIfxAyRFt_LGm7wWZjSorCbbQV98qVNkX4H52FxAg",
+        funding: "Fully Funded",
+        amount: "€1,200 / Month",
         description:
             "The DAAD Scholarship supports international students from developing countries who want to pursue postgraduate or doctoral studies at German universities. It aims to train well-qualified professionals for sustainable development.",
         benefits: [
@@ -33,11 +36,14 @@ export const SCHOLARSHIPS: Record<string, Scholarship> = {
 
     "erasmus-mundus": {
         slug: "erasmus-mundus",
-        name: "Erasmus Mundus Joint Masters",
-        provider: "European Union",
+        name: "Erasmus Mundus JMD",
+        provider: "European Union Commission",
         country: "Multiple European Countries",
         level: "Masters",
-        deadline: "Jan 05, 2026",
+        deadline: "Jan 15, 2025",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCzio95sU1yRVQOEURWiIs3ZVVxTziZ6W7gkxScxERAhzohCv3GlCrdR-zoy53OcHXZEUNsUQ-dldkH0izSvbdcT6AXGx4LF3y4-zXj_PRSbtx3rZ3NUy7ItxnpXZk7OoIxERICGqx7hSk1U2IyDCQdzwrjjvNE9wehwp3V48gHuGqzteyKcS69CizvnajBsSsRh146FO-kyY4DLTF5q0iIRLsnZ3BtkYdeYiMqWqss2MwUW-tmFhfXt2koW5b_1Gyp9TRnw2D1cmQ",
+        funding: "Fully Funded",
+        amount: "Full Tuition",
         description:
             "Erasmus Mundus Joint Masters (EMJM) are prestigious, fully funded, integrated study programmes delivered by international consortiums of higher education institutions across Europe and the world.",
         benefits: [
@@ -63,11 +69,14 @@ export const SCHOLARSHIPS: Record<string, Scholarship> = {
 
     "fulbright-scholarship": {
         slug: "fulbright-scholarship",
-        name: "Fulbright Foreign Student Program",
-        provider: "U.S. Government",
+        name: "Fulbright Foreign Student",
+        provider: "U.S. Dept of State",
         country: "United States",
         level: "Masters / PhD",
-        deadline: "Oct 01, 2025",
+        deadline: "Varies by Country",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAUogQt2LQ-bfoFwrftAiuMjFjqSpYBUvFTtEFwY24KurnNa5ge7CZb4WIhkEKRJtsXFagDisRc-ERAc4ZYol_XT_xoD5MTAsmVZNm25nFcAu5nQmZGPM1YLRuxMUBxWARFi51pGxwaFbZGmnEqqfDiV87fbxOJNWXdONSiRHiDixRCJR0DklSFUDAuWvb0s0zm5nqaSj8dEyYjXS0jiyXhys85GlI_OFOxk4Ib72E26Nr-cfz9pddGxfFPkuc3bqsbWylDc2MT2ZA",
+        funding: "Fully Funded",
+        amount: "$45,000 / Year",
         description:
             "The Fulbright Foreign Student Program enables graduate students, young professionals, and artists from abroad to study and conduct research in the United States at U.S. universities or other academic institutions.",
         benefits: [
@@ -92,42 +101,84 @@ export const SCHOLARSHIPS: Record<string, Scholarship> = {
         officialLink: "https://foreign.fulbrightonline.org/",
     },
 
-    "murdoch-university": {
-        slug: "murdoch-university",
-        name: "International Futures Scholarship",
-        provider: "Murdoch University",
+    "chevening-scholarship": {
+        slug: "chevening-scholarship",
+        name: "Chevening Scholarship",
+        provider: "FCDO United Kingdom",
+        country: "United Kingdom",
+        level: "Masters",
+        deadline: "Nov 07, 2024",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC3Zgs6yEGXDIJFagpSK7UqAxxLRGQcxHF-7uBZIDLVkU1U1I2Ddx6jt5O3080Gqzh2UIq4DqkKpkKKSDy63FvORizJhGkBiHGWkf-YVwo3_sUKMMNn6B-_nghDe9BHkNZC4_G8HmT9kMzjihnNr2DYS6hUL_tBoNcPQDXY425wSp5D8zjjvSnftVrD7kcnpk9SHUymTBft5dIleM8660k6tWkHNaPmKlZ-aDzA6MvlL2795-zrSqhunR9JdSBpVGKeOOp5XC9WwQk",
+        funding: "Fully Funded",
+        amount: "Full Funding",
+        description: "Chevening is the UK government’s international awards programme aimed at developing global leaders.",
+        benefits: ["Full tuition fees", "Monthly stipend", "Travel costs to and from the UK", "Arrival allowance"],
+        eligibility: ["Be a citizen of a Chevening-eligible country", "Return to your country of citizenship for a minimum of two years", "Have completed an undergraduate degree", "Have at least two years of work experience"],
+        applicationSteps: ["Check eligibility online", "Apply via the official portal", "Submit references and education documents", "Attend an interview"],
+        officialLink: "https://www.chevening.org/"
+    },
+
+    "rhodes-scholarship": {
+        slug: "rhodes-scholarship",
+        name: "Rhodes Scholarship",
+        provider: "Oxford University",
+        country: "United Kingdom",
+        level: "Masters / PhD",
+        deadline: "Aug 01, 2025",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAfjyPIVSEz6384N09mwCvrupI_iZ73aE2Js3t8wiV33jvBMm1gAw9oRUj1R7PibErL7Mmom7pqQF8Vnfa4GaEs6y75Nd4S5BZt3tM7tkeqWC0KQm6_qnISaDqpsSUl1XEl1xRtOnKcmO52lssIuni3RbyZfFrXHbIJcbgXy_uad-75U45ntInDvShy_EKuQBGy3-B4198fQBz_okXW2_Ccl59ibJ8tBTSa_PkTUt33-pbCNrRRW7pkWRT_mWN6rxe6a2Vq4WGQbFA",
+        funding: "Fully Funded",
+        amount: "£18,000 Stipend",
+        description: "The Rhodes Scholarship is the oldest and perhaps most prestigious international scholarship programme.",
+        benefits: ["Oxford University course fees", "Annual stipend of over £18,000", "Two economy class flights"],
+        eligibility: ["Citizenship and residency of a Rhodes constituency", "Age criteria usually 18-24", "Exceptional academic background"],
+        applicationSteps: ["Apply for the scholarship via your constituency", "Get endorsement from your university", "Once selected, apply to Oxford"],
+        officialLink: "https://www.rhodeshouse.ox.ac.uk/"
+    },
+
+    "gates-cambridge": {
+        slug: "gates-cambridge",
+        name: "Gates Cambridge",
+        provider: "Bill & Melinda Gates Foundation",
+        country: "United Kingdom",
+        level: "Masters / PhD",
+        deadline: "Dec 05, 2024",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD90VKbYFLr6OWgKQ8vFSsdasJl7XIhMdoVdg_WYmuBmrckKQqjYnNZkYDQ2IsMjpQ5hi5P3qrxnPM6aMBC4FDyl8bzkxzPND_BYZa4ZB1N0GvXpvMJmlaJVPsVSentBr1PqT7gklGf7GKuOClHutHVE0unuKE0VW9eoY-ux5b8CTGqAbqy8fIGunDe1fqECMy2lu-7Q2cWzoaJUFxP6uuZwtFc7GZZjIzU9PpLD8ZFNxen_vX-OPRPTSf9MR7UA4lYKkagOBn8m9w",
+        funding: "Fully Funded",
+        amount: "Full Cost",
+        description: "Outstanding applicants from countries outside the UK to pursue a full-time postgraduate degree at Cambridge.",
+        benefits: ["University Composition Fee", "Maintenance allowance", "One economy single airfare at beginning and end"],
+        eligibility: ["Citizen of any country outside the UK", "Applying to pursue an eligible course at Cambridge"],
+        applicationSteps: ["Apply to the University of Cambridge", "Select Gates Cambridge funding section", "Submit supplemental materials"],
+        officialLink: "https://www.gatescambridge.org/"
+    },
+
+    "australia-awards": {
+        slug: "australia-awards",
+        name: "Australia Awards",
+        provider: "Australian Government",
         country: "Australia",
-        level: "Bachelors / Masters",
-        deadline: "Mar 08, 2026",
-        description:
-            "Murdoch University offers the International Futures Scholarship and International Welcome Scholarship, aimed at providing financial support via significant tuition fee reductions to eligible international students commencing their studies in Western Australia.",
-        benefits: [
-            "20% to 25% reduction in tuition fees over the full duration of the degree",
-            "Access to Murdoch University's world-class facilities and student support",
-            "Applicable directly to tuition fee costs (no cash payments)",
-        ],
-        eligibility: [
-            "Be a new international full-fee paying student",
-            "Starting an eligible coursework Bachelor or Master degree at a Western Australia campus",
-            "Not be receiving any other Murdoch scholarship",
-            "Meet academic and English language entry requirements for the chosen course",
-        ],
-        applicationSteps: [
-            "Apply directly for an eligible coursework degree at Murdoch University",
-            "There is no separate scholarship application required",
-            "The scholarship is automatically assessed and applied upon receiving a course offer",
-            "Accept your offer and enroll at the university",
-        ],
-        officialLink: "https://www.murdoch.edu.au/study/international-students/scholarships",
+        level: "Bachelors / Masters / PhD",
+        deadline: "Apr 30, 2025",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDsdpeVf_6FVJSUj0fbJyTVN83_AQIo-KaCZg3AFCAhHPlgxHxFrb4E3Xnml04WzOZHxal0eWYEvmhiAT8AL_pwEXnSDRk5dozExVmzAZBWQ9K2Mrm95qvnB2uux2EJKj4_D-k2tW1yLhXn_Ngx855J3NKVjguVreBE4XsSqAp1t_nKW4s2JDCJ4IMwn9BabA9LrkuI10UGaytIeivaIzShRWUrYTk0JFn347qcNmBiiUqHor-ipScUe4oU9XrVHixwUGaLUx9wEtg",
+        funding: "Fully Funded",
+        amount: "Comprehensive",
+        description: "Intended to develop skills and knowledge of individuals to drive change and contribute to the development of their own countries.",
+        benefits: ["Full tuition fees", "Return air travel", "Establishment allowance", "Contribution to Living Expenses (CLE)"],
+        eligibility: ["Minimum 18 years of age", "Citizen of a participating country", "Satisfy admission criteria"],
+        applicationSteps: ["Register on OASIS online", "Answer selection criteria questions", "Submit required documents"],
+        officialLink: "https://www.dfat.gov.au/people-to-people/australia-awards/australia-awards-scholarships"
     },
 
     "mext": {
         slug: "mext",
-        name: "MEXT Scholarship",
+        name: "MEXT Research Scholarship",
         provider: "Japanese Government (MEXT)",
         country: "Japan",
         level: "Undergraduate / Masters / PhD",
         deadline: "Apr 15, 2026",
+        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCSijNKPR6V7RSeGF1subiNVALVYLTlV6N_IVYckvCPPQmWZtgPYWHld5eAYmIpGR_5coXWvgcS6lKQXHhydF8I8GUOXvlo2LTYFJJVj7WWbX_g5oI1ju-GgCTp0vEBFxPwJI4ZyJfaEAlZHcGSgUq3HY6RC8r0TKlXtotAbZC3PCE9DWF9WQBBHbBvE2Ut-QL4BfJmBoGlRJPQ0_WPAReB0VcFbBhrl2AJG6xy3c7s-2A_cEGNjCTKvso0yNjUk30pmgp-Yvqou-E",
+        funding: "Fully Funded",
+        amount: "¥145,000 / Month",
         description:
             "The Ministry of Education, Culture, Sports, Science and Technology (MEXT) funds this highly competitive scholarship program to enable outstanding international students to study at Japanese universities.",
         benefits: [
