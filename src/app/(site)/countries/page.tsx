@@ -11,7 +11,7 @@ export default function CountriesPage() {
 
             <main className="flex-grow pt-16 pb-20">
                 {/* Hero Section */}
-                <section className="relative px-8 pt-10 pb-20 max-w-7xl mx-auto overflow-hidden">
+                <section className="relative px-6 pt-2 pb-15 max-w-7xl mx-auto overflow-hidden">
                     <div className="relative z-10 lg:w-2/3">
                         <span className="inline-block px-3 py-1 mb-6 text-xs font-medium tracking-widest uppercase rounded-full bg-elm/10 text-elm">
                             Global Destinations
