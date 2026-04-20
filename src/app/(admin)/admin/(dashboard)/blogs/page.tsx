@@ -69,7 +69,7 @@ export default function AdminBlogsPage() {
           <p className="text-sm text-gray-500 mt-0.5">Manage all blog posts written by mentors and admins</p>
         </div>
         <Link
-          href="/dashboard/admin/blogs/create"
+          href="/admin/blogs/create"
           id="write-blog-btn"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-700 text-white rounded-xl hover:bg-teal-800 transition-colors text-sm font-medium shadow-sm"
         >
@@ -142,7 +142,7 @@ export default function AdminBlogsPage() {
                   <td className="px-5 py-4 text-right">
                     <div className="inline-flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Link
-                        href={`/dashboard/admin/blogs/edit/${blog.id}`}
+                        href={`/admin/blogs/edit/${blog.id}`}
                         className="p-2 rounded-lg hover:bg-teal-50 text-gray-400 hover:text-teal-700 transition-colors"
                         title="Edit"
                       >

@@ -21,6 +21,15 @@ export const ForgotPasswordSchema = z.object({
     email: z.string().email("Invalid email address"),
 });
 
+// ─── Admin Login ─────────────────────────────────────────────
+// Separate schema for admin auth — currently mirrors LoginSchema,
+// but can diverge later (e.g., add 2FA code, captcha token, etc.)
+export const AdminLoginSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(1, "Password is required"),
+});
+
 export type LoginType = z.infer<typeof LoginSchema>;
 export type RegisterType = z.infer<typeof RegisterSchema>;
 export type ForgotPasswordType = z.infer<typeof ForgotPasswordSchema>;
+export type AdminLoginType = z.infer<typeof AdminLoginSchema>;

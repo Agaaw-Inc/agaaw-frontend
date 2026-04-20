@@ -9,7 +9,7 @@ export default function AdminScholarships() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Scholarships</h1>
         <Link
-          href="/dashboard/admin/scholarships/create"
+          href="/admin/scholarships/create"
           className="px-4 py-2 bg-teal-700 text-white rounded hover:bg-teal-800"
         >
           + Add Scholarship
@@ -34,7 +34,7 @@ export default function AdminScholarships() {
               <td className="p-3">{s.deadline}</td>
               <td className="p-3">
                 <Link
-                  href={`/dashboard/admin/scholarships/edit/${s.slug}`}
+                  href={`/admin/scholarships/edit/${s.slug}`}
                   className="text-blue-600 hover:underline"
                 >
                   Edit

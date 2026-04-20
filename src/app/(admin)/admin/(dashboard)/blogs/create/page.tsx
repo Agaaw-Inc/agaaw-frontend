@@ -12,13 +12,13 @@ export default function AdminCreateBlogPage() {
   const handleSubmit = (data: BlogFormValues) => {
     console.log("✅ New Blog (Admin):", data);
     alert(`Blog "${data.title}" ${data.is_published ? "published" : "saved as draft"}!`);
-    router.push("/dashboard/admin/blogs");
+    router.push("/admin/blogs");
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/admin/blogs" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+        <Link href="/admin/blogs" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
           <ArrowLeft size={18} className="text-gray-600" />
         </Link>
         <div>
@@ -30,7 +30,7 @@ export default function AdminCreateBlogPage() {
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <BlogForm
           mode="create"
-          cancelHref="/dashboard/admin/blogs"
+          cancelHref="/admin/blogs"
           onSubmit={handleSubmit}
         />
       </div>

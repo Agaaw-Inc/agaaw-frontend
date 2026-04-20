@@ -16,14 +16,14 @@ export default function AdminEditBlogPage({ params }: { params: Promise<{ id: st
   const handleSubmit = (data: BlogFormValues) => {
     console.log("✅ Updated Blog (Admin):", data);
     alert(`Blog "${data.title}" updated!`);
-    router.push("/dashboard/admin/blogs");
+    router.push("/admin/blogs");
   };
 
   if (!blog) {
     return (
       <div className="text-center py-20">
         <p className="text-gray-500">Blog not found.</p>
-        <Link href="/dashboard/admin/blogs" className="text-teal-600 hover:underline text-sm mt-2 block">
+        <Link href="/admin/blogs" className="text-teal-600 hover:underline text-sm mt-2 block">
           Back to Blogs
         </Link>
       </div>
@@ -33,7 +33,7 @@ export default function AdminEditBlogPage({ params }: { params: Promise<{ id: st
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/admin/blogs" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+        <Link href="/admin/blogs" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
           <ArrowLeft size={18} className="text-gray-600" />
         </Link>
         <div>
@@ -51,7 +51,7 @@ export default function AdminEditBlogPage({ params }: { params: Promise<{ id: st
             tags: blog.tags.join(", "),
             is_published: blog.is_published,
           }}
-          cancelHref="/dashboard/admin/blogs"
+          cancelHref="/admin/blogs"
           onSubmit={handleSubmit}
         />
       </div>

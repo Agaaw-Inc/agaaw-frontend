@@ -9,7 +9,7 @@ export default function AdminCountries() {
       <div className="flex justify-between mb-8">
         <h1 className="text-3xl font-bold">Countries</h1>
         <Link
-          href="/dashboard/admin/countries/create"
+          href="/admin/countries/create"
           className="px-4 py-2 bg-teal-700 text-white rounded hover:bg-teal-800"
         >
           + Add Country
@@ -32,7 +32,7 @@ export default function AdminCountries() {
               <td className="p-3">{c.universities.length}</td>
               <td className="p-3">
                 <Link
-                  href={`/dashboard/admin/countries/edit/${c.slug}`}
+                  href={`/admin/countries/edit/${c.slug}`}
                   className="text-blue-600 hover:underline"
                 >
                   Edit
