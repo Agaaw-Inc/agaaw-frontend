@@ -1,4 +1,6 @@
 import CountryCard from "./CountryCard";
+import { COUNTRIES } from "@/data/countries";
+import Link from "next/link";
 
 const sampleCountries = [
     { name: "Canada", image: "/countries/canada.jpg" },
@@ -15,13 +17,16 @@ export default function CountryPreview() {
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                    {sampleCountries.map((country) => (
+                    {Object.values(COUNTRIES).slice(0, 6).map((country) => (
                         <CountryCard
-                            key={country.name}
+                            key={country.slug}
                             name={country.name}
                             image={country.image}
                         />
                     ))}
+                </div>
+                <div className="flex justify-center items-center mt-12">
+                    <Link href="/countries" className="text-elm font-semibold hover:underline transition-colors">See more countries →</Link>
                 </div>
             </div>
         </section>

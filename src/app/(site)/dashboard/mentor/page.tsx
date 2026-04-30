@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { MOCK_BLOGS } from "@/lib/mock/blogData";
 import { MOCK_STUDENTS } from "@/lib/mock/profileData";
+import Footer from "@/components/landing/Footer";
 
 /* ─── Hero Banner ─────────────────────────────────────────────────── */
 function HeroBanner() {
@@ -342,7 +343,8 @@ function QuickActions() {
 /* ─── Main Page ───────────────────────────────────────────────────── */
 export default function MentorDashboardPage() {
   return (
-    <div className="space-y-6">
+    <>
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-6">
       {/* Hero */}
       <HeroBanner />
 
@@ -370,6 +372,8 @@ export default function MentorDashboardPage() {
           <QuickActions />
         </div>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }

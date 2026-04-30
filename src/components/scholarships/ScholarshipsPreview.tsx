@@ -1,47 +1,7 @@
 import ScholarshipCard from "@/components/scholarships/ScholarshipCard";
-
-const sampleScholarships = [
-  {
-    title: "DAAD Scholarship",
-    university: "German Academic Exchange Service",
-    deadline: "Dec 15, 2025",
-    image: "/images/image03.jpg",
-    funding: "Fully Funded",
-    amount: "€1,200/Mo"
-  },
-  {
-    title: "Erasmus Mundus",
-    university: "European Union",
-    deadline: "Jan 5, 2026",
-    image: "/images/image04.png",
-    funding: "Full Tuition",
-    amount: "Varies"
-  },
-  {
-    title: "Fulbright Scholarship",
-    university: "U.S. Government",
-    deadline: "Oct 1, 2025",
-    image: "/images/image05.png",
-    funding: "Fully Funded",
-    amount: "$45k/Yr"
-  },
-  {
-    title: "Murdoch University",
-    university: "Australian Government",
-    deadline: "Mar 8, 2026",
-    image: "/images/image06.png",
-    funding: "Scholarship",
-    amount: "$20k/Yr"
-  },
-  {
-    title: "MEXT",
-    university: "Japan Government",
-    deadline: "Apr 15, 2026",
-    image: "/images/image07.png",
-    funding: "Fully Funded",
-    amount: "¥145k/Mo"
-  },
-];
+import { SCHOLARSHIPS } from "@/data/scholarships";
+import Link from "next/link";
+import Button from "@/components/ui/Button";
 
 export default function ScholarshipsPreview() {
   return (
@@ -52,17 +12,21 @@ export default function ScholarshipsPreview() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {sampleScholarships.map((sch) => (
+          {Object.values(SCHOLARSHIPS).slice(0, 6).map((sch) => (
             <ScholarshipCard
-              key={sch.title}
-              title={sch.title}
-              university={sch.university}
+              key={sch.slug}
+              title={sch.name}
+              university={sch.provider}
               deadline={sch.deadline}
               image={sch.image}
               funding={sch.funding}
               amount={sch.amount}
+              slug={sch.slug}
             />
           ))}
+        </div>
+        <div className="flex justify-center items-center mt-12">
+          <Link href="/scholarships" className="text-elm font-semibold hover:underline transition-colors">See more scholarships →</Link>
         </div>
       </div>
     </section>

@@ -14,10 +14,10 @@ export default function Button({
     <button
       {...props}
       className={`
-        px-4 py-2 rounded-lg
-        bg-codgray text-light text-sm font-medium
-        hover:bg-elm-dark active:bg-elm-dark/80
-        transition disabled:opacity-60 disabled:cursor-not-allowed
+        px-6 py-3 rounded-lg
+        bg-gray-900 text-white text-base font-bold
+        hover:bg-[#20B2AA] active:scale-[0.98]
+        transition-all disabled:opacity-60 disabled:cursor-not-allowed
         ${className}
       `}
     >

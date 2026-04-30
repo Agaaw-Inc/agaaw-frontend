@@ -11,7 +11,7 @@ import Footer from "@/components/landing/Footer";
 export default function StudentDashboardPage() {
   return (
     <>
-      <div className="space-y-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
 
         {/* Header */}
         <DashboardHeader

@@ -10,6 +10,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ForgotPasswordSchema, ForgotPasswordType } from "@/lib/validators/auth";
 import { useState } from "react";
 
+import { ChevronLeft } from "lucide-react";
+
 export default function ForgotPasswordForm() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
@@ -32,45 +34,45 @@ export default function ForgotPasswordForm() {
     };
 
     return (
-        <div className="flex flex-col space-y-6">
-            {/* Logo + Title */}
-            <div className="flex flex-col items-center mb-2">
+        <div className="flex flex-col w-full max-w-sm mx-auto">
+            {/* Header */}
+            <div className="flex flex-col items-center mb-8 relative">
+                <Link
+                    href="/login"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-900 hover:text-blue-600 transition-colors"
+                >
+                    <ChevronLeft size={24} />
+                </Link>
                 <Image
                     src="/agaaw_logo_noBG.png"
                     alt="Agaaw Logo"
-                    width={50}
-                    height={50}
-                    className="object-contain mb-1"
+                    width={120}
+                    height={40}
+                    className="object-contain"
                 />
+            </div>
 
-                <span className="text-xl font-semibold text-codgray leading-none mb-2">
-                    Agaaw
-                </span>
-
-                <h1 className="text-lg font-medium text-codgray mt-1 leading-none">
-                    Forgot Password?
-                </h1>
-
-                <p className="text-xs text-bombay/80 mt-2 text-center max-w-[250px]">
-                    Enter your email address and we&apos;ll send you a link to reset your password.
+            <div className="text-center mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Reset your password</h2>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                    Enter your Agaaw email address so we can reset your password.
                 </p>
             </div>
 
             {success ? (
-                <div className="text-center space-y-4">
-                    <div className="bg-elm/10 text-elm p-4 rounded-lg text-sm">
+                <div className="text-center space-y-6">
+                    <div className="bg-blue-50 text-blue-700 p-4 rounded-lg text-sm font-medium border border-blue-100">
                         Check your email for a reset link.
                     </div>
-                    <Link href="/login" className="text-elm hover:underline text-sm block">
+                    <Link href="/login" className="text-blue-600 font-semibold hover:underline text-sm block">
                         Back to Login
                     </Link>
                 </div>
             ) : (
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     <div>
-                        <label className="text-sm font-medium text-codgray">Email</label>
                         <Input
-                            placeholder="Enter your email"
+                            placeholder="Enter email"
                             type="email"
                             {...register("email")}
                         />
@@ -79,18 +81,14 @@ export default function ForgotPasswordForm() {
                         )}
                     </div>
 
-                    <div className="w-full flex flex-col items-center space-y-4 pt-2">
+                    <div className="w-full pt-2">
                         <Button
-                            className="w-full sm:w-1/2 flex justify-center items-center"
+                            className="w-full flex justify-center items-center py-4 text-base"
                             disabled={loading}
                             type="submit"
                         >
-                            {loading ? "Sending..." : "Send Link"}
+                            {loading ? "Sending..." : "Next"}
                         </Button>
-
-                        <Link href="/login" className="text-xs text-bombay hover:text-elm transition-colors">
-                            Back to Login
-                        </Link>
                     </div>
                 </form>
             )}

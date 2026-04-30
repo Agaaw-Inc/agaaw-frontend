@@ -33,9 +33,21 @@ export default function CountriesPage() {
                             </button>
                         </div>
                     </div>
-                    {/* Asymmetric decorative element */}
-                    <div className="absolute top-0 right-0 w-1/3 h-full opacity-5 pointer-events-none hidden lg:block">
-                        <div className="w-full h-full bg-elm rounded-3xl rotate-12 -mr-20"></div>
+                    {/* World Map Decorative Element */}
+                    <div className="absolute top-0 right-[-5%] w-[60%] h-full pointer-events-none hidden lg:block opacity-15">
+                        <div 
+                            className="w-full h-full bg-[#20B2AA]"
+                            style={{
+                                maskImage: "url('/world-map.svg')",
+                                WebkitMaskImage: "url('/world-map.svg')",
+                                maskSize: "contain",
+                                WebkitMaskSize: "contain",
+                                maskRepeat: "no-repeat",
+                                WebkitMaskRepeat: "no-repeat",
+                                maskPosition: "center right",
+                                WebkitMaskPosition: "center right"
+                            }}
+                        ></div>
                     </div>
                 </section>
 

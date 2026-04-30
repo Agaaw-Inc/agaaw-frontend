@@ -53,7 +53,7 @@ export default function MentorBanner() {
           <p className="text-gray-300 text-base md:text-lg mb-8 max-w-md leading-relaxed">
             From picking universities to the final application, work with the most renowned student Mentors to guide others through the journey and earn real impact.
           </p>
-          <div>
+          <div className="flex flex-wrap gap-4">
             <Link
               href="/register?role=mentor"
               className="inline-flex items-center justify-center bg-white text-black font-semibold py-3.5 px-8 rounded-full transition-all duration-300 hover:bg-gray-200 hover:scale-[1.02] w-max"

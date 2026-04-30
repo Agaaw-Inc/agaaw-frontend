@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <DashboardNavbar />
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="w-full">
         {children}
       </main>
     </div>
