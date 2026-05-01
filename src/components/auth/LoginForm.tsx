@@ -38,9 +38,9 @@ export default function LoginForm() {
 
       const role = response.user.role;
       if (role === "mentor") {
-        router.push("/dashboard/mentor");
+        router.push("/welcome/mentor");
       } else {
-        router.push("/dashboard/student");
+        router.push("/welcome/student");
       }
     } catch (err: any) {
       setError(err.message || "Invalid email or password");

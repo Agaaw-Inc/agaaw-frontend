@@ -1,6 +1,6 @@
 import WelcomeHero from "@/components/shared/WelcomeHero";
 import ScholarshipsPreview from "@/components/scholarships/ScholarshipsPreview";
-import CountryPreview from "@/components/countries/CountriesPreview";
+import CountriesPreview from "@/components/countries/CountriesPreview";
 import BlogsPreview from "@/components/shared/BlogsPreview";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
@@ -11,10 +11,10 @@ export default function MentorWelcomePage() {
       <MainNavbar />
       <main className="flex-grow">
         <WelcomeHero role="mentor" />
-        
+
         <div className="bg-slate-50">
           <ScholarshipsPreview />
-          <CountryPreview />
+          <CountriesPreview />
           <BlogsPreview />
         </div>
       </main>
