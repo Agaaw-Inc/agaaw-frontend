@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agaaw — Welcome, Student</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #C9922A;
+    --gold-light: #F5E8CC;
+    --gold-dark: #7A5510;
+    --sky: #1A6FA8;
+    --sky-light: #E3F1FA;
+    --ink: #0F1923;
+    --ink-soft: #3A4A58;
+    --cream: #FDFAF4;
+    --cream-2: #F5EFE0;
+    --white: #FFFFFF;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 3rem;
+    background: rgba(253,250,244,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,146,42,0.15);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-mark {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-weight: 600; color: var(--gold);
+    font-size: 18px;
+  }
+  .logo-text { font-family: 'Fraunces', serif; font-weight: 600; font-size: 20px; color: var(--ink); }
+  .logo-sub { font-size: 11px; color: var(--gold); letter-spacing: 0.08em; display: block; margin-top: -2px; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { text-decoration: none; color: var(--ink-soft); font-size: 14px; font-weight: 400; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    padding: 9px 22px; background: var(--ink); color: var(--gold-light);
+    border-radius: 50px; font-size: 14px; font-weight: 500; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--gold); color: var(--ink); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 120px 2rem 80px;
+    position: relative; overflow: hidden; text-align: center;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(201,146,42,0.08) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(26,111,168,0.06) 0%, transparent 70%);
+  }
+  .hero-globe {
+    position: absolute; right: -120px; top: 50%; transform: translateY(-50%);
+    width: 520px; height: 520px; opacity: 0.07;
+    border-radius: 50%; border: 60px solid var(--gold);
+    box-shadow: inset 0 0 0 30px var(--sky), inset 0 0 0 90px transparent;
+  }
+  .hero-globe-2 {
+    position: absolute; left: -80px; bottom: 10%;
+    width: 300px; height: 300px; opacity: 0.05;
+    border-radius: 50%; border: 40px solid var(--sky);
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 760px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; border-radius: 50px;
+    background: var(--gold-light); border: 1px solid rgba(201,146,42,0.3);
+    font-size: 12px; font-weight: 500; color: var(--gold-dark);
+    margin-bottom: 2rem; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .hero-badge::before { content: '✈'; font-size: 14px; }
+  .hero-title {
+    font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(3rem, 6vw, 5.5rem);
+    line-height: 1.08; color: var(--ink); margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+  .hero-title em { font-style: italic; color: var(--gold); }
+  .hero-typing-wrap {
+    font-family: 'Fraunces', serif; font-weight: 300; font-style: italic;
+    font-size: clamp(1.4rem, 2.5vw, 2rem); color: var(--sky); min-height: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .cursor { display: inline-block; width: 2px; height: 1em; background: var(--sky); margin-left: 3px; vertical-align: middle; animation: blink 0.9s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .hero-message {
+    font-size: 1.05rem; color: var(--ink-soft); line-height: 1.75;
+    max-width: 600px; margin: 0 auto 2.5rem;
+  }
+  .hero-message strong { color: var(--ink); font-weight: 500; }
+  .hero-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 3rem; }
+  .btn-primary {
+    padding: 14px 32px; background: var(--ink); color: var(--gold-light);
+    border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { background: var(--gold); color: var(--ink); transform: translateY(-2px); }
+  .btn-outline {
+    padding: 14px 32px; border: 1.5px solid rgba(15,25,35,0.2); color: var(--ink-soft);
+    border-radius: 50px; font-size: 15px; font-weight: 400; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); transform: translateY(-2px); }
+  .hero-note {
+    font-size: 13px; color: var(--ink-soft); opacity: 0.7; line-height: 1.6;
+    padding: 1rem 1.5rem; background: var(--cream-2); border-radius: var(--radius-sm);
+    border: 1px solid rgba(201,146,42,0.2); max-width: 540px; margin: 0 auto;
+  }
+  .hero-note strong { color: var(--gold-dark); font-weight: 500; }
+
+  /* EXPLORE PROMPT */
+  .explore-prompt {
+    text-align: center; padding: 4rem 2rem 2rem;
+    animation: fadeUp 0.6s ease both; animation-delay: 0.8s;
+  }
+  .explore-label {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: var(--ink-soft); opacity: 0.6; margin-bottom: 0.5rem;
+  }
+  .explore-heading {
+    font-family: 'Fraunces', serif; font-weight: 300; font-size: clamp(1.8rem, 3vw, 2.6rem);
+    color: var(--ink); margin-bottom: 0.75rem;
+  }
+  .explore-sub { font-size: 1rem; color: var(--ink-soft); max-width: 520px; margin: 0 auto; }
+  .divider { width: 60px; height: 2px; background: var(--gold); margin: 1.5rem auto; border-radius: 2px; }
+
+  /* SECTIONS */
+  .section { padding: 3rem 2rem 5rem; max-width: 1200px; margin: 0 auto; }
+  .section-title {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.3rem;
+    color: var(--ink); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title span { color: var(--gold-dark); }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
+
+  /* SCHOLARSHIP CARDS */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
+  .card {
+    background: var(--white); border-radius: var(--radius); border: 1px solid rgba(0,0,0,0.07);
+    overflow: hidden; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit;
+  }
+  .card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-color: rgba(201,146,42,0.3); }
+  .card-top { padding: 1.25rem 1.25rem 0; display: flex; align-items: flex-start; justify-content: space-between; }
+  .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+  .card-badge { font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 50px; }
+  .badge-full { background: #E8F5E8; color: #2D7A2D; }
+  .badge-partial { background: #FFF3E0; color: #8B5E00; }
+  .badge-govt { background: #E8EEF8; color: #1A4FA8; }
+  .card-body { padding: 1rem 1.25rem 1.25rem; }
+  .card-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; margin-bottom: 0.4rem; color: var(--ink); }
+  .card-meta { font-size: 13px; color: var(--ink-soft); margin-bottom: 0.75rem; }
+  .card-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; }
+  .card-footer { padding: 0.75rem 1.25rem; border-top: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
+  .card-country { font-size: 12px; color: var(--ink-soft); display: flex; align-items: center; gap: 5px; }
+  .card-arrow { font-size: 18px; color: var(--gold); }
+
+  /* COUNTRY CARDS */
+  .country-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+  .country-card {
+    border-radius: var(--radius); overflow: hidden; position: relative;
+    aspect-ratio: 3/4; cursor: pointer; text-decoration: none;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: all 0.3s;
+  }
+  .country-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.12); }
+  .country-bg {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 80px;
+  }
+  .country-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(10,20,35,0.85) 0%, rgba(10,20,35,0.1) 60%, transparent 100%);
+  }
+  .country-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.25rem 1rem; }
+  .country-name { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .country-pills { display: flex; gap: 5px; flex-wrap: wrap; }
+  .pill { font-size: 10px; padding: 2px 8px; border-radius: 50px; background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.85); }
+  .country-bg-de { background: linear-gradient(135deg, #2A5298 0%, #1E3A6E 100%); }
+  .country-bg-ca { background: linear-gradient(135deg, #CC0000 0%, #8B0000 100%); }
+  .country-bg-au { background: linear-gradient(135deg, #00843D 0%, #005A29 100%); }
+  .country-bg-uk { background: linear-gradient(135deg, #012169 0%, #C8102E 100%); }
+  .country-bg-jp { background: linear-gradient(135deg, #BC002D 0%, #6B0019 100%); }
+  .country-bg-us { background: linear-gradient(135deg, #0A3161 0%, #BF0A30 100%); }
+
+  /* BLOG CARDS */
+  .blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+  .blog-card {
+    background: var(--white); border-radius: var(--radius); border: 1px solid rgba(0,0,0,0.07);
+    padding: 1.5rem; transition: all 0.3s; cursor: pointer; text-decoration: none; color: inherit;
+  }
+  .blog-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.08); border-color: rgba(26,111,168,0.25); }
+  .blog-tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--sky); font-weight: 500; margin-bottom: 0.75rem; }
+  .blog-title { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); line-height: 1.4; margin-bottom: 0.6rem; }
+  .blog-excerpt { font-size: 13px; color: var(--ink-soft); line-height: 1.65; margin-bottom: 1rem; }
+  .blog-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-soft); opacity: 0.7; }
+  .blog-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--gold-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--gold-dark); }
+  .see-more-wrap { text-align: center; margin-top: 2.5rem; }
+  .see-more {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px; border: 1.5px solid rgba(0,0,0,0.15); border-radius: 50px;
+    font-size: 14px; color: var(--ink-soft); text-decoration: none; transition: all 0.2s;
+  }
+  .see-more:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink); color: rgba(255,255,255,0.5); text-align: center;
+    padding: 2rem; font-size: 13px;
+  }
+  footer strong { color: var(--gold); font-weight: 500; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.6s ease both; }
+  .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 1.5rem 60px; }
+    .section { padding: 2rem 1.25rem 4rem; }
+    .hero-globe { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#">
+    <div class="logo-mark">A</div>
+    <div>
+      <div class="logo-text">Agaaw</div>
+      <span class="logo-sub">Fly to Your Future</span>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#scholarships">Scholarships</a>
+    <a href="#countries">Countries</a>
+    <a href="#blogs">Blog</a>
+  </div>
+  <a href="#" class="nav-cta">Sign In</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-globe"></div>
+  <div class="hero-globe-2"></div>
+  <div class="hero-content">
+    <div class="hero-badge fade-up">Student Dashboard</div>
+    <h1 class="hero-title fade-up delay-1">
+      Welcome aboard,<br><em>future scholar</em>
+    </h1>
+    <div class="hero-typing-wrap fade-up delay-2">
+      <span id="typing-text"></span><span class="cursor"></span>
+    </div>
+    <p class="hero-message fade-up delay-3">
+      You're in the right place. Your <strong>personalized student dashboard</strong> is being crafted with care — every feature, every tool, built to turn your dream of studying abroad into a reality. We're almost there.
+    </p>
+    <div class="hero-actions fade-up delay-4">
+      <a href="#scholarships" class="btn-primary">✦ Explore Scholarships</a>
+      <a href="#countries" class="btn-outline">Browse Countries →</a>
+    </div>
+    <div class="hero-note fade-up delay-4">
+      <strong>Your dashboard is on its way.</strong> In the meantime, explore thousands of scholarships, study destinations, and insights from students already living your dream. Thank you for your patience!
+    </div>
+  </div>
+</section>
+
+<!-- EXPLORE PROMPT -->
+<div class="explore-prompt">
+  <div class="explore-label">While you wait</div>
+  <h2 class="explore-heading">Start exploring your future today</h2>
+  <div class="divider"></div>
+  <p class="explore-sub">Discover scholarships, countries, and stories from students who made it happen — just like you will.</p>
+</div>
+
+<!-- SCHOLARSHIPS -->
+<section class="section" id="scholarships">
+  <div class="section-title"><span>🎓</span> Featured Scholarships</div>
+  <div class="cards-grid">
+
+    <a class="card fade-up" href="#">
+      <div class="card-top">
+        <div class="card-icon" style="background:#E8EEF8;">🇩🇪</div>
+        <span class="card-badge badge-full">Full Funded</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">DAAD Scholarship</div>
+        <div class="card-meta">Germany · All Disciplines</div>
+        <div class="card-desc">Full funding for international students to study, research or teach in Germany. One of the largest scholarship programs worldwide.</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-country">🌍 Open Globally</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card fade-up delay-1" href="#">
+      <div class="card-top">
+        <div class="card-icon" style="background:#FFF3E0;">🇪🇺</div>
+        <span class="card-badge badge-full">Full Funded</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Erasmus Mundus</div>
+        <div class="card-meta">Europe · Masters & PhD</div>
+        <div class="card-desc">Study across multiple European universities. Covers tuition, travel, and a monthly stipend for top students worldwide.</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-country">🌍 Open Globally</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card fade-up delay-2" href="#">
+      <div class="card-top">
+        <div class="card-icon" style="background:#E8F5E8;">🇸🇪</div>
+        <span class="card-badge badge-full">Full Funded</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Swedish Institute (SI)</div>
+        <div class="card-meta">Sweden · Masters Programs</div>
+        <div class="card-desc">Prestigious scholarship covering tuition and living expenses for future global leaders. Includes leadership development network.</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-country">🌍 Developing Countries</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card fade-up delay-3" href="#">
+      <div class="card-top">
+        <div class="card-icon" style="background:#F3E8FF;">🇯🇵</div>
+        <span class="card-badge badge-govt">Government</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">MEXT Scholarship</div>
+        <div class="card-meta">Japan · Undergraduate & Grad</div>
+        <div class="card-desc">Japan's Ministry of Education scholarship for international students. Includes tuition waiver, travel, and monthly stipend.</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-country">🌍 Open Globally</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card fade-up delay-1" href="#">
+      <div class="card-top">
+        <div class="card-icon" style="background:#E8EEF8;">🇺🇸</div>
+        <span class="card-badge badge-full">Full Funded</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Fulbright Program</div>
+        <div class="card-meta">USA · Graduate & Research</div>
+        <div class="card-desc">America's flagship international exchange program. Full funding for outstanding students from around the world.</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-country">🌍 150+ Countries</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card fade-up delay-2" href="#">
+      <div class="card-top">
+        <div class="card-icon" style="background:#FFF3E0;">🇳🇱</div>
+        <span class="card-badge badge-partial">Partial</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">Holland Scholarship</div>
+        <div class="card-meta">Netherlands · Bachelor & Masters</div>
+        <div class="card-desc">Dutch Ministry of Education scholarship for international students from outside the EEA. €5,000 for your first year.</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-country">🌍 Non-EEA Students</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+  <div class="see-more-wrap">
+    <a href="#" class="see-more">View all scholarships →</a>
+  </div>
+</section>
+
+<!-- COUNTRIES -->
+<section class="section" id="countries">
+  <div class="section-title"><span>🌍</span> Study Destinations</div>
+  <div class="country-grid">
+
+    <a class="country-card" href="#">
+      <div class="country-bg country-bg-de"><span>🇩🇪</span></div>
+      <div class="country-overlay"></div>
+      <div class="country-info">
+        <div class="country-name">Germany</div>
+        <div class="country-pills"><span class="pill">Free Tuition</span><span class="pill">Research Hub</span></div>
+      </div>
+    </a>
+
+    <a class="country-card" href="#">
+      <div class="country-bg country-bg-ca"><span>🇨🇦</span></div>
+      <div class="country-overlay"></div>
+      <div class="country-info">
+        <div class="country-name">Canada</div>
+        <div class="country-pills"><span class="pill">PR Pathway</span><span class="pill">Work Rights</span></div>
+      </div>
+    </a>
+
+    <a class="country-card" href="#">
+      <div class="country-bg country-bg-au"><span>🇦🇺</span></div>
+      <div class="country-overlay"></div>
+      <div class="country-info">
+        <div class="country-name">Australia</div>
+        <div class="country-pills"><span class="pill">20hr/week Work</span><span class="pill">Quality Life</span></div>
+      </div>
+    </a>
+
+    <a class="country-card" href="#">
+      <div class="country-bg country-bg-uk"><span>🇬🇧</span></div>
+      <div class="country-overlay"></div>
+      <div class="country-info">
+        <div class="country-name">United Kingdom</div>
+        <div class="country-pills"><span class="pill">Graduate Visa</span><span class="pill">Top Unis</span></div>
+      </div>
+    </a>
+
+    <a class="country-card" href="#">
+      <div class="country-bg country-bg-jp"><span>🇯🇵</span></div>
+      <div class="country-overlay"></div>
+      <div class="country-info">
+        <div class="country-name">Japan</div>
+        <div class="country-pills"><span class="pill">MEXT Funding</span><span class="pill">Tech Focus</span></div>
+      </div>
+    </a>
+
+    <a class="country-card" href="#">
+      <div class="country-bg country-bg-us"><span>🇺🇸</span></div>
+      <div class="country-overlay"></div>
+      <div class="country-info">
+        <div class="country-name">United States</div>
+        <div class="country-pills"><span class="pill">Ivy League</span><span class="pill">Fulbright</span></div>
+      </div>
+    </a>
+
+  </div>
+  <div class="see-more-wrap">
+    <a href="#" class="see-more">Explore all destinations →</a>
+  </div>
+</section>
+
+<!-- BLOGS -->
+<section class="section" id="blogs">
+  <div class="section-title"><span>✍️</span> From the Community</div>
+  <div class="blog-grid">
+
+    <a class="blog-card fade-up" href="#">
+      <div class="blog-tag">Scholarship Tips</div>
+      <div class="blog-title">How I Won the DAAD Scholarship on My First Attempt</div>
+      <div class="blog-excerpt">The application process can feel overwhelming, but with the right strategy and timeline, it's absolutely achievable. Here's exactly what worked for me.</div>
+      <div class="blog-meta">
+        <div class="blog-avatar">RA</div>
+        <span>Rahul Ahmed · 8 min read</span>
+      </div>
+    </a>
+
+    <a class="blog-card fade-up delay-1" href="#">
+      <div class="blog-tag">Student Life</div>
+      <div class="blog-title">What Nobody Tells You About Studying in Germany</div>
+      <div class="blog-excerpt">From the bureaucracy of getting your Anmeldung to discovering the beauty of semester breaks — an honest first-year account from Dhaka to Munich.</div>
+      <div class="blog-meta">
+        <div class="blog-avatar">TI</div>
+        <span>Tahmina Islam · 6 min read</span>
+      </div>
+    </a>
+
+    <a class="blog-card fade-up delay-2" href="#">
+      <div class="blog-tag">SOP Guide</div>
+      <div class="blog-title">Writing a Statement of Purpose That Actually Stands Out</div>
+      <div class="blog-excerpt">Admission committees read thousands of SOPs. Here's what makes yours different — and the three mistakes almost every applicant makes.</div>
+      <div class="blog-meta">
+        <div class="blog-avatar">MH</div>
+        <span>Mehedi Hasan · 10 min read</span>
+      </div>
+    </a>
+
+    <a class="blog-card fade-up delay-1" href="#">
+      <div class="blog-tag">Visa Guide</div>
+      <div class="blog-title">Canada Student Visa in 2025: Complete Step-by-Step</div>
+      <div class="blog-excerpt">From acceptance letter to landing card — a comprehensive guide covering every document, timeline, and common rejection reason to avoid.</div>
+      <div class="blog-meta">
+        <div class="blog-avatar">NS</div>
+        <span>Nadia Sultana · 12 min read</span>
+      </div>
+    </a>
+
+    <a class="blog-card fade-up delay-2" href="#">
+      <div class="blog-tag">Erasmus</div>
+      <div class="blog-title">My Erasmus Mundus Journey: Application to Acceptance</div>
+      <div class="blog-excerpt">The Erasmus Mundus is one of the most competitive scholarships in the world. But with 3 attempts and relentless improvement, I made it.</div>
+      <div class="blog-meta">
+        <div class="blog-avatar">SR</div>
+        <span>Sadia Rahman · 9 min read</span>
+      </div>
+    </a>
+
+    <a class="blog-card fade-up delay-3" href="#">
+      <div class="blog-tag">Finance</div>
+      <div class="blog-title">Managing Money as an International Student: Real Talk</div>
+      <div class="blog-excerpt">Stipends, part-time work limits, and sending money home — here's a transparent breakdown of finances from someone who's been through it all.</div>
+      <div class="blog-meta">
+        <div class="blog-avatar">AK</div>
+        <span>Arif Khan · 7 min read</span>
+      </div>
+    </a>
+
+  </div>
+  <div class="see-more-wrap">
+    <a href="#" class="see-more">Read all articles →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2025 <strong>Agaaw</strong> · Fly to Your Future · Built with love for students everywhere</p>
+</footer>
+
+<script>
+  const phrases = [
+    "Your dashboard is almost ready...",
+    "Your dream university is waiting.",
+    "Explore. Apply. Fly.",
+    "Your future starts here."
+  ];
+  let pi = 0, ci = 0, deleting = false;
+  const el = document.getElementById('typing-text');
+  function type() {
+    const word = phrases[pi];
+    if (!deleting) {
+      el.textContent = word.slice(0, ++ci);
+      if (ci === word.length) { deleting = true; setTimeout(type, 2200); return; }
+    } else {
+      el.textContent = word.slice(0, --ci);
+      if (ci === 0) { deleting = false; pi = (pi + 1) % phrases.length; }
+    }
+    setTimeout(type, deleting ? 45 : 80);
+  }
+  setTimeout(type, 800);
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting) { e.target.style.opacity=1; e.target.style.transform='translateY(0)'; } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-up').forEach(el => {
+    el.style.opacity = '0'; el.style.transform = 'translateY(20px)'; el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    obs.observe(el);
+  });
+</script>
+</body>
+</html>

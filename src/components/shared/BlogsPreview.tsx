@@ -1,0 +1,84 @@
+"use client";
+
+import Link from "next/link";
+import { MOCK_BLOGS } from "@/lib/mock/blogData";
+import { Calendar, Tag, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+
+export default function BlogsPreview() {
+  const trendingBlogs = MOCK_BLOGS.filter((b) => b.is_published).slice(0, 3);
+
+  return (
+    <section className="py-24 bg-white px-6 w-full">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div className="max-w-2xl">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Latest from our <span className="text-teal-600">Community</span>
+            </h2>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Stay ahead with expert insights, success stories, and practical guides curated for your international journey.
+            </p>
+          </div>
+          <Link 
+            href="/blogs" 
+            className="group flex items-center gap-2 text-teal-600 font-bold text-lg hover:text-teal-700 transition-colors"
+          >
+            View all articles <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {trendingBlogs.map((blog, index) => (
+            <motion.div
+              key={blog.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1, duration: 0.5 }}
+              className="group bg-gray-50 rounded-3xl p-8 border border-gray-100 hover:bg-white hover:shadow-2xl hover:border-transparent transition-all duration-300 flex flex-col h-full"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm">
+                  {blog.author_name.charAt(0)}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{blog.author_name}</p>
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <span className="flex items-center gap-1"><Calendar size={12} /> {blog.created_at}</span>
+                  </div>
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-900 mb-4 group-hover:text-teal-600 transition-colors line-clamp-2">
+                <Link href={`/blogs/${blog.id}`} className="hover:underline decoration-teal-600/30">
+                  {blog.title}
+                </Link>
+              </h3>
+              
+              <p className="text-gray-600 text-sm line-clamp-3 mb-8 flex-grow leading-relaxed">
+                {blog.content}
+              </p>
+
+              <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-100">
+                <div className="flex flex-wrap gap-2">
+                  {blog.tags.slice(0, 2).map((tag) => (
+                    <span key={tag} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-600 border border-gray-200">
+                      <Tag size={10} /> {tag}
+                    </span>
+                  ))}
+                </div>
+                <Link 
+                  href={`/blogs/${blog.id}`} 
+                  className="text-teal-600 font-bold text-sm flex items-center gap-1 group/link"
+                >
+                  Read <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
