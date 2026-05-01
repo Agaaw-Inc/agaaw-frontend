@@ -33,12 +33,13 @@ export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
     setError(null);
     try {
       await registerUser({
-        name: `${data.firstName} ${data.lastName}`,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         password: data.password,
         role: role,
       });
-      router.push("/otp");
+      router.push(`/otp?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
       setError(err.message || "An error occurred during registration");
     } finally {
@@ -148,6 +149,18 @@ export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
           )}
         </div>
 
+        <div className="relative">
+          <Input
+            placeholder="Confirm Password"
+            type={showPassword ? "text" : "password"}
+            {...register("confirmPassword")}
+            className="border-gray-200 focus:border-[#20B2AA] pr-10"
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-xs mt-1">{errors.confirmPassword.message}</p>
+          )}
+        </div>
+
         <div className="flex items-start gap-2 py-1">
           <input
             type="checkbox"
@@ -161,6 +174,7 @@ export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
 
         <div className="w-full pt-1">
           <Button
+            type="submit"
             className="w-full flex justify-center items-center py-4 text-base bg-gray-900"
             disabled={loading}
           >

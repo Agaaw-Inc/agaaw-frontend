@@ -1,12 +1,12 @@
 import { Suspense } from "react";
 import AuthCard from "@/components/auth/AuthCard";
-import OtpForm from "@/components/auth/OtpForm";
+import ResetPasswordForm from "@/components/auth/ResetPasswordForm";
 
-export default function OtpPage() {
+export default function ResetPasswordPage() {
     return (
         <AuthCard>
             <Suspense fallback={<div>Loading...</div>}>
-                <OtpForm />
+                <ResetPasswordForm />
             </Suspense>
         </AuthCard>
     );

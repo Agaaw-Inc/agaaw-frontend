@@ -2,15 +2,20 @@
 
 import Image from "next/image";
 import Button from "@/components/ui/Button";
-import { useRouter } from "next/navigation";
-import { useState, useRef, ChangeEvent, KeyboardEvent } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useRef, ChangeEvent, KeyboardEvent, useEffect } from "react";
 import Link from "next/link";
-import { verifyEmail } from "@/lib/api";
+import { verifyEmail, resendVerification } from "@/lib/api";
 
 export default function OtpForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -53,6 +58,25 @@ export default function OtpForm() {
     }
   };
 
+  const handleResend = async () => {
+    if (!email) {
+      setError("Email not found. Please try registering again.");
+      return;
+    }
+
+    setResending(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await resendVerification(email);
+      setSuccess("Verification code resent successfully!");
+    } catch (err: any) {
+      setError(err.message || "Failed to resend code");
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full max-w-sm mx-auto">
       {/* Header */}
@@ -70,10 +94,15 @@ export default function OtpForm() {
         </p>
       </div>
 
-      {/* Error Message */}
+      {/* Error/Success Messages */}
       {error && (
         <div className="mb-4 bg-red-50 text-red-500 p-3 rounded-md text-sm border border-red-200 text-center">
           {error}
+        </div>
+      )}
+      {success && (
+        <div className="mb-4 bg-green-50 text-green-600 p-3 rounded-md text-sm border border-green-200 text-center">
+          {success}
         </div>
       )}
 
@@ -109,8 +138,13 @@ export default function OtpForm() {
 
       <div className="mt-8 text-center text-sm text-gray-600">
         Didn&apos;t receive the code?{" "}
-        <button type="button" className="text-blue-600 font-semibold hover:underline bg-transparent border-none cursor-pointer">
-          Resend
+        <button 
+          type="button" 
+          onClick={handleResend}
+          disabled={resending}
+          className="text-blue-600 font-semibold hover:underline bg-transparent border-none cursor-pointer disabled:opacity-50"
+        >
+          {resending ? "Resending..." : "Resend"}
         </button>
       </div>
 

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ForgotPasswordSchema, ForgotPasswordType } from "@/lib/validators/auth";
+import { forgotPassword } from "@/lib/api";
 import { useState } from "react";
 
 import { ChevronLeft } from "lucide-react";
@@ -15,6 +16,7 @@ import { ChevronLeft } from "lucide-react";
 export default function ForgotPasswordForm() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const {
         register,
@@ -26,11 +28,15 @@ export default function ForgotPasswordForm() {
 
     const onSubmit = async (data: ForgotPasswordType) => {
         setLoading(true);
-        // Mock password reset delay
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        console.log("Password reset requested for:", data);
-        setLoading(false);
-        setSuccess(true);
+        setError(null);
+        try {
+            await forgotPassword(data.email);
+            setSuccess(true);
+        } catch (err: any) {
+            setError(err.message || "Failed to send reset link. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -58,6 +64,12 @@ export default function ForgotPasswordForm() {
                     Enter your Agaaw email address so we can reset your password.
                 </p>
             </div>
+
+            {error && (
+                <div className="mb-6 bg-red-50 text-red-500 p-3 rounded-lg text-sm border border-red-200 text-center">
+                    {error}
+                </div>
+            )}
 
             {success ? (
                 <div className="text-center space-y-6">
