@@ -1,90 +1,135 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Linkedin, Twitter, Send } from "lucide-react";
+import { Facebook, Linkedin, Twitter, Instagram, Send, ArrowRight, Globe } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-bombay/20 bg-codgray">
-      <div className="mx-auto max-w-7xl px-6 py-12">
+    <footer className="bg-[#0B0F14] text-white">
+      <div className="mx-auto max-w-7xl px-8 pt-20 pb-10">
+        {/* Main Footer Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-center md:text-left">
-
-          {/* 1. Brand Section */}
-          <div className="flex flex-col items-center md:items-start gap-4">
-            <div className="flex items-center gap-2">
+          {/* Column 1 – Brand */}
+          <div className="lg:col-span-1 flex flex-col gap-6 text-center md:text-left">
+            <div className="flex items-center gap-3 justify-center md:justify-start">
               <Image
                 src="/Agaaw_logo_noBG.png"
                 alt="Agaaw Logo"
-                width={40}
-                height={40}
-                className="object-contain"
+                width={48}
+                height={48}
+                className="object-contain filter brightness-110"
               />
-              <p className="text-2xl font-bold text-white tracking-tight">Agaaw</p>
+              <div className="flex flex-col">
+                <span className="text-2xl font-bold tracking-tight text-white leading-none">Agaaw</span>
+                <span className="text-[10px] uppercase tracking-widest text-elm font-bold mt-1">Fly to Your Future</span>
+              </div>
             </div>
             <p className="text-sm text-bombay leading-relaxed">
-              Empowering your journey to success. Fly to your future with our expert guidance.
+              The world's premier editorial gallery for international scholarships. We curate opportunities that shape global leaders.
             </p>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mx-auto md:mx-0">
+              <Globe className="w-3.5 h-3.5 text-elm" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-bombay">Built for global students</span>
+            </div>
           </div>
 
-          {/* 2. Navigation Links */}
-          <div className="flex flex-col gap-4">
-            <h4 className="text-white font-semibold uppercase tracking-wider text-sm">Company</h4>
-            <nav className="flex flex-col gap-2 text-sm text-bombay">
-              <Link href="/about" className="hover:text-white transition-colors">About Us</Link>
-              <Link href="/services" className="hover:text-white transition-colors">Our Services</Link>
-              <Link href="/careers" className="hover:text-white transition-colors">Careers</Link>
-              <Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link>
-              <a href="tel:+12345678900" className="hover:text-white transition-colors">01511878728</a>
-              <a href="mailto:info@agaaw.com" className="hover:text-white transition-colors">info@agaaw.com</a>
+          {/* Column 2 – Platform */}
+          <div className="flex flex-col gap-6 text-center md:text-left">
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest">Platform</h4>
+            <nav className="flex flex-col gap-4">
+              {["Scholarships", "Countries", "Blogs"].map((item) => (
+                <Link
+                  key={item}
+                  href={`/${item.toLowerCase()}`}
+                  className="text-bombay text-sm hover:text-elm transition-all hover:translate-x-1 inline-block"
+                >
+                  {item}
+                </Link>
+              ))}
             </nav>
           </div>
 
-          {/* 3. Support Links */}
-          <div className="flex flex-col gap-4">
-            <h4 className="text-white font-semibold uppercase tracking-wider text-sm">Support</h4>
-            <nav className="flex flex-col gap-2 text-sm text-bombay">
-              <Link href="/faq" className="hover:text-white transition-colors">Help Center / FAQ</Link>
-              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+          {/* Column 3 – Company */}
+          <div className="flex flex-col gap-6 text-center md:text-left">
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest">Company</h4>
+            <nav className="flex flex-col gap-4">
+              {["About Us", "Contact", "Terms", "Privacy Policy"].map((item) => (
+                <Link
+                  key={item}
+                  href={`/${item.toLowerCase().replace(" ", "-")}`}
+                  className="text-bombay text-sm hover:text-elm transition-all hover:translate-x-1 inline-block"
+                >
+                  {item}
+                </Link>
+              ))}
             </nav>
           </div>
 
-          {/* 4. Newsletter Section */}
-          <div className="flex flex-col gap-4">
-            <h4 className="text-white font-semibold uppercase tracking-wider text-sm">Stay Updated</h4>
-            <p className="text-sm text-bombay">Subscribe to get the latest news and offers.</p>
-            <form className="relative flex mt-2">
+          {/* Column 4 – Support */}
+          <div className="flex flex-col gap-6 text-center md:text-left">
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest">Support</h4>
+            <nav className="flex flex-col gap-4 text-sm text-bombay">
+              <Link href="/help" className="hover:text-elm transition-colors">Help Center</Link>
+              <Link href="/faq" className="hover:text-elm transition-colors">FAQs</Link>
+              <a href="mailto:support@agaaw.com" className="hover:text-elm transition-colors">Email us : <span className="text-sm font-semibold">support@agaaw.com</span></a>
+              <Link href="tel:" className="hover:text-elm transition-colors">Phone us : <span className="text-sm font-semibold">+8801735081122</span></Link>
+              <p className="mt-2 text-[11px] font-medium text-white/40 leading-relaxed italic">
+                “Building the future of global education access”
+              </p>
+            </nav>
+          </div>
+
+          {/* Column 5 – Stay Updated */}
+          <div className="flex flex-col gap-6 text-center md:text-left">
+            <h4 className="text-white font-bold text-sm uppercase tracking-widest">Stay Updated</h4>
+            <p className="text-sm text-bombay">Get latest scholarships & updates delivered to your inbox.</p>
+            <form className="relative group">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full bg-bombay/10 border border-bombay/20 rounded-lg py-2 px-4 text-sm text-white focus:outline-none focus:border-white/40 transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-elm/50 focus:border-elm/50 transition-all placeholder:text-white/20"
               />
               <button
                 type="submit"
-                className="absolute right-1 top-1 bottom-1 bg-white text-codgray px-3 rounded-md hover:bg-bombay transition-colors"
+                className="absolute right-2 top-2 bottom-2 bg-elm text-white px-4 rounded-lg hover:bg-elm/90 transition-all flex items-center justify-center group-hover:scale-105"
                 aria-label="Subscribe"
               >
-                <Send size={16} />
+                <Send size={18} />
               </button>
             </form>
-            <div className="flex gap-5 mt-4 justify-center md:justify-start">
-              <Link href="https://www.facebook.com/share/1DJG3UuAEP/" className="text-bombay hover:text-white transition-colors"><Facebook size={26} /></Link>
-              <Link href="#" className="text-bombay hover:text-white transition-colors"><Linkedin size={26} /></Link>
-              <Link href="#" className="text-bombay hover:text-white transition-colors"><Twitter size={26} /></Link>
+            <div className="flex gap-4 pt-2 justify-center md:justify-start">
+              {[
+                { icon: Facebook, href: "https://www.facebook.com/agaaw.inc" },
+                { icon: Twitter, href: "#" },
+                { icon: Linkedin, href: "#" },
+                { icon: Instagram, href: "#" }
+              ].map((social, i) => (
+                <Link
+                  key={i}
+                  href={social.href}
+                  className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-bombay hover:text-elm hover:bg-elm/10 hover:border-elm/20 transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  <social.icon size={18} />
+                </Link>
+              ))}
             </div>
           </div>
-
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-bombay/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-bombay/60">
-          <p>© {new Date().getFullYear()} Agaaw. All rights reserved.</p>
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-            <span>Made with ❤️ for your future</span>
+        <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-bombay font-medium">
+          <div className="flex items-center gap-4">
+            <p>© {new Date().getFullYear()} Agaaw. All rights reserved.</p>
+            <div className="hidden md:block w-px h-3 bg-white/10" />
+            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+          </div>
+          <div className="flex items-center gap-2 text-white/50">
+            <span>Built for students worldwide</span>
+            <span className="text-sm">🌍</span>
           </div>
         </div>
-
       </div>
     </footer>
   );

@@ -1,10 +1,70 @@
+"use client";
+
 import ScholarshipCard from "@/components/scholarships/ScholarshipCard";
 import MainNavbar from "@/components/navbar/MainNavbar";
+import Link from "next/link";
 import Footer from "@/components/landing/Footer";
-import { Search, ChevronDown, ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { Search, ChevronDown, ArrowRight } from "lucide-react";
 import { SCHOLARSHIPS } from "@/data/scholarships";
+import Button from "@/components/ui/Button";
+import { useState, useMemo } from "react";
+import Pagination from "@/components/ui/Pagination";
+
+const ITEMS_PER_PAGE = 4;
 
 export default function ScholarshipsPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [levelFilter, setLevelFilter] = useState("Degree Level");
+  const [countryFilter, setCountryFilter] = useState("Country");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const scholarships = useMemo(() => Object.values(SCHOLARSHIPS), []);
+
+  const filteredScholarships = useMemo(() => {
+    return scholarships.filter((sch) => {
+      const matchesSearch =
+        sch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sch.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        sch.country.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesLevel =
+        levelFilter === "Degree Level" ||
+        sch.level.toLowerCase().includes(levelFilter.toLowerCase());
+
+      const matchesCountry =
+        countryFilter === "Country" ||
+        sch.country.toLowerCase() === countryFilter.toLowerCase();
+
+      return matchesSearch && matchesLevel && matchesCountry;
+    });
+  }, [scholarships, searchQuery, levelFilter, countryFilter]);
+
+  const totalPages = Math.ceil(filteredScholarships.length / ITEMS_PER_PAGE);
+  const currentScholarships = filteredScholarships.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLevelFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCountryFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <>
       <MainNavbar />
@@ -25,28 +85,27 @@ export default function ScholarshipsPage() {
               that transform ambitious students into global leaders.
             </p>
             <div className="flex flex-wrap gap-4">
-              <button className="bg-codgray text-white px-8 py-4 rounded-lg font-bold flex items-center gap-2 ambient-shadow hover:bg-codgray/90 transition-colors">
-                Explore Opportunities <ArrowRight className="w-5 h-5" />
-              </button>
-              <button className="px-8 py-4 rounded-lg font-bold text-codgray hover:bg-slate-100 transition-colors">
-                Institutional Partners
-              </button>
+              <Link href="/countries">
+                <Button className="text-gray-500 hover:text-[#20B2AA] transition-colors font-medium">
+                  Explore Countries
+                </Button>
+              </Link>
             </div>
           </div>
           {/* Decorative Background Element */}
           <div className="absolute top-0 right-[-5%] w-[50%] h-full pointer-events-none hidden lg:block opacity-15">
-            <div 
-                className="w-full h-full bg-[#20B2AA]"
-                style={{
-                    maskImage: "url('/scholarship-bg.svg')",
-                    WebkitMaskImage: "url('/scholarship-bg.svg')",
-                    maskSize: "contain",
-                    WebkitMaskSize: "contain",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskRepeat: "no-repeat",
-                    maskPosition: "center right",
-                    WebkitMaskPosition: "center right"
-                }}
+            <div
+              className="w-full h-full bg-[#20B2AA]"
+              style={{
+                maskImage: "url('/scholarship-bg.svg')",
+                WebkitMaskImage: "url('/scholarship-bg.svg')",
+                maskSize: "contain",
+                WebkitMaskSize: "contain",
+                maskRepeat: "no-repeat",
+                WebkitMaskRepeat: "no-repeat",
+                maskPosition: "center right",
+                WebkitMaskPosition: "center right"
+              }}
             ></div>
           </div>
         </section>
@@ -60,11 +119,17 @@ export default function ScholarshipsPage() {
                 className="w-full pl-12 pr-4 py-4 bg-white border-none rounded-lg focus:ring-2 focus:ring-elm/20 outline-none text-codgray shadow-sm"
                 placeholder="Search by scholarship, institution, or country..."
                 type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
               />
             </div>
             <div className="flex md:flex-row flex-col gap-2">
               <div className="relative group">
-                <select className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm">
+                <select
+                  className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm"
+                  value={levelFilter}
+                  onChange={handleLevelChange}
+                >
                   <option>Degree Level</option>
                   <option>Masters</option>
                   <option>PhD</option>
@@ -73,11 +138,17 @@ export default function ScholarshipsPage() {
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
               </div>
               <div className="relative group">
-                <select className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm">
+                <select
+                  className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm"
+                  value={countryFilter}
+                  onChange={handleCountryChange}
+                >
                   <option>Country</option>
                   <option>Germany</option>
                   <option>United Kingdom</option>
                   <option>United States</option>
+                  <option>Australia</option>
+                  <option>Japan</option>
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
               </div>
@@ -85,44 +156,73 @@ export default function ScholarshipsPage() {
           </div>
           <div className="flex flex-wrap gap-3 mt-6 items-center">
             <span className="text-xs font-bold uppercase tracking-widest text-bombay pr-2">Popular:</span>
-            <button className="px-4 py-1.5 bg-elm/10 text-elm rounded-full text-xs font-medium">Fully Funded</button>
-            <button className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors">STEM</button>
-            <button className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors">Humanities</button>
-            <button className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors">Underrepresented Groups</button>
+            <button
+              onClick={() => { setSearchQuery("Fully Funded"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-elm/10 text-elm rounded-full text-xs font-medium hover:bg-elm/20 transition-colors"
+            >
+              Fully Funded
+            </button>
+            <button
+              onClick={() => { setSearchQuery("STEM"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
+            >
+              STEM
+            </button>
+            <button
+              onClick={() => { setSearchQuery("Bachelors"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
+            >
+              Bachelors
+            </button>
+            <button
+              onClick={() => { setLevelFilter("Masters"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
+            >
+              Masters Programs
+            </button>
           </div>
         </section>
 
         {/* Scholarship Grid */}
         <section className="px-8 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {Object.values(SCHOLARSHIPS).map((sch) => (
-              <ScholarshipCard
-                key={sch.slug}
-                slug={sch.slug}
-                title={sch.name}
-                university={sch.provider}
-                deadline={sch.deadline}
-                image={sch.image}
-                funding={sch.funding}
-                amount={sch.amount}
-              />
-            ))}
-          </div>
+          {currentScholarships.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {currentScholarships.map((sch) => (
+                <ScholarshipCard
+                  key={sch.slug}
+                  slug={sch.slug}
+                  title={sch.name}
+                  university={sch.provider}
+                  deadline={sch.deadline}
+                  image={sch.image}
+                  funding={sch.funding}
+                  amount={sch.amount}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-xl text-bombay">No scholarships found matching your criteria.</p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setLevelFilter("Degree Level");
+                  setCountryFilter("Country");
+                  setCurrentPage(1);
+                }}
+                className="mt-4 text-elm font-medium hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
 
           {/* Pagination */}
-          <div className="mt-20 flex justify-center items-center gap-2">
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-elm hover:bg-slate-100 transition-colors">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center bg-codgray text-white font-bold ambient-shadow">1</button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-codgray hover:bg-slate-100 transition-colors font-medium">2</button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-codgray hover:bg-slate-100 transition-colors font-medium">3</button>
-            <span className="px-2 text-bombay">...</span>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-codgray hover:bg-slate-100 transition-colors font-medium">12</button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-elm hover:bg-slate-100 transition-colors">
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </section>
       </main>
 

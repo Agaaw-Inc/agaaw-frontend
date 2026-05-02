@@ -1,11 +1,59 @@
+"use client";
+
 import Link from "next/link";
 import { MOCK_BLOGS } from "@/lib/mock/blogData";
-import { Calendar, Tag, ArrowRight, Search, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Tag, ArrowRight, Search, ChevronDown } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
+import { useState, useMemo } from "react";
+import Pagination from "@/components/ui/Pagination";
+
+const ITEMS_PER_PAGE = 2;
 
 export default function BlogsPage() {
-  const publishedBlogs = MOCK_BLOGS.filter((b) => b.is_published);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [topicFilter, setTopicFilter] = useState("Topic");
+  const [authorFilter, setAuthorFilter] = useState("Author");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const publishedBlogs = useMemo(() => MOCK_BLOGS.filter((b) => b.is_published), []);
+
+  const filteredBlogs = useMemo(() => {
+    return publishedBlogs.filter((blog) => {
+      const matchesSearch =
+        blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        blog.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        blog.author_name.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesTopic =
+        topicFilter === "Topic" ||
+        blog.tags.some(tag => {
+          if (topicFilter === "Scholarships") return tag.toLowerCase().includes("scholarship");
+          if (topicFilter === "Application Tips") return tag.toLowerCase().includes("tips");
+          if (topicFilter === "Student Life") return tag.toLowerCase().includes("mentorship") || tag.toLowerCase().includes("communication");
+          return false;
+        });
+
+      const matchesAuthor =
+        authorFilter === "Author" ||
+        (authorFilter === "Mentors" && blog.author_role === "mentor") ||
+        (authorFilter === "Students" && blog.author_role === "student") ||
+        (authorFilter === "Advisors" && blog.author_role === "admin");
+
+      return matchesSearch && matchesTopic && matchesAuthor;
+    });
+  }, [publishedBlogs, searchQuery, topicFilter, authorFilter]);
+
+  const totalPages = Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE);
+  const currentBlogs = filteredBlogs.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <>
@@ -25,9 +73,6 @@ export default function BlogsPage() {
               Expert advice, application tips, and exclusive insights from mentors to help you navigate your study abroad journey.
             </p>
             <div className="flex flex-wrap gap-4">
-              <button className="bg-codgray text-white px-8 py-4 rounded-lg font-bold flex items-center gap-2 ambient-shadow hover:bg-codgray/90 transition-colors">
-                Explore Articles <ArrowRight className="w-5 h-5" />
-              </button>
               <button className="px-8 py-4 rounded-lg font-bold text-codgray hover:bg-slate-200 transition-colors">
                 Write for Us
               </button>
@@ -35,18 +80,18 @@ export default function BlogsPage() {
           </div>
           {/* Decorative Background Element */}
           <div className="absolute top-0 right-[-5%] w-[50%] h-full pointer-events-none hidden lg:block opacity-15">
-            <div 
-                className="w-full h-full bg-[#20B2AA]"
-                style={{
-                    maskImage: "url('/blog-bg.svg')",
-                    WebkitMaskImage: "url('/blog-bg.svg')",
-                    maskSize: "contain",
-                    WebkitMaskSize: "contain",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskRepeat: "no-repeat",
-                    maskPosition: "center right",
-                    WebkitMaskPosition: "center right"
-                }}
+            <div
+              className="w-full h-full bg-[#20B2AA]"
+              style={{
+                maskImage: "url('/blog-bg.svg')",
+                WebkitMaskImage: "url('/blog-bg.svg')",
+                maskSize: "contain",
+                WebkitMaskSize: "contain",
+                maskRepeat: "no-repeat",
+                WebkitMaskRepeat: "no-repeat",
+                maskPosition: "center right",
+                WebkitMaskPosition: "center right"
+              }}
             ></div>
           </div>
         </section>
@@ -60,11 +105,17 @@ export default function BlogsPage() {
                 className="w-full pl-12 pr-4 py-4 bg-white border-none rounded-lg focus:ring-2 focus:ring-elm/20 outline-none text-codgray shadow-sm"
                 placeholder="Search by topic, author, or keyword..."
                 type="text"
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               />
             </div>
             <div className="flex md:flex-row flex-col gap-2">
               <div className="relative group">
-                <select className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm">
+                <select
+                  className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm"
+                  value={topicFilter}
+                  onChange={(e) => { setTopicFilter(e.target.value); setCurrentPage(1); }}
+                >
                   <option>Topic</option>
                   <option>Scholarships</option>
                   <option>Application Tips</option>
@@ -73,7 +124,11 @@ export default function BlogsPage() {
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
               </div>
               <div className="relative group">
-                <select className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm">
+                <select
+                  className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm"
+                  value={authorFilter}
+                  onChange={(e) => { setAuthorFilter(e.target.value); setCurrentPage(1); }}
+                >
                   <option>Author</option>
                   <option>Mentors</option>
                   <option>Students</option>
@@ -85,23 +140,43 @@ export default function BlogsPage() {
           </div>
           <div className="flex flex-wrap gap-3 mt-6 items-center">
             <span className="text-xs font-bold uppercase tracking-widest text-bombay pr-2">Popular:</span>
-            <button className="px-4 py-1.5 bg-elm/10 text-elm rounded-full text-xs font-medium">Interview Tips</button>
-            <button className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors">Study Visas</button>
-            <button className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors">Essay Guides</button>
-            <button className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors">Funding</button>
+            <button
+              onClick={() => { setSearchQuery("Interview Tips"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-elm/10 text-elm rounded-full text-xs font-medium hover:bg-elm/20 transition-colors"
+            >
+              Interview Tips
+            </button>
+            <button
+              onClick={() => { setSearchQuery("Visa"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
+            >
+              Study Visas
+            </button>
+            <button
+              onClick={() => { setSearchQuery("Essay"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
+            >
+              Essay Guides
+            </button>
+            <button
+              onClick={() => { setTopicFilter("Scholarships"); setCurrentPage(1); }}
+              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
+            >
+              Funding
+            </button>
           </div>
         </section>
 
         {/* Blog Grid */}
         <section className="px-8 max-w-7xl mx-auto w-full flex-grow">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {publishedBlogs.length === 0 ? (
+            {currentBlogs.length === 0 ? (
               <div className="col-span-full text-center py-20 text-gray-500">
-                No published blogs found.
+                No blogs found matching your criteria.
               </div>
             ) : (
-              publishedBlogs.map((blog) => (
-                <div key={blog.id} className="bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all flex flex-col group h-full">
+              currentBlogs.map((blog) => (
+                <div key={blog.id} className="relative bg-white border border-gray-100 rounded-2xl p-8 hover:shadow-lg transition-all flex flex-col group h-full">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold text-sm">
                       {blog.author_name.charAt(0)}
@@ -147,19 +222,11 @@ export default function BlogsPage() {
           </div>
 
           {/* Pagination */}
-          <div className="mt-20 flex justify-center items-center gap-2">
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-bombay hover:bg-slate-100 transition-colors">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center bg-codgray text-white font-bold ambient-shadow">1</button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-codgray hover:bg-slate-100 transition-colors font-medium">2</button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-codgray hover:bg-slate-100 transition-colors font-medium">3</button>
-            <span className="px-2 text-bombay">...</span>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-codgray hover:bg-slate-100 transition-colors font-medium">12</button>
-            <button className="w-10 h-10 rounded-lg flex items-center justify-center text-bombay hover:bg-slate-100 transition-colors">
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </section>
       </main>
       <Footer />

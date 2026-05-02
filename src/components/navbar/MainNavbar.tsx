@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
   { href: "/countries", label: "Countries", icon: Globe },
   { href: "/blogs", label: "Blogs", icon: BookOpen },
-  { href: "/about", label: "About", icon: Info },
+  { href: "/about-us", label: "About", icon: Info },
 ];
 
 export default function MainNavbar() {
@@ -62,8 +62,8 @@ export default function MainNavbar() {
                   key={href}
                   href={href}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                      ? "text-teal-700 bg-teal-50"
-                      : "text-codgray hover:bg-gray-100"
+                    ? "text-teal-700 bg-teal-50"
+                    : "text-codgray hover:bg-gray-100"
                     }`}
                 >
                   {label}
@@ -112,8 +112,8 @@ export default function MainNavbar() {
                     key={href}
                     href={href}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive
-                        ? "text-teal-700 bg-teal-50"
-                        : "text-gray-700 hover:bg-gray-100"
+                      ? "text-teal-700 bg-teal-50"
+                      : "text-gray-700 hover:bg-gray-100"
                       }`}
                   >
                     <Icon size={18} className={isActive ? "text-teal-600" : "text-gray-400"} />
@@ -149,7 +149,7 @@ export default function MainNavbar() {
       {registerModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full relative max-h-[90vh] overflow-y-auto">
-            <button 
+            <button
               onClick={() => setRegisterModalOpen(false)}
               className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
             >
