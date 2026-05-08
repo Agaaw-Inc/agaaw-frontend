@@ -9,6 +9,7 @@ export async function registerUser(data: {
 }) {
   const res = await fetch(`${API_URL}/auth/register`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -27,6 +28,7 @@ export async function registerUser(data: {
 export async function loginUser(data: { email: string; password: string }) {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -45,6 +47,7 @@ export async function loginUser(data: { email: string; password: string }) {
 export async function verifyEmail(token: string) {
   const res = await fetch(`${API_URL}/auth/verify-email`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -63,6 +66,7 @@ export async function verifyEmail(token: string) {
 export async function resendVerification(email: string) {
   const res = await fetch(`${API_URL}/auth/resend-verification`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -81,6 +85,7 @@ export async function resendVerification(email: string) {
 export async function forgotPassword(email: string) {
   const res = await fetch(`${API_URL}/auth/forgot-password`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
@@ -99,6 +104,7 @@ export async function forgotPassword(email: string) {
 export async function resetPassword(data: { token: string; password: string }) {
   const res = await fetch(`${API_URL}/auth/reset-password`, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },
