@@ -4,16 +4,14 @@
  * Admin Authentication Context
  *
  * Provides global admin auth state to all admin pages.
- * Handles session restoration on mount (from localStorage),
- * login, and logout.
+ * Handles:
+ *   - Session restoration on mount (via refresh token cookie)
+ *   - Login with email/password
+ *   - Logout with server-side session cleanup
  *
  * Usage:
  *   Wrap admin routes with <AdminAuthProvider>
  *   Access state via useAdminAuth() hook
- *
- * Backend integration:
- *   No changes needed here — all logic is delegated to adminAuthService.
- *   Just update the service methods to call real APIs.
  */
 
 import {
@@ -37,24 +35,39 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   // ── Restore session on mount ───────────────────────────────
+  // Attempts to refresh the access token using the HttpOnly cookie
+  // and fetch the admin's profile. If successful, the user stays
+  // logged in across page refreshes.
   useEffect(() => {
-    try {
-      const storedAdmin = adminAuthService.getCurrentAdmin();
-      if (storedAdmin) {
-        setAdmin(storedAdmin);
+    let cancelled = false;
+
+    async function restore() {
+      try {
+        const restoredAdmin = await adminAuthService.restoreSession();
+        if (!cancelled && restoredAdmin) {
+          setAdmin(restoredAdmin);
+        }
+      } catch (error) {
+        console.error("[AdminAuth] Failed to restore session:", error);
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
-    } catch (error) {
-      console.error("[AdminAuth] Failed to restore session:", error);
-    } finally {
-      setIsLoading(false);
     }
+
+    restore();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── Login ──────────────────────────────────────────────────
   const login = useCallback(
     async (credentials: AdminLoginCredentials) => {
-      const response = await adminAuthService.login(credentials);
-      setAdmin(response.admin);
+      const loggedInAdmin = await adminAuthService.login(credentials);
+      setAdmin(loggedInAdmin);
       router.push("/admin");
     },
     [router]

@@ -17,6 +17,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { hasPermission, getRequiredRole } from "@/lib/rbac";
+import type { AdminRole } from "@/lib/adminTypes";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import AccessDenied from "./AccessDenied";
@@ -55,8 +56,11 @@ export default function AdminProtectedLayout({
   }
 
   // ── RBAC check ─────────────────────────────────────────────
+  // Use the admin's AdminRole (from admin_profiles table), not the User role.
+  // This distinguishes between "super_admin" and "admin" permissions.
+  const adminRole: AdminRole = admin.adminProfile?.adminRole ?? "admin";
   const requiredRole = getRequiredRole(pathname);
-  const authorized = hasPermission(admin.role, requiredRole);
+  const authorized = hasPermission(adminRole, requiredRole);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -65,7 +69,7 @@ export default function AdminProtectedLayout({
         <Topbar />
         <main className="p-6 overflow-y-auto flex-1">
           {authorized ? children : (
-            <AccessDenied userRole={admin.role} requiredRole={requiredRole} />
+            <AccessDenied userRole={adminRole} requiredRole={requiredRole} />
           )}
         </main>
       </div>

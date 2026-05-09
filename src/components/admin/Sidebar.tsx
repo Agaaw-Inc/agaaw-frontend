@@ -8,6 +8,7 @@
  *   - Collapsible design with animation
  *   - Role-based link visibility (RBAC)
  *   - Active state highlighting
+ *   - Links for Mentors and Activity Logs
  */
 
 import { useState } from "react";
@@ -21,6 +22,7 @@ import {
   Menu,
   BookOpen,
   ShieldCheck,
+  ScrollText,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,7 +36,7 @@ interface NavItem {
   href: string;
   icon: React.ReactNode;
   label: string;
-  /** Minimum role required to see this link. Defaults to "ADMIN". */
+  /** Minimum role required to see this link. Defaults to "admin". */
   requiredRole?: AdminRole;
 }
 
@@ -43,20 +45,25 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/admin/countries",    icon: <Globe size={18} />,           label: "Countries" },
   { href: "/admin/scholarships", icon: <GraduationCap size={18} />,   label: "Scholarships" },
   { href: "/admin/blogs",        icon: <BookOpen size={18} />,        label: "Blogs" },
-  { href: "/admin/users",        icon: <Users size={18} />,           label: "Users",    requiredRole: "SUPER_ADMIN" },
-  { href: "/admin/admins",       icon: <UserCog size={18} />,         label: "Admins",   requiredRole: "SUPER_ADMIN" },
-  { href: "/admin/settings",     icon: <Settings size={18} />,        label: "Settings", requiredRole: "SUPER_ADMIN" },
+  { href: "/admin/mentors",      icon: <GraduationCap size={18} />,   label: "Mentors" },
+  { href: "/admin/users",        icon: <Users size={18} />,           label: "Users",    requiredRole: "super_admin" },
+  { href: "/admin/admins",       icon: <UserCog size={18} />,         label: "Admins",   requiredRole: "super_admin" },
+  { href: "/admin/logs",         icon: <ScrollText size={18} />,      label: "Logs",     requiredRole: "super_admin" },
+  { href: "/admin/settings",     icon: <Settings size={18} />,        label: "Settings", requiredRole: "super_admin" },
 ];
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { admin } = useAdminAuth();
 
+  // Resolve the admin's AdminRole for RBAC checks
+  // The admin.adminProfile.adminRole is the real role ("super_admin" | "admin")
+  const adminRole: AdminRole = admin?.adminProfile?.adminRole ?? "admin";
+
   // Filter nav items based on admin's role
   const visibleItems = NAV_ITEMS.filter((item) => {
     if (!item.requiredRole) return true;
-    if (!admin) return false;
-    return hasPermission(admin.role, item.requiredRole);
+    return hasPermission(adminRole, item.requiredRole);
   });
 
   return (
@@ -98,7 +105,7 @@ export default function Sidebar() {
       {!collapsed && admin && (
         <div className="px-4 py-3 border-t border-gray-100">
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-700 uppercase tracking-wider">
-            {admin.role.replace("_", " ")}
+            {adminRole.replace("_", " ")}
           </span>
         </div>
       )}

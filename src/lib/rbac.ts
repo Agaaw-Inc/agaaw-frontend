@@ -13,9 +13,9 @@ import { AdminRole, ROLE_HIERARCHY } from "./adminTypes";
  * Uses numeric hierarchy comparison — higher = more access.
  *
  * @example
- *   hasPermission("SUPER_ADMIN", "ADMIN")   // true
- *   hasPermission("ADMIN", "SUPER_ADMIN")   // false
- *   hasPermission("ADMIN", "ADMIN")         // true
+ *   hasPermission("super_admin", "admin")   // true
+ *   hasPermission("admin", "super_admin")   // false
+ *   hasPermission("admin", "admin")         // true
  */
 export function hasPermission(
   userRole: AdminRole,
@@ -27,21 +27,23 @@ export function hasPermission(
 // ─── Route → Required Role Mapping ──────────────────────────
 /**
  * Defines the minimum role required to access each admin route.
- * Routes not listed here default to "ADMIN" (any admin can access).
+ * Routes not listed here default to "admin" (any admin can access).
  *
  * When adding new admin routes, register them here to enforce RBAC.
  */
 export const ROUTE_PERMISSIONS: Record<string, AdminRole> = {
   // General — accessible by any admin
-  "/admin": "ADMIN",
-  "/admin/countries": "ADMIN",
-  "/admin/scholarships": "ADMIN",
-  "/admin/blogs": "ADMIN",
+  "/admin": "admin",
+  "/admin/countries": "admin",
+  "/admin/scholarships": "admin",
+  "/admin/blogs": "admin",
+  "/admin/mentors": "admin",
 
-  // Restricted — SUPER_ADMIN only
-  "/admin/users": "SUPER_ADMIN",
-  "/admin/admins": "SUPER_ADMIN",
-  "/admin/settings": "SUPER_ADMIN",
+  // Restricted — super_admin only
+  "/admin/users": "super_admin",
+  "/admin/admins": "super_admin",
+  "/admin/settings": "super_admin",
+  "/admin/logs": "super_admin",
 };
 
 /**
@@ -49,7 +51,7 @@ export const ROUTE_PERMISSIONS: Record<string, AdminRole> = {
  * Checks for exact match first, then prefix match for sub-routes
  * (e.g., /admin/users/123 → checks /admin/users).
  *
- * Falls back to "ADMIN" if no mapping is found.
+ * Falls back to "admin" if no mapping is found.
  */
 export function getRequiredRole(pathname: string): AdminRole {
   // Exact match
@@ -67,5 +69,5 @@ export function getRequiredRole(pathname: string): AdminRole {
   }
 
   // Default: any admin can access unregistered routes
-  return "ADMIN";
+  return "admin";
 }

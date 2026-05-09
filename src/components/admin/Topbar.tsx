@@ -14,6 +14,25 @@ import { useState, useRef, useEffect } from "react";
 import { LogOut, ChevronDown, ShieldCheck } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
+/** Build a display name from the Admin object */
+function getDisplayName(admin: { firstName?: string; lastName?: string; email?: string } | null): string {
+  if (!admin) return "Admin";
+  const full = [admin.firstName, admin.lastName].filter(Boolean).join(" ");
+  return full || admin.email || "Admin";
+}
+
+/** Build initials from first + last name */
+function getInitials(admin: { firstName?: string; lastName?: string } | null): string {
+  if (!admin) return "A";
+  const parts = [admin.firstName, admin.lastName].filter(Boolean);
+  if (parts.length === 0) return "A";
+  return parts
+    .map((n) => n![0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export default function Topbar() {
   const { admin, logout } = useAdminAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -30,15 +49,9 @@ export default function Topbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Get initials from admin name
-  const initials = admin?.name
-    ? admin.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "A";
+  const displayName = getDisplayName(admin);
+  const initials = getInitials(admin);
+  const roleLabel = admin?.adminProfile?.adminRole?.replace("_", " ") || admin?.role || "admin";
 
   return (
     <header className="bg-white shadow-sm px-6 py-3 flex justify-between items-center border-b border-gray-100">
@@ -60,10 +73,10 @@ export default function Topbar() {
           {/* Name (desktop only) */}
           <div className="hidden sm:block text-left">
             <p className="text-sm font-medium text-gray-900 leading-tight">
-              {admin?.name || "Admin"}
+              {displayName}
             </p>
             <p className="text-[11px] text-gray-400 leading-tight">
-              {admin?.role?.replace("_", " ") || "Admin"}
+              {roleLabel}
             </p>
           </div>
 
@@ -84,7 +97,7 @@ export default function Topbar() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">
-                    {admin?.name}
+                    {displayName}
                   </p>
                   <p className="text-xs text-gray-400 truncate">
                     {admin?.email}
@@ -94,7 +107,7 @@ export default function Topbar() {
               <div className="mt-2">
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-teal-50 text-teal-700 uppercase tracking-wider">
                   <ShieldCheck size={10} />
-                  {admin?.role?.replace("_", " ")}
+                  {roleLabel}
                 </span>
               </div>
             </div>

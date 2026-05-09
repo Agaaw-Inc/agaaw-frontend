@@ -1,24 +1,25 @@
 import { z } from "zod";
 
 export const scholarshipSchema = z.object({
-  slug: z
-    .string()
-    .min(3, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase and use - only"),
-  name: z.string().min(3, "Name is required"),
-  provider: z.string().min(2, "Provider is required"),
-  country: z.string().min(2, "Country is required"),
-  level: z.string().min(2, "Level is required"),
-  deadline: z.string().min(1, "Deadline is required"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-
-  benefits: z.array(z.string().min(2)).min(1, "Add at least one benefit"),
-  eligibility: z.array(z.string().min(2)).min(1, "Add at least one eligibility"),
-  applicationSteps: z
-    .array(z.string().min(2))
-    .min(1, "Add at least one step"),
-
-  officialLink: z.string().url("Must be a valid URL"),
+  name: z.string().min(1, "Name is required"),
+  slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with hyphens"),
+  provider: z.string().min(1, "Provider is required"),
+  countryId: z.string().uuid("Invalid country selection"),
+  categoryId: z.string().uuid().optional().or(z.literal("")),
+  level: z.enum(["bachelors", "masters", "phd", "other"]),
+  coverage: z.enum(["full", "partial", "varies"]),
+  deadline: z.string().optional().or(z.literal("")),
+  description: z.string().min(10, "Description is too short"),
+  howToApply: z.string().min(1, "How to apply is required"),
+  requiredDocuments: z.string().min(1, "Required documents are required"),
+  officialLink: z.string().url().optional().or(z.literal("")),
+  bannerImage: z.string().url().optional().or(z.literal("")),
+  isActive: z.boolean().default(true),
+  faqs: z.array(z.object({
+    question: z.string().min(1),
+    answer: z.string().min(1),
+    order: z.number().default(0),
+  })).optional(),
 });
 
 export type ScholarshipFormValues = z.infer<typeof scholarshipSchema>;

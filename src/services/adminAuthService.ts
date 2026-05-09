@@ -1,159 +1,156 @@
 /**
  * Admin Authentication Service
  *
- * Handles all admin auth operations. Currently uses mock data
- * and localStorage, but structured so each method can be swapped
- * with a real NestJS API call without touching UI components.
+ * Handles all admin auth operations using the real backend API.
+ * Uses the centralized adminApi client for all requests.
  *
- * Backend integration checklist:
- *   1. Replace login() body with POST /api/admin/login
- *   2. Replace logout() body with POST /api/admin/logout
- *   3. Replace getCurrentAdmin() with GET /api/admin/me
- *   4. Remove localStorage usage (httpOnly cookies handle persistence)
+ * Auth flow:
+ *   1. login() → POST /api/auth/login → stores access_token in memory
+ *   2. restoreSession() → POST /api/auth/refresh + GET /api/auth/me → restores on page refresh
+ *   3. logout() → POST /api/auth/logout → clears in-memory token + server clears cookie
+ *
+ * Security:
+ *   - access_token: stored in memory only (lost on refresh, restored via cookie)
+ *   - refresh_token: HttpOnly cookie set by the backend (never accessible to JS)
+ *   - No localStorage usage
  */
 
 import type {
   Admin,
   AdminLoginCredentials,
-  AdminLoginResponse,
+  AdminProfile,
 } from "@/lib/adminTypes";
-
-// ─── Storage Keys ────────────────────────────────────────────
-const ADMIN_SESSION_KEY = "agaaw_admin_session";
-const ADMIN_TOKEN_KEY = "agaaw_admin_token";
-
-// ─── Mock Admin Data ─────────────────────────────────────────
-/** Hardcoded admin for mock authentication */
-const MOCK_ADMIN: Admin = {
-  id: "admin-001",
-  email: "admin@agaaw.com",
-  name: "Omar Faruk",
-  role: "SUPER_ADMIN",
-};
-
-const MOCK_PASSWORD = "123456";
-const MOCK_TOKEN = "mock-jwt-token-agaaw-admin-2026";
+import * as adminApi from "@/lib/adminApi";
 
 // ─── Service Methods ─────────────────────────────────────────
 
 /**
  * Authenticate an admin with email and password.
- *
- * TODO: Replace with API call:
- *   const res = await fetch('/api/admin/login', {
- *     method: 'POST',
- *     headers: { 'Content-Type': 'application/json' },
- *     body: JSON.stringify(credentials),
- *     credentials: 'include', // for httpOnly cookies
- *   });
- *   if (!res.ok) throw new Error('Invalid credentials');
- *   return res.json();
+ * Calls POST /api/auth/login, then verifies the user has admin role.
+ * Returns the Admin object on success.
  */
-async function login(
-  credentials: AdminLoginCredentials
-): Promise<AdminLoginResponse> {
-  // Simulate network latency
-  await new Promise((resolve) => setTimeout(resolve, 800));
+async function login(credentials: AdminLoginCredentials): Promise<Admin> {
+  const response = await adminApi.login(credentials);
 
-  // Validate against mock credentials
-  if (
-    credentials.email !== MOCK_ADMIN.email ||
-    credentials.password !== MOCK_PASSWORD
-  ) {
-    throw new Error("Invalid email or password");
+  // Verify the user is an admin
+  if (response.user.role !== "admin") {
+    adminApi.clearAccessToken();
+    throw new Error("Access denied. This portal is for administrators only.");
   }
 
-  const response: AdminLoginResponse = {
-    admin: MOCK_ADMIN,
-    accessToken: MOCK_TOKEN,
+  // Build the Admin object from the login response
+  // We'll fetch the full admin profile separately for permissions
+  const admin: Admin = {
+    id: response.user.id,
+    email: response.user.email,
+    firstName: "", // Will be populated by fetchAdminProfile
+    lastName: "",
+    role: response.user.role,
   };
 
-  // Persist session in localStorage
-  // TODO: When using httpOnly cookies, remove this — the browser handles persistence
-  persistSession(response.admin, response.accessToken);
+  // Try to fetch the full admin profile (with name and permissions)
+  try {
+    const profile = await fetchAdminProfile(response.user.id);
+    if (profile) {
+      admin.firstName = profile.user.firstName;
+      admin.lastName = profile.user.lastName;
+      admin.adminProfile = profile;
+    }
+  } catch (err) {
+    console.warn("[AdminAuth] Could not fetch admin profile:", err);
+    // Login still succeeds — we just won't have permissions info initially
+  }
 
-  return response;
+  return admin;
 }
 
 /**
  * End the admin session.
- *
- * TODO: Replace with API call:
- *   await fetch('/api/admin/logout', {
- *     method: 'POST',
- *     credentials: 'include',
- *   });
+ * Calls POST /api/auth/logout and clears the in-memory token.
  */
 async function logout(): Promise<void> {
-  // Clear localStorage
-  // TODO: When using httpOnly cookies, the server clears the cookie
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(ADMIN_SESSION_KEY);
-    localStorage.removeItem(ADMIN_TOKEN_KEY);
-  }
+  await adminApi.logout();
 }
 
 /**
- * Retrieve the currently authenticated admin from storage.
+ * Attempt to restore an admin session using the refresh token cookie.
+ * Called on initial page load to check if the user is still authenticated.
  *
- * TODO: Replace with API call:
- *   const res = await fetch('/api/admin/me', {
- *     credentials: 'include',
- *   });
- *   if (!res.ok) return null;
- *   return res.json();
+ * Flow:
+ *   1. POST /api/auth/refresh → get a new access_token
+ *   2. GET /api/auth/me → get user id/email/role
+ *   3. Verify role === "admin"
+ *   4. Fetch admin profile for name + permissions
+ *
+ * Returns the Admin object if session is valid, or null if not.
  */
-function getCurrentAdmin(): Admin | null {
-  if (typeof window === "undefined") return null;
-
+async function restoreSession(): Promise<Admin | null> {
   try {
-    const stored = localStorage.getItem(ADMIN_SESSION_KEY);
-    if (!stored) return null;
+    // Step 1: Try to refresh the token using the HttpOnly cookie
+    const refreshResult = await adminApi.refresh();
+    if (!refreshResult) return null;
 
-    const admin: Admin = JSON.parse(stored);
+    // Step 2: Get current user info
+    const meResponse = await adminApi.getMe();
+    if (!meResponse?.user) return null;
 
-    // Basic validation — ensure stored data has required fields
-    if (!admin.id || !admin.email || !admin.role) {
-      localStorage.removeItem(ADMIN_SESSION_KEY);
+    // Step 3: Verify admin role
+    if (meResponse.user.role !== "admin") {
+      adminApi.clearAccessToken();
       return null;
+    }
+
+    // Step 4: Build Admin object
+    const admin: Admin = {
+      id: meResponse.user.id,
+      email: meResponse.user.email,
+      firstName: "",
+      lastName: "",
+      role: meResponse.user.role,
+    };
+
+    // Step 5: Fetch full admin profile
+    try {
+      const profile = await fetchAdminProfile(meResponse.user.id);
+      if (profile) {
+        admin.firstName = profile.user.firstName;
+        admin.lastName = profile.user.lastName;
+        admin.adminProfile = profile;
+      }
+    } catch {
+      // Profile fetch failed, but session is still valid
     }
 
     return admin;
   } catch {
-    // Corrupted data — clear it
-    localStorage.removeItem(ADMIN_SESSION_KEY);
+    // Refresh token expired or invalid
+    adminApi.clearAccessToken();
     return null;
   }
 }
 
 /**
- * Get the stored access token.
+ * Fetch the admin profile for a given user ID.
+ * Searches the admin list to find the profile matching the userId.
  *
- * TODO: When using httpOnly cookies, this is no longer needed.
- *   The token is sent automatically via cookies.
+ * Uses GET /api/admin/admins to find the admin profile by userId,
+ * since the admin endpoints use adminProfile.id, not user.id.
  */
-function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(ADMIN_TOKEN_KEY);
-}
-
-/**
- * Persist admin session data in localStorage.
- *
- * TODO: When using httpOnly cookies, this becomes a no-op.
- *   The server sets the cookie on login response.
- */
-function persistSession(admin: Admin, token: string): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(admin));
-  localStorage.setItem(ADMIN_TOKEN_KEY, token);
+async function fetchAdminProfile(
+  userId: string
+): Promise<AdminProfile | null> {
+  try {
+    const result = await adminApi.listAdmins({ limit: 100 });
+    const profile = result.data.find((a) => a.userId === userId);
+    return profile || null;
+  } catch {
+    return null;
+  }
 }
 
 // ─── Export as service object ────────────────────────────────
 export const adminAuthService = {
   login,
   logout,
-  getCurrentAdmin,
-  getToken,
-  persistSession,
+  restoreSession,
 };
