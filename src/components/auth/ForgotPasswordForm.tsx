@@ -50,7 +50,7 @@ export default function ForgotPasswordForm() {
                     <ChevronLeft size={24} />
                 </Link>
                 <Image
-                    src="/agaaw_logo_noBG.png"
+                    src="/Agaaw_logo_noBG.png"
                     alt="Agaaw Logo"
                     width={120}
                     height={40}

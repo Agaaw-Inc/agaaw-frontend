@@ -55,7 +55,7 @@ export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
       {/* Header */}
       <div className="flex flex-col items-center mb-4 text-center">
         <Image
-          src="/agaaw_logo_noBG.png"
+          src="/Agaaw_logo_noBG.png"
           alt="Agaaw Logo"
           width={100}
           height={32}

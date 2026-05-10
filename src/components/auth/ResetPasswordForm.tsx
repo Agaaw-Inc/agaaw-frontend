@@ -55,7 +55,7 @@ export default function ResetPasswordForm() {
         return (
             <div className="text-center p-6 bg-red-50 rounded-lg border border-red-100">
                 <p className="text-red-600 font-medium">Invalid or expired reset link.</p>
-                <Link href="/forgot-password" size="sm" className="mt-4 inline-block text-blue-600 hover:underline">
+                <Link href="/forgot-password" className="mt-4 inline-block text-blue-600 hover:underline">
                     Request a new link
                 </Link>
             </div>
@@ -67,7 +67,7 @@ export default function ResetPasswordForm() {
             {/* Header */}
             <div className="flex flex-col items-center mb-8">
                 <Image
-                    src="/agaaw_logo_noBG.png"
+                    src="/Agaaw_logo_noBG.png"
                     alt="Agaaw Logo"
                     width={120}
                     height={40}
