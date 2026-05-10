@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { getUserInfo, setUserInfo } from "@/lib/auth";
+import { getMe } from "@/lib/api";
 
 interface WelcomeHeroProps {
   role: "student" | "mentor";
@@ -10,8 +12,26 @@ interface WelcomeHeroProps {
 
 export default function WelcomeHero({ role }: WelcomeHeroProps) {
   const [text, setText] = useState("");
+  const [userName, setUserName] = useState<string>("");
   const fullText = "You are welcome and your dashboard will be ready soon.";
-  
+
+  useEffect(() => {
+    const user = getUserInfo();
+    if (user && user.firstName) {
+      setUserName(user.firstName);
+    } else {
+      // Try to fetch from API if not in localStorage
+      getMe()
+        .then((userData) => {
+          setUserInfo(userData);
+          setUserName(userData.firstName);
+        })
+        .catch(() => {
+          setUserName(role);
+        });
+    }
+  }, [role]);
+
   useEffect(() => {
     let i = 0;
     const interval = setInterval(() => {
@@ -56,7 +76,7 @@ export default function WelcomeHero({ role }: WelcomeHeroProps) {
         </motion.div>
 
         <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-8 leading-tight tracking-tight">
-          Hello, <span className="text-teal-600 capitalize">{role}</span>!
+          Hello, <span className="text-teal-600 capitalize">{userName}</span>!
           <br />
           <span className="inline-block min-h-[1.2em]">
             {text}
@@ -83,12 +103,6 @@ export default function WelcomeHero({ role }: WelcomeHeroProps) {
           transition={{ delay: 3, duration: 0.5 }}
           className="flex flex-wrap justify-center gap-6"
         >
-          <button className="group relative px-8 py-4 bg-gray-900 text-white rounded-2xl font-bold text-lg overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-xl">
-            <span className="relative z-10 flex items-center gap-2">
-              Explore Now <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </span>
-            <div className="absolute inset-0 bg-gradient-to-r from-teal-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
         </motion.div>
       </div>
     </section>

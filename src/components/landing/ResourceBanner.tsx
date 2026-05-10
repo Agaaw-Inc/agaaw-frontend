@@ -6,19 +6,19 @@ export default function ResourceBanner() {
     {
       id: 1,
       title: "Explore Study Destinations",
-      image: "/images/destinations_1775572952159.png",
+      image: "/images/country-agaaw.png",
       href: "/countries"
     },
     {
       id: 2,
       title: "Find Scholarships Ideas",
-      image: "/images/scholarships_1775572968641.png",
+      image: "/images/scholarship-agaaw.png",
       href: "/scholarships"
     },
     {
       id: 3,
       title: "Read Excellent Study Abroad Blogs",
-      image: "/images/blogs_1775572987724.png",
+      image: "/images/blog-agaaw.png",
       href: "/blogs"
     }
   ];

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Linkedin, Twitter, Instagram, Send, ArrowRight, Globe } from "lucide-react";
+import { Facebook, Linkedin, Send, ArrowRight, Globe } from "lucide-react";
 import Button from "@/components/ui/Button";
 
 export default function Footer() {
@@ -70,7 +70,6 @@ export default function Footer() {
           <div className="flex flex-col gap-6 text-center md:text-left">
             <h4 className="text-white font-bold text-sm uppercase tracking-widest">Support</h4>
             <nav className="flex flex-col gap-4 text-sm text-bombay">
-              <Link href="/help" className="hover:text-elm transition-colors">Help Center</Link>
               <Link href="/faq" className="hover:text-elm transition-colors">FAQs</Link>
               <a href="mailto:support@agaaw.com" className="hover:text-elm transition-colors">Email us : <span className="text-sm font-semibold">support@agaaw.com</span></a>
               <Link href="tel:" className="hover:text-elm transition-colors">Phone us : <span className="text-sm font-semibold">+8801735081122</span></Link>
@@ -101,9 +100,8 @@ export default function Footer() {
             <div className="flex gap-4 pt-2 justify-center md:justify-start">
               {[
                 { icon: Facebook, href: "https://www.facebook.com/agaaw.inc" },
-                { icon: Twitter, href: "#" },
-                { icon: Linkedin, href: "#" },
-                { icon: Instagram, href: "#" }
+                { icon: Linkedin, href: "https://www.linkedin.com/company/agaaw" },
+                { icon: Send, href: "https://t.me/agaawofficial" }
               ].map((social, i) => (
                 <Link
                   key={i}
@@ -123,7 +121,7 @@ export default function Footer() {
             <p>© {new Date().getFullYear()} Agaaw. All rights reserved.</p>
             <div className="hidden md:block w-px h-3 bg-white/10" />
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
           </div>
           <div className="flex items-center gap-2 text-white/50">
             <span>Built for students worldwide</span>

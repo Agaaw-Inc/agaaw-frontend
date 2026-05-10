@@ -9,11 +9,11 @@ export default function MentorBanner() {
   const [isPaused, setIsPaused] = useState(false);
 
   const mentors = [
-    { id: 1, name: "David Chen", role: "UK Studies", image: "/images/mentor_1_1775572865660.png" },
-    { id: 2, name: "Sarah Jenkins", role: "Oxford Alumni", image: "/images/mentor_2_1775572883225.png" },
-    { id: 3, name: "Michael Ross", role: "MIT Alumni", image: "/images/mentor_3_1775572899845.png" },
-    { id: 4, name: "Elena Martinez", role: "Stanford Alumni", image: "/images/mentor_4_1775572933625.png" },
-    { id: 5, name: "James Wilson", role: "Cambridge Alumni", image: "/images/mentor_1_1775572865660.png" },
+    { id: 1, name: "Mahamudul Hasan Fuad", role: "Taxes Sate University, San Marcos", image: "/mentors/fuad.jpg" },
+    { id: 2, name: "Maynuddin Tuhin Joy", role: "Japan", image: "/mentors/joy.jpg" },
+    { id: 3, name: "Michael Ross", role: "MIT Alumni", image: "/mentors/mentor_1.png" },
+    { id: 4, name: "Elena Martinez", role: "Stanford Alumni", image: "/mentors/mentor_2.png" },
+    { id: 5, name: "James Wilson", role: "Cambridge Alumni", image: "/mentors/mentor_3.png" },
   ];
 
   useEffect(() => {
@@ -54,15 +54,15 @@ export default function MentorBanner() {
             From picking universities to the final application, work with the most renowned student Mentors to guide others through the journey and earn real impact.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link
+            {/* <Link
               href="/register?role=mentor"
               className="inline-flex items-center justify-center bg-white text-black font-semibold py-3.5 px-8 rounded-full transition-all duration-300 hover:bg-gray-200 hover:scale-[1.02] w-max"
             >
               Find your Mentor
-            </Link>
+            </Link> */}
             {/* add some space between the two buttons */}
             <Link
-              href="/register?role=mentor"
+              href="/register/mentor"
               className="inline-flex items-center justify-center bg-white text-black font-semibold py-3.5 px-8 rounded-full transition-all duration-300 hover:bg-gray-200 hover:scale-[1.02] w-max"
             >
               Become a Mentor

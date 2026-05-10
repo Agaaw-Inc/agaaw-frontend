@@ -11,7 +11,7 @@ import { LoginSchema, LoginType } from "@/lib/validators/auth";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { loginUser } from "@/lib/api";
-import { setToken } from "@/lib/auth";
+import { setToken, setUserInfo } from "@/lib/auth";
 
 import { Eye, EyeOff } from "lucide-react";
 
@@ -35,6 +35,7 @@ export default function LoginForm() {
     try {
       const response = await loginUser(data);
       setToken(response.access_token);
+      setUserInfo(response.user);
 
       const role = response.user.role;
       if (role === "mentor") {

@@ -4,7 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown } from "lucide-react";
+import { getToken, getUserInfo, removeToken, removeUserInfo } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 const NAV_LINKS = [
   { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
@@ -16,14 +18,39 @@ const NAV_LINKS = [
 export default function MainNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
-  // Close menu on outside click
+  useEffect(() => {
+    const token = getToken();
+    const userInfo = getUserInfo();
+    if (token && userInfo) {
+      setUser(userInfo);
+    } else {
+      setUser(null);
+    }
+  }, [pathname]);
+
+  const handleLogout = () => {
+    removeToken();
+    removeUserInfo();
+    setUser(null);
+    setProfileDropdownOpen(false);
+    router.push("/");
+  };
+
+  // Close menus on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -74,18 +101,65 @@ export default function MainNavbar() {
 
           {/* Desktop Login & Register */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="rounded-xl px-5 py-2 text-sm font-semibold text-teal-700 hover:bg-teal-50 transition border border-transparent hover:border-teal-100"
-            >
-              Login
-            </Link>
-            <button
-              onClick={() => setRegisterModalOpen(true)}
-              className="rounded-xl bg-teal-700 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 transition"
-            >
-              Register
-            </button>
+            {user ? (
+              <div className="relative" ref={profileRef}>
+                <button
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border-2 border-teal-50 shadow-sm">
+                    {user.firstName?.charAt(0) || "U"}
+                  </div>
+                  <ChevronDown size={16} className={`text-gray-500 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-gray-50 bg-gray-50/50">
+                      <p className="text-sm font-bold text-gray-900 truncate">{user.firstName} {user.lastName}</p>
+                      <p className="text-[11px] text-gray-500 truncate uppercase tracking-wider font-semibold">{user.role}</p>
+                    </div>
+                    <Link
+                      href={user.role === 'mentor' ? '/welcome/mentor' : '/welcome/student'}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                    >
+                      <GraduationCap size={18} className="text-gray-400" />
+                      Home
+                    </Link>
+                    <Link
+                      href={`/profile/${user.username || 'me'}`}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                    >
+                      <User size={18} className="text-gray-400" />
+                      My Profile
+                    </Link>
+                    <div className="h-px bg-gray-100 my-1" />
+                    <button
+                      onClick={handleLogout}
+                      className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      <LogOut size={18} />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="rounded-xl px-5 py-2 text-sm font-semibold text-teal-700 hover:bg-teal-50 transition border border-transparent hover:border-teal-100"
+                >
+                  Login
+                </Link>
+                <button
+                  onClick={() => setRegisterModalOpen(true)}
+                  className="rounded-xl bg-teal-700 px-5 py-2 text-sm font-semibold text-white shadow-sm hover:bg-teal-800 transition"
+                >
+                  Register
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -121,25 +195,60 @@ export default function MainNavbar() {
                   </Link>
                 );
               })}
-              <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
-                <Link
-                  href="/login"
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-teal-700 hover:bg-teal-50 transition-colors"
-                >
-                  <LogIn size={18} className="text-teal-600" />
-                  Login
-                </Link>
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setRegisterModalOpen(true);
-                  }}
-                  className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-teal-700 hover:bg-teal-800 transition-colors"
-                >
-                  <UserPlus size={18} className="text-white" />
-                  Register
-                </button>
-              </div>
+              {user ? (
+                <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-teal-50/50 border border-teal-100/50">
+                    <div className="w-10 h-10 rounded-full bg-teal-200 flex items-center justify-center text-teal-800 font-bold border-2 border-white shadow-sm">
+                      {user.firstName?.charAt(0) || "U"}
+                    </div>
+                    <div className="flex flex-col">
+                      <p className="text-sm font-bold text-gray-900">{user.firstName} {user.lastName}</p>
+                      <p className="text-[10px] text-teal-700 font-semibold uppercase tracking-tight">{user.role}</p>
+                    </div>
+                  </div>
+                  <Link
+                    href={user.role === 'mentor' ? '/welcome/mentor' : '/welcome/student'}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <GraduationCap size={18} className="text-gray-400" />
+                    Home
+                  </Link>
+                  <Link
+                    href={`/profile/${user.username || 'me'}`}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <User size={18} className="text-gray-400" />
+                    My Profile
+                  </Link>
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors mt-2 border border-red-100/50"
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
+                  <Link
+                    href="/login"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-teal-700 hover:bg-teal-50 transition-colors"
+                  >
+                    <LogIn size={18} className="text-teal-600" />
+                    Login
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setRegisterModalOpen(true);
+                    }}
+                    className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-white bg-teal-700 hover:bg-teal-800 transition-colors"
+                  >
+                    <UserPlus size={18} className="text-white" />
+                    Register
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

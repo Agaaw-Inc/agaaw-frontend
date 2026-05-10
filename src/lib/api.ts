@@ -44,6 +44,27 @@ export async function loginUser(data: { email: string; password: string }) {
   return json.data || json;
 }
 
+export async function getMe() {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/auth/me`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch user");
+  }
+
+  return json.data || json;
+}
+
 export async function verifyEmail(token: string) {
   const res = await fetch(`${API_URL}/auth/verify-email`, {
     method: "POST",
