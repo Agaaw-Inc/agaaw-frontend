@@ -42,11 +42,18 @@ export default function CountryForm({
     formState: { errors },
   } = useForm<CountryFormValues>({
     resolver: zodResolver(countrySchema),
-    defaultValues: initialData || {
-      name: "",
-      slug: "",
-      isActive: true,
-      sections: [],
+    defaultValues: {
+      name: initialData?.name || "",
+      slug: initialData?.slug || "",
+      flagImage: initialData?.flagImage || "",
+      currency: initialData?.currency || "",
+      language: initialData?.language || "",
+      tuitionCost: initialData?.tuitionCost || "",
+      workRights: initialData?.workRights || "",
+      visaInfo: initialData?.visaInfo || "",
+      description: initialData?.description || "",
+      isActive: initialData?.isActive ?? true,
+      sections: initialData?.sections || [],
     },
   });
 

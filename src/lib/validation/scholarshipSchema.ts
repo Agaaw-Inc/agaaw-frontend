@@ -14,11 +14,11 @@ export const scholarshipSchema = z.object({
   requiredDocuments: z.string().min(1, "Required documents are required"),
   officialLink: z.string().url().optional().or(z.literal("")),
   bannerImage: z.string().url().optional().or(z.literal("")),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   faqs: z.array(z.object({
     question: z.string().min(1),
     answer: z.string().min(1),
-    order: z.number().default(0),
+    order: z.number(),
   })).optional(),
 });
 

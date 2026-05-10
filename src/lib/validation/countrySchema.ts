@@ -10,11 +10,11 @@ export const countrySchema = z.object({
   workRights: z.string().optional(),
   visaInfo: z.string().optional(),
   description: z.string().optional(),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
   sections: z.array(z.object({
     sectionKey: z.string(),
     content: z.string(),
-    order: z.number().default(0),
+    order: z.number(),
   })).optional(),
 });
 
