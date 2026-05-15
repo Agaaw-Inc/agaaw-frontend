@@ -1,9 +1,31 @@
 import ScholarshipCard from "@/components/scholarships/ScholarshipCard";
-import { SCHOLARSHIPS } from "@/data/scholarships";
+import { getScholarships, type PublicScholarship } from "@/lib/api";
 import Link from "next/link";
-import Button from "@/components/ui/Button";
 
-export default function ScholarshipsPreview() {
+const FALLBACK_IMAGE = "/images/scholarship-agaaw.png";
+
+function formatDeadline(deadline: string | null) {
+  if (!deadline) return "Ongoing";
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(deadline));
+}
+
+function formatCoverage(coverage: PublicScholarship["coverage"]) {
+  return {
+    full: "Full Coverage",
+    partial: "Partial Coverage",
+    varies: "Varies",
+  }[coverage];
+}
+
+export default async function ScholarshipsPreview() {
+  const result = await getScholarships({ limit: 6 });
+  const scholarships = result.data;
+
   return (
     <section className="py-20 bg-white px-6 w-full">
       <div className="max-w-6xl mx-auto">
@@ -12,15 +34,15 @@ export default function ScholarshipsPreview() {
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {Object.values(SCHOLARSHIPS).slice(0, 6).map((sch) => (
+          {scholarships.map((sch) => (
             <ScholarshipCard
               key={sch.slug}
               title={sch.name}
               university={sch.provider}
-              deadline={sch.deadline}
-              image={sch.image}
-              funding={sch.funding}
-              amount={sch.amount}
+              deadline={formatDeadline(sch.deadline)}
+              image={sch.bannerImage || FALLBACK_IMAGE}
+              funding={formatCoverage(sch.coverage)}
+              amount={sch.amount || undefined}
               slug={sch.slug}
             />
           ))}

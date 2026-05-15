@@ -4,6 +4,7 @@ export const countrySchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must be lowercase alphanumeric with hyphens"),
   flagImage: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  region: z.string().optional(),
   currency: z.string().optional(),
   language: z.string().optional(),
   tuitionCost: z.string().optional(),

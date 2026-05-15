@@ -1,4 +1,74 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+
+export interface PublicScholarshipFaq {
+  question: string;
+  answer: string;
+  order: number;
+}
+
+export interface PublicScholarship {
+  slug: string;
+  name: string;
+  provider: string;
+  country: string;
+  countrySlug: string;
+  countryFlagImage: string | null;
+  category: string | null;
+  categorySlug: string | null;
+  level: "bachelors" | "masters" | "phd" | "other";
+  coverage: "full" | "partial" | "varies";
+  deadline: string | null;
+  description: string;
+  benefits: string | null;
+  eligibility: string | null;
+  amount: string | null;
+  howToApply: string;
+  requiredDocuments: string;
+  officialLink: string | null;
+  bannerImage: string | null;
+  faqs?: PublicScholarshipFaq[];
+}
+
+export interface PublicScholarshipQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  country?: string;
+  level?: PublicScholarship["level"];
+  coverage?: PublicScholarship["coverage"];
+  category?: string;
+}
+
+export interface PaginatedPublicScholarships {
+  data: PublicScholarship[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
+export interface PublicScholarshipFilterOption {
+  label: string;
+  value: string;
+  flagImage?: string | null;
+}
+
+export interface PublicScholarshipFilters {
+  countries: PublicScholarshipFilterOption[];
+  levels: PublicScholarshipFilterOption[];
+  coverage: PublicScholarshipFilterOption[];
+  categories: PublicScholarshipFilterOption[];
+}
+
+function toQueryString(params: Record<string, unknown>) {
+  const entries = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null && value !== "")
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
+
+  return entries.length > 0 ? `?${entries.join("&")}` : "";
+}
 
 export async function registerUser(data: {
   firstName: string;
@@ -139,5 +209,110 @@ export async function resetPassword(data: { token: string; password: string }) {
   }
 
   return json.data || json;
+}
+
+export async function getCountries() {
+  const res = await fetch(`${API_URL}/countries`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    next: { revalidate: 60 * 5 } // 5 minutes cache
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch countries");
+  }
+
+  return json.data || [];
+}
+
+export async function getCountryBySlug(slug: string) {
+  const res = await fetch(`${API_URL}/countries/${slug}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(json.message || "Failed to fetch country details");
+  }
+
+  return json.data || null;
+}
+
+export async function getScholarships(
+  params: PublicScholarshipQueryParams = {}
+): Promise<PaginatedPublicScholarships> {
+  const qs = toQueryString(params as Record<string, unknown>);
+  const res = await fetch(`${API_URL}/scholarships${qs}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch scholarships");
+  }
+
+  return json.data || {
+    data: [],
+    meta: { total: 0, page: 1, limit: params.limit || 12, totalPages: 0 },
+  };
+}
+
+export async function getScholarshipFilters(): Promise<PublicScholarshipFilters> {
+  const res = await fetch(`${API_URL}/scholarships/filters`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch scholarship filters");
+  }
+
+  return json.data || {
+    countries: [],
+    levels: [],
+    coverage: [],
+    categories: [],
+  };
+}
+
+export async function getScholarshipBySlug(
+  slug: string
+): Promise<PublicScholarship | null> {
+  const res = await fetch(`${API_URL}/scholarships/${slug}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(json.message || "Failed to fetch scholarship details");
+  }
+
+  return json.data || null;
 }
 

@@ -1,4 +1,4 @@
-import { SCHOLARSHIPS } from "@/data/scholarships";
+import { getScholarshipBySlug, type PublicScholarship } from "@/lib/api";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import {
@@ -9,6 +9,8 @@ import {
     ChevronRight,
     ExternalLink,
     Award,
+    FileText,
+    HelpCircle,
     ListOrdered
 } from "lucide-react";
 import Link from "next/link";
@@ -20,9 +22,51 @@ interface PageProps {
     }>;
 }
 
+function formatDeadline(deadline: string | null) {
+    if (!deadline) return "Ongoing";
+
+    return new Intl.DateTimeFormat("en", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+    }).format(new Date(deadline));
+}
+
+function formatEnum(value: string) {
+    return value
+        .split("_")
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+}
+
+function parseList(value: string) {
+    return value
+        .split("\n")
+        .map((line) => line.replace(/^[\s\d\-•*.:·–—+]+/, "").trim())
+        .filter(Boolean);
+}
+
+function getCoverageDetails(scholarship: PublicScholarship) {
+    const details = [
+        `${formatEnum(scholarship.coverage)} scholarship coverage`,
+    ];
+
+    if (scholarship.amount) {
+        details.push(`Amount / stipend: ${scholarship.amount}`);
+    }
+
+    if (scholarship.category) {
+        details.push(`Category: ${scholarship.category}`);
+    }
+
+    details.push(`Provider: ${scholarship.provider}`);
+
+    return details;
+}
+
 export async function generateMetadata({ params }: PageProps) {
     const { slug } = await params;
-    const scholarship = SCHOLARSHIPS[slug];
+    const scholarship = await getScholarshipBySlug(slug);
 
     const title = scholarship ? `${scholarship.name} | Agaaw Scholar` : "Scholarship Details";
 
@@ -36,11 +80,18 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function ScholarshipDetails({ params }: PageProps) {
     const { slug } = await params;
-    const scholarship = SCHOLARSHIPS[slug];
+    const scholarship = await getScholarshipBySlug(slug);
 
     if (!scholarship) {
         notFound();
     }
+
+    const deadline = formatDeadline(scholarship.deadline);
+    const coverageDetails = getCoverageDetails(scholarship);
+    const benefits = parseList(scholarship.benefits || "");
+    const eligibility = parseList(scholarship.eligibility || "");
+    const requiredDocuments = parseList(scholarship.requiredDocuments);
+    const applicationSteps = parseList(scholarship.howToApply);
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -82,14 +133,14 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                     <div className="bg-white/10 p-2.5 rounded-xl"><GraduationCap className="w-5 h-5 text-teal-200" /></div>
                                     <div>
                                         <p className="text-[11px] font-semibold tracking-wider text-teal-300 uppercase mb-0.5">Level</p>
-                                        <p className="font-medium text-white">{scholarship.level}</p>
+                                        <p className="font-medium text-white">{formatEnum(scholarship.level)}</p>
                                     </div>
                                 </li>
                                 <li className="flex items-center gap-4">
                                     <div className="bg-white/10 p-2.5 rounded-xl"><CalendarClock className="w-5 h-5 text-teal-200" /></div>
                                     <div>
                                         <p className="text-[11px] font-semibold tracking-wider text-teal-300 uppercase mb-0.5">Deadline</p>
-                                        <p className="font-medium text-white">{scholarship.deadline}</p>
+                                        <p className="font-medium text-white">{deadline}</p>
                                     </div>
                                 </li>
                             </ul>
@@ -104,34 +155,72 @@ export default async function ScholarshipDetails({ params }: PageProps) {
 
                     {/* Left Column (Details) */}
                     <div className="lg:col-span-2 space-y-8">
-                        {/* Benefits Card */}
+                        {/* Coverage Card */}
                         <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                             <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                 <div className="bg-emerald-100 p-3 rounded-2xl">
                                     <Award className="w-7 h-7 text-emerald-700" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Scholarship Benefits</h2>
+                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Coverage Details</h2>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {scholarship.benefits.map((benefit, idx) => (
+                                {coverageDetails.map((item, idx) => (
                                     <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-5 rounded-2xl border border-slate-100">
                                         <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                                        <span className="text-slate-700 leading-relaxed text-sm md:text-base font-medium">{benefit}</span>
+                                        <span className="text-slate-700 leading-relaxed text-sm md:text-base font-medium">{item}</span>
                                     </div>
                                 ))}
                             </div>
                         </section>
 
-                        {/* Eligibility Card */}
+                        {benefits.length > 0 && (
+                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                                <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
+                                    <div className="bg-emerald-100 p-3 rounded-2xl">
+                                        <CheckCircle2 className="w-7 h-7 text-emerald-700" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Benefits</h2>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {benefits.map((benefit, idx) => (
+                                        <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-5 rounded-2xl border border-slate-100">
+                                            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                                            <span className="text-slate-700 leading-relaxed text-sm md:text-base font-medium">{benefit}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
+                        {eligibility.length > 0 && (
+                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                                <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
+                                    <div className="bg-amber-100 p-3 rounded-2xl">
+                                        <Award className="w-7 h-7 text-amber-700" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Eligibility</h2>
+                                </div>
+                                <ul className="space-y-4">
+                                    {eligibility.map((item, idx) => (
+                                        <li key={idx} className="flex gap-4 items-start p-4 hover:bg-slate-50 transition-colors rounded-xl">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 mt-2 shadow-sm"></div>
+                                            <p className="text-slate-700 leading-relaxed font-medium flex-1">{item}</p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </section>
+                        )}
+
+                        {/* Required Documents Card */}
                         <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                             <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                 <div className="bg-amber-100 p-3 rounded-2xl">
-                                    <CheckCircle2 className="w-7 h-7 text-amber-700" />
+                                    <FileText className="w-7 h-7 text-amber-700" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Eligibility Criteria</h2>
+                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Required Documents</h2>
                             </div>
                             <ul className="space-y-4">
-                                {scholarship.eligibility.map((item, idx) => (
+                                {requiredDocuments.map((item, idx) => (
                                     <li key={idx} className="flex gap-4 items-start p-4 hover:bg-slate-50 transition-colors rounded-xl">
                                         <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 mt-2 shadow-sm"></div>
                                         <p className="text-slate-700 leading-relaxed font-medium flex-1">{item}</p>
@@ -150,7 +239,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                             </div>
 
                             <div className="space-y-0 relative before:absolute before:inset-0 before:ml-[1.1rem] md:before:mx-auto md:before:translate-x-0 before:h-full before:w-[2px] before:bg-gradient-to-b before:from-blue-200 before:via-blue-200 before:to-transparent">
-                                {scholarship.applicationSteps.map((step, idx) => (
+                                {applicationSteps.map((step, idx) => (
                                     <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group py-6">
                                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white border-[3px] border-blue-500 text-blue-700 font-bold text-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-md z-10 mx-auto absolute left-0 md:left-1/2 -ml-0.5 md:ml-0">
                                             {idx + 1}
@@ -162,6 +251,25 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                 ))}
                             </div>
                         </section>
+
+                        {scholarship.faqs && scholarship.faqs.length > 0 && (
+                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                                <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
+                                    <div className="bg-teal-100 p-3 rounded-2xl">
+                                        <HelpCircle className="w-7 h-7 text-teal-700" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Frequently Asked Questions</h2>
+                                </div>
+                                <div className="space-y-4">
+                                    {scholarship.faqs.map((faq) => (
+                                        <div key={faq.question} className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                                            <h3 className="font-bold text-slate-800 mb-2">{faq.question}</h3>
+                                            <p className="text-slate-600 leading-relaxed">{faq.answer}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
                     </div>
 
                     {/* Right Column (Sidebar CTA) */}
@@ -172,17 +280,25 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                             </div>
                             <h3 className="text-2xl font-bold text-slate-800 mb-3">Ready to Apply?</h3>
                             <p className="text-slate-500 text-sm mb-8 leading-relaxed">
-                                Review the official guidelines and submit your application before the final deadline on <span className="font-bold text-slate-800">{scholarship.deadline}</span>.
+                                Review the official guidelines and submit your application before the final deadline on <span className="font-bold text-slate-800">{deadline}</span>.
                             </p>
-                            <a
-                                href={scholarship.officialLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center justify-center gap-2 w-full bg-teal-600 hover:bg-teal-700 text-white text-lg font-semibold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-teal-600/25 active:scale-[0.98]"
-                            >
-                                Official Website <ChevronRight className="w-5 h-5" />
-                            </a>
-                            <p className="text-xs text-slate-400 mt-5 font-medium">Opens safely in a new tab</p>
+                            {scholarship.officialLink ? (
+                                <>
+                                    <a
+                                        href={scholarship.officialLink}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="flex items-center justify-center gap-2 w-full bg-teal-600 hover:bg-teal-700 text-white text-lg font-semibold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-teal-600/25 active:scale-[0.98]"
+                                    >
+                                        Official Website <ChevronRight className="w-5 h-5" />
+                                    </a>
+                                    <p className="text-xs text-slate-400 mt-5 font-medium">Opens safely in a new tab</p>
+                                </>
+                            ) : (
+                                <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-medium text-slate-500">
+                                    Official application link will be added soon.
+                                </p>
+                            )}
                         </div>
                     </div>
 

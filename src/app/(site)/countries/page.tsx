@@ -3,60 +3,75 @@
 import CountryCard from "@/components/countries/CountryCard";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
-import { Search, ChevronDown, ArrowRight } from "lucide-react";
-import { COUNTRIES } from "@/data/countries";
-import { useState, useMemo } from "react";
+import { Search, ChevronDown, X } from "lucide-react";
+import { getCountries } from "@/lib/api";
+import { useState, useMemo, useEffect } from "react";
 import Pagination from "@/components/ui/Pagination";
 
 const ITEMS_PER_PAGE = 6;
 
-// Helper to categorize countries for mock filtering
-const getRegion = (slug: string) => {
-    const regions: Record<string, string> = {
-        canada: "North America",
-        "united-kingdom": "Europe",
-        germany: "Europe",
-        australia: "Oceania",
-        usa: "North America",
-        japan: "Asia",
-        france: "Europe",
-        switzerland: "Europe",
-        netherlands: "Europe",
-    };
-    return regions[slug] || "Other";
-};
-
-const getLanguage = (slug: string) => {
-    const languages: Record<string, string> = {
-        canada: "English",
-        "united-kingdom": "English",
-        germany: "German",
-        australia: "English",
-        "united-states": "English",
-        japan: "Japanese",
-        france: "French",
-        switzerland: "German", // Simplified for mock
-        netherlands: "English",
-    };
-    return languages[slug] || "English";
-};
+interface CountryListItem {
+    slug: string;
+    name: string;
+    image: string;
+    region?: string;
+    language?: string;
+    shortIntro?: string;
+}
 
 export default function CountriesPage() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [regionFilter, setRegionFilter] = useState("Region");
-    const [languageFilter, setLanguageFilter] = useState("Language");
+    const [regionFilter, setRegionFilter] = useState("");
+    const [languageFilter, setLanguageFilter] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
 
-    const allCountries = useMemo(() => Object.values(COUNTRIES), []);
+    const [allCountries, setAllCountries] = useState<CountryListItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchCountries() {
+            try {
+                const data = await getCountries();
+                setAllCountries(data);
+            } catch (error) {
+                console.error("Failed to fetch countries:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchCountries();
+    }, []);
 
     const filteredCountries = useMemo(() => {
         return allCountries.filter((country) => {
-            const matchesSearch = country.name.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesRegion = regionFilter === "Region" || getRegion(country.slug) === regionFilter;
-            const matchesLanguage = languageFilter === "Language" || getLanguage(country.slug) === languageFilter;
+            const normalizedSearch = searchQuery.toLowerCase();
+            const matchesSearch =
+                country.name.toLowerCase().includes(normalizedSearch) ||
+                (country.region || "").toLowerCase().includes(normalizedSearch) ||
+                (country.language || "").toLowerCase().includes(normalizedSearch);
+            const matchesRegion = !regionFilter || country.region === regionFilter;
+            const matchesLanguage = !languageFilter || country.language === languageFilter;
             return matchesSearch && matchesRegion && matchesLanguage;
         });
     }, [allCountries, searchQuery, regionFilter, languageFilter]);
+
+    const regionOptions = useMemo(() => {
+        return Array.from(
+            new Set(allCountries.map((country) => country.region).filter((region): region is string => Boolean(region)))
+        ).sort();
+    }, [allCountries]);
+
+    const languageOptions = useMemo(() => {
+        return Array.from(
+            new Set(allCountries.map((country) => country.language).filter((language): language is string => Boolean(language)))
+        ).sort();
+    }, [allCountries]);
+
+    const quickRegions = regionOptions.slice(0, 2);
+    const quickLanguages = [
+        ...languageOptions.filter((language) => language === "English"),
+        ...languageOptions.filter((language) => language !== "English"),
+    ].slice(0, 2);
 
     const totalPages = Math.ceil(filteredCountries.length / ITEMS_PER_PAGE);
     const currentCountries = filteredCountries.slice(
@@ -127,11 +142,10 @@ export default function CountriesPage() {
                                     value={regionFilter}
                                     onChange={(e) => { setRegionFilter(e.target.value); setCurrentPage(1); }}
                                 >
-                                    <option>Region</option>
-                                    <option>Europe</option>
-                                    <option>North America</option>
-                                    <option>Asia</option>
-                                    <option>Oceania</option>
+                                    <option value="">Region</option>
+                                    {regionOptions.map((region) => (
+                                        <option key={region} value={region}>{region}</option>
+                                    ))}
                                 </select>
                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
                             </div>
@@ -141,11 +155,10 @@ export default function CountriesPage() {
                                     value={languageFilter}
                                     onChange={(e) => { setLanguageFilter(e.target.value); setCurrentPage(1); }}
                                 >
-                                    <option>Language</option>
-                                    <option>English</option>
-                                    <option>German</option>
-                                    <option>French</option>
-                                    <option>Japanese</option>
+                                    <option value="">Language</option>
+                                    {languageOptions.map((language) => (
+                                        <option key={language} value={language}>{language}</option>
+                                    ))}
                                 </select>
                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
                             </div>
@@ -153,30 +166,34 @@ export default function CountriesPage() {
                     </div>
                     <div className="flex flex-wrap gap-3 mt-6 items-center">
                         <span className="text-xs font-bold uppercase tracking-widest text-bombay pr-2">Popular:</span>
-                        <button
-                            onClick={() => { setRegionFilter("Europe"); setCurrentPage(1); }}
-                            className="px-4 py-1.5 bg-elm/10 text-elm rounded-full text-xs font-medium hover:bg-elm/20 transition-colors"
-                        >
-                            Europe
-                        </button>
-                        <button
-                            onClick={() => { setLanguageFilter("English"); setCurrentPage(1); }}
-                            className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
-                        >
-                            Study in English
-                        </button>
-                        <button
-                            onClick={() => { setSearchQuery("Post-Study Visa"); setCurrentPage(1); }}
-                            className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
-                        >
-                            Post-Study Visa
-                        </button>
-                        <button
-                            onClick={() => { setSearchQuery("Tuition"); setCurrentPage(1); }}
-                            className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
-                        >
-                            Low Tuition
-                        </button>
+                        {quickRegions.map((region) => (
+                            <button
+                                key={region}
+                                onClick={() => { setRegionFilter(regionFilter === region ? "" : region); setCurrentPage(1); }}
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
+                                    regionFilter === region
+                                        ? "bg-elm/10 text-elm hover:bg-elm/20"
+                                        : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
+                                }`}
+                            >
+                                {region}
+                                {regionFilter === region && <X className="w-3 h-3 ml-1" />}
+                            </button>
+                        ))}
+                        {quickLanguages.map((language) => (
+                            <button
+                                key={language}
+                                onClick={() => { setLanguageFilter(languageFilter === language ? "" : language); setCurrentPage(1); }}
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
+                                    languageFilter === language
+                                        ? "bg-elm/10 text-elm hover:bg-elm/20"
+                                        : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
+                                }`}
+                            >
+                                Study in {language}
+                                {languageFilter === language && <X className="w-3 h-3 ml-1" />}
+                            </button>
+                        ))}
                     </div>
                 </section>
 
@@ -184,13 +201,13 @@ export default function CountriesPage() {
                 <section className="py-12 px-6 max-w-7xl mx-auto">
                     <div className="flex justify-between items-end mb-8 border-b border-gray-200 pb-4">
                         <h2 className="text-2xl font-bold text-gray-800">
-                            {regionFilter !== "Region" ? `${regionFilter} Destinations` : "Popular Destinations"}
+                            {regionFilter ? `${regionFilter} Destinations` : "Popular Destinations"}
                         </h2>
                         <span
                             onClick={() => {
                                 setSearchQuery("");
-                                setRegionFilter("Region");
-                                setLanguageFilter("Language");
+                                setRegionFilter("");
+                                setLanguageFilter("");
                                 setCurrentPage(1);
                             }}
                             className="text-sm font-medium text-teal-700 cursor-pointer hover:underline"
@@ -198,7 +215,11 @@ export default function CountriesPage() {
                         </span>
                     </div>
 
-                    {currentCountries.length > 0 ? (
+                    {isLoading ? (
+                        <div className="text-center py-20">
+                            <p className="text-xl text-bombay animate-pulse">Loading countries...</p>
+                        </div>
+                    ) : currentCountries.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             {currentCountries.map((country) => (
                                 <CountryCard

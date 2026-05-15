@@ -9,6 +9,7 @@ import {
   AlertCircle, ChevronDown, ChevronUp, Globe 
 } from "lucide-react";
 import * as adminApi from "@/lib/adminApi";
+import type { Country, CreateCountryPayload } from "@/lib/adminTypes";
 import { countrySchema, CountryFormValues } from "@/lib/validation/countrySchema";
 
 const SECTION_KEYS = [
@@ -27,7 +28,7 @@ export default function CountryForm({
   countryId,
 }: {
   mode?: "create" | "edit";
-  initialData?: any;
+  initialData?: Country;
   countryId?: string;
 }) {
   const router = useRouter();
@@ -38,7 +39,6 @@ export default function CountryForm({
     register,
     control,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<CountryFormValues>({
     resolver: zodResolver(countrySchema),
@@ -46,6 +46,7 @@ export default function CountryForm({
       name: initialData?.name || "",
       slug: initialData?.slug || "",
       flagImage: initialData?.flagImage || "",
+      region: initialData?.region || "",
       currency: initialData?.currency || "",
       language: initialData?.language || "",
       tuitionCost: initialData?.tuitionCost || "",
@@ -66,10 +67,22 @@ export default function CountryForm({
     setIsSubmitting(true);
     setServerError(null);
     try {
+      const payload: CreateCountryPayload = {
+        ...data,
+        flagImage: data.flagImage || undefined,
+        region: data.region || undefined,
+        currency: data.currency || undefined,
+        language: data.language || undefined,
+        tuitionCost: data.tuitionCost || undefined,
+        workRights: data.workRights || undefined,
+        visaInfo: data.visaInfo || undefined,
+        description: data.description || undefined,
+      };
+
       if (mode === "create") {
-        await adminApi.createCountry(data as any);
+        await adminApi.createCountry(payload);
       } else if (countryId) {
-        await adminApi.updateCountry(countryId, data as any);
+        await adminApi.updateCountry(countryId, payload);
       }
       router.push("/admin/countries");
       router.refresh();
@@ -212,6 +225,22 @@ export default function CountryForm({
                 <input {...register("currency")} placeholder="e.g. CAD, USD" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
               </div>
               <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Region</label>
+                <select
+                  {...register("region")}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                >
+                  <option value="">Select region</option>
+                  <option value="Africa">Africa</option>
+                  <option value="Asia">Asia</option>
+                  <option value="Europe">Europe</option>
+                  <option value="Middle East">Middle East</option>
+                  <option value="North America">North America</option>
+                  <option value="Oceania">Oceania</option>
+                  <option value="South America">South America</option>
+                </select>
+              </div>
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Language</label>
                 <input {...register("language")} placeholder="e.g. English, French" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
               </div>
@@ -222,6 +251,15 @@ export default function CountryForm({
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Work Rights</label>
                 <input {...register("workRights")} placeholder="e.g. 20h/week" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Visa Info</label>
+                <textarea
+                  {...register("visaInfo")}
+                  placeholder="e.g. Student visa requires admission letter, bank statement, and valid passport."
+                  rows={4}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none transition-all resize-y min-h-[110px]"
+                />
               </div>
             </div>
           </div>
@@ -236,7 +274,7 @@ export default function CountryForm({
                />
              </div>
              <p className="text-[11px] text-gray-400 leading-relaxed">
-               Inactive countries won't be visible to students in the main platform.
+               Inactive countries will not be visible to students in the main platform.
              </p>
           </div>
 

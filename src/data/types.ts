@@ -18,6 +18,7 @@ export interface Scholarship {
 export interface Country {
     slug: string;
     name: string;
+    region?: string;
     shortIntro: string;
     opportunities: string[];
     universities: string[];
@@ -25,6 +26,9 @@ export interface Country {
     whenToApply: string;
     visaPolicy: string;
     avgCost: string;
+    tuitionCost?: string;
+    language?: string;
+    currency?: string;
     jobOpportunities: string[];
     image: string;
 }

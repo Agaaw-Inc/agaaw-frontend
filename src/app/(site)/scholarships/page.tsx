@@ -4,46 +4,128 @@ import ScholarshipCard from "@/components/scholarships/ScholarshipCard";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Link from "next/link";
 import Footer from "@/components/landing/Footer";
-import { Search, ChevronDown, ArrowRight } from "lucide-react";
-import { SCHOLARSHIPS } from "@/data/scholarships";
+import { Search, ChevronDown, Loader2, X } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Pagination from "@/components/ui/Pagination";
+import {
+  getScholarshipFilters,
+  getScholarships,
+  type PublicScholarship,
+  type PublicScholarshipFilters,
+  type PublicScholarshipQueryParams,
+} from "@/lib/api";
 
 const ITEMS_PER_PAGE = 4;
+const FALLBACK_IMAGE = "/images/scholarship-agaaw.png";
+
+function formatDeadline(deadline: string | null) {
+  if (!deadline) return "Ongoing";
+
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(deadline));
+}
+
+function formatCoverage(coverage: PublicScholarship["coverage"]) {
+  return {
+    full: "Full Coverage",
+    partial: "Partial Coverage",
+    varies: "Varies",
+  }[coverage];
+}
+
+function getOptionLabel(
+  options: { label: string; value: string }[],
+  value: string,
+  fallback: string
+) {
+  return options.find((option) => option.value === value)?.label || fallback;
+}
 
 export default function ScholarshipsPage() {
+  const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
-  const [levelFilter, setLevelFilter] = useState("Degree Level");
-  const [countryFilter, setCountryFilter] = useState("Country");
+  const [searchDebounced, setSearchDebounced] = useState("");
+  const [levelFilter, setLevelFilter] = useState<PublicScholarshipQueryParams["level"] | "">("");
+  const [coverageFilter, setCoverageFilter] = useState<PublicScholarshipQueryParams["coverage"] | "">("");
+  const [countryFilter, setCountryFilter] = useState(searchParams.get("country") || "");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [scholarships, setScholarships] = useState<PublicScholarship[]>([]);
+  const [filters, setFilters] = useState<PublicScholarshipFilters>({
+    countries: [],
+    levels: [],
+    coverage: [],
+    categories: [],
+  });
+  const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const scholarships = useMemo(() => Object.values(SCHOLARSHIPS), []);
+  useEffect(() => {
+    const country = searchParams.get("country") || "";
+    setCountryFilter(country);
+    setCurrentPage(1);
+  }, [searchParams]);
 
-  const filteredScholarships = useMemo(() => {
-    return scholarships.filter((sch) => {
-      const matchesSearch =
-        sch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        sch.provider.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        sch.country.toLowerCase().includes(searchQuery.toLowerCase());
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSearchDebounced(searchQuery);
+      setCurrentPage(1);
+    }, 350);
 
-      const matchesLevel =
-        levelFilter === "Degree Level" ||
-        sch.level.toLowerCase().includes(levelFilter.toLowerCase());
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
 
-      const matchesCountry =
-        countryFilter === "Country" ||
-        sch.country.toLowerCase() === countryFilter.toLowerCase();
+  useEffect(() => {
+    async function loadFilters() {
+      try {
+        const result = await getScholarshipFilters();
+        setFilters(result);
+      } catch {
+        setFilters({
+          countries: [],
+          levels: [],
+          coverage: [],
+          categories: [],
+        });
+      }
+    }
 
-      return matchesSearch && matchesLevel && matchesCountry;
-    });
-  }, [scholarships, searchQuery, levelFilter, countryFilter]);
+    loadFilters();
+  }, []);
 
-  const totalPages = Math.ceil(filteredScholarships.length / ITEMS_PER_PAGE);
-  const currentScholarships = filteredScholarships.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  useEffect(() => {
+    async function loadScholarships() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const result = await getScholarships({
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          search: searchDebounced,
+          country: countryFilter || undefined,
+          level: levelFilter || undefined,
+          coverage: coverageFilter || undefined,
+          category: categoryFilter || undefined,
+        });
+        setScholarships(result.data);
+        setTotalPages(result.meta.totalPages);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load scholarships");
+        setScholarships([]);
+        setTotalPages(0);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadScholarships();
+  }, [currentPage, searchDebounced, countryFilter, levelFilter, coverageFilter, categoryFilter]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -56,12 +138,22 @@ export default function ScholarshipsPage() {
   };
 
   const handleLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLevelFilter(e.target.value);
+    setLevelFilter(e.target.value as PublicScholarshipQueryParams["level"] | "");
     setCurrentPage(1);
   };
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCountryFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleCoverageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCoverageFilter(e.target.value as PublicScholarshipQueryParams["coverage"] | "");
+    setCurrentPage(1);
+  };
+
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCategoryFilter(e.target.value);
     setCurrentPage(1);
   };
 
@@ -81,7 +173,7 @@ export default function ScholarshipsPage() {
               <span className="text-elm">Academic Excellence</span>
             </h1>
             <p className="text-lg md:text-xl text-bombay max-w-xl leading-relaxed mb-10">
-              A high-end editorial gallery of the world's most prestigious scholarships. We curate opportunities
+              A high-end editorial gallery of the world&apos;s most prestigious scholarships. We curate opportunities
               that transform ambitious students into global leaders.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -130,10 +222,12 @@ export default function ScholarshipsPage() {
                   value={levelFilter}
                   onChange={handleLevelChange}
                 >
-                  <option>Degree Level</option>
-                  <option>Masters</option>
-                  <option>PhD</option>
-                  <option>Post-Doc</option>
+                  <option value="">Degree Level</option>
+                  {filters.levels.map((level) => (
+                    <option key={level.value} value={level.value}>
+                      {level.label}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
               </div>
@@ -143,12 +237,42 @@ export default function ScholarshipsPage() {
                   value={countryFilter}
                   onChange={handleCountryChange}
                 >
-                  <option>Country</option>
-                  <option>Germany</option>
-                  <option>United Kingdom</option>
-                  <option>United States</option>
-                  <option>Australia</option>
-                  <option>Japan</option>
+                  <option value="">Country</option>
+                  {filters.countries.map((country) => (
+                    <option key={country.value} value={country.value}>
+                      {country.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
+              </div>
+              <div className="relative group">
+                <select
+                  className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm"
+                  value={coverageFilter}
+                  onChange={handleCoverageChange}
+                >
+                  <option value="">Coverage</option>
+                  {filters.coverage.map((coverage) => (
+                    <option key={coverage.value} value={coverage.value}>
+                      {coverage.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
+              </div>
+              <div className="relative group">
+                <select
+                  className="appearance-none w-full md:w-auto bg-white border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium focus:ring-2 focus:ring-elm/20 outline-none cursor-pointer shadow-sm"
+                  value={categoryFilter}
+                  onChange={handleCategoryChange}
+                >
+                  <option value="">Category</option>
+                  {filters.categories.map((category) => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
               </div>
@@ -156,47 +280,90 @@ export default function ScholarshipsPage() {
           </div>
           <div className="flex flex-wrap gap-3 mt-6 items-center">
             <span className="text-xs font-bold uppercase tracking-widest text-bombay pr-2">Popular:</span>
-            <button
-              onClick={() => { setSearchQuery("Fully Funded"); setCurrentPage(1); }}
-              className="px-4 py-1.5 bg-elm/10 text-elm rounded-full text-xs font-medium hover:bg-elm/20 transition-colors"
-            >
-              Fully Funded
-            </button>
-            <button
-              onClick={() => { setSearchQuery("STEM"); setCurrentPage(1); }}
-              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
-            >
-              STEM
-            </button>
-            <button
-              onClick={() => { setSearchQuery("Bachelors"); setCurrentPage(1); }}
-              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
-            >
-              Bachelors
-            </button>
-            <button
-              onClick={() => { setLevelFilter("Masters"); setCurrentPage(1); }}
-              className="px-4 py-1.5 bg-white border border-slate-200 text-codgray hover:bg-slate-50 rounded-full text-xs font-medium transition-colors"
-            >
-              Masters Programs
-            </button>
+            {filters.coverage.some((coverage) => coverage.value === "full") && (
+              <button
+                onClick={() => { setCoverageFilter(coverageFilter === "full" ? "" : "full"); setCurrentPage(1); }}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
+                  coverageFilter === "full"
+                    ? "bg-elm/10 text-elm hover:bg-elm/20"
+                    : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
+                }`}
+              >
+                {getOptionLabel(filters.coverage, "full", "Full Coverage")}
+                {coverageFilter === "full" && <X className="w-3 h-3 ml-1" />}
+              </button>
+            )}
+            {filters.levels
+              .filter((level) => ["bachelors", "masters"].includes(level.value))
+              .slice(0, 2)
+              .map((level) => (
+                <button
+                  key={level.value}
+                  onClick={() => { setLevelFilter(levelFilter === level.value ? "" : level.value as PublicScholarshipQueryParams["level"]); setCurrentPage(1); }}
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
+                    levelFilter === level.value
+                      ? "bg-elm/10 text-elm hover:bg-elm/20"
+                      : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
+                  }`}
+                >
+                  {level.label}
+                  {levelFilter === level.value && <X className="w-3 h-3 ml-1" />}
+                </button>
+              ))}
+            {filters.categories.slice(0, 2).map((category) => (
+              <button
+                key={category.value}
+                onClick={() => { setCategoryFilter(categoryFilter === category.value ? "" : category.value); setCurrentPage(1); }}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
+                  categoryFilter === category.value
+                    ? "bg-elm/10 text-elm hover:bg-elm/20"
+                    : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
+                }`}
+              >
+                {category.label}
+                {categoryFilter === category.value && <X className="w-3 h-3 ml-1" />}
+              </button>
+            ))}
           </div>
         </section>
 
         {/* Scholarship Grid */}
         <section className="px-8 max-w-7xl mx-auto">
-          {currentScholarships.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20 text-bombay">
+              <Loader2 className="w-8 h-8 animate-spin mr-3 text-elm" />
+              Loading scholarships...
+            </div>
+          ) : error ? (
+            <div className="text-center py-20">
+              <p className="text-xl text-red-600">{error}</p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setSearchDebounced("");
+                  setLevelFilter("");
+                  setCoverageFilter("");
+                  setCountryFilter("");
+                  setCategoryFilter("");
+                  setCurrentPage(1);
+                }}
+                className="mt-4 text-elm font-medium hover:underline"
+              >
+                Reset filters
+              </button>
+            </div>
+          ) : scholarships.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {currentScholarships.map((sch) => (
+              {scholarships.map((sch) => (
                 <ScholarshipCard
                   key={sch.slug}
                   slug={sch.slug}
                   title={sch.name}
                   university={sch.provider}
-                  deadline={sch.deadline}
-                  image={sch.image}
-                  funding={sch.funding}
-                  amount={sch.amount}
+                  deadline={formatDeadline(sch.deadline)}
+                  image={sch.bannerImage || FALLBACK_IMAGE}
+                  funding={formatCoverage(sch.coverage)}
+                  amount={sch.amount || undefined}
                 />
               ))}
             </div>
@@ -206,8 +373,11 @@ export default function ScholarshipsPage() {
               <button
                 onClick={() => {
                   setSearchQuery("");
-                  setLevelFilter("Degree Level");
-                  setCountryFilter("Country");
+                  setSearchDebounced("");
+                  setLevelFilter("");
+                  setCoverageFilter("");
+                  setCountryFilter("");
+                  setCategoryFilter("");
                   setCurrentPage(1);
                 }}
                 className="mt-4 text-elm font-medium hover:underline"

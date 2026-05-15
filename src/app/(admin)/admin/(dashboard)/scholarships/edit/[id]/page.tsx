@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ScholarshipForm from "@/components/admin/scholarship/ScholarshipForm";
 import * as adminApi from "@/lib/adminApi";
+import type { Scholarship } from "@/lib/adminTypes";
 import { Loader2, AlertCircle } from "lucide-react";
 
 export default function EditScholarshipPage() {
   const params = useParams();
   const id = params.id as string;
   
-  const [scholarship, setScholarship] = useState<any>(null);
+  const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +50,7 @@ export default function EditScholarshipPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Edit Scholarship</h1>
-      <ScholarshipForm mode="edit" initialData={scholarship} scholarshipId={id} />
+      <ScholarshipForm mode="edit" initialData={scholarship ?? undefined} scholarshipId={id} />
     </div>
   );
 }

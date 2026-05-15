@@ -421,6 +421,7 @@ export interface Country {
   name: string;
   slug: string;
   flagImage: string | null;
+  region: string | null;
   currency: string | null;
   language: string | null;
   tuitionCost: string | null;
@@ -442,6 +443,7 @@ export interface CreateCountryPayload {
   name: string;
   slug: string;
   flagImage?: string;
+  region?: string;
   currency?: string;
   language?: string;
   tuitionCost?: string;
@@ -498,6 +500,9 @@ export interface Scholarship {
   coverage: Coverage;
   deadline: string | null;
   description: string;
+  benefits: string | null;
+  eligibility: string | null;
+  amount: string | null;
   howToApply: string;
   requiredDocuments: string;
   officialLink: string | null;
@@ -526,6 +531,9 @@ export interface CreateScholarshipPayload {
   coverage: Coverage;
   deadline?: string;
   description: string;
+  benefits?: string;
+  eligibility?: string;
+  amount?: string;
   howToApply: string;
   requiredDocuments: string;
   officialLink?: string;

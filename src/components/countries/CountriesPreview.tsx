@@ -1,14 +1,15 @@
 import CountryCard from "./CountryCard";
-import { COUNTRIES } from "@/data/countries";
+import { getCountries } from "@/lib/api";
 import Link from "next/link";
 
-const sampleCountries = [
-    { name: "Canada", image: "/countries/canada.jpg" },
-    { name: "Germany", image: "/countries/germany.jpg" },
-    { name: "Australia", image: "/countries/australia.jpg" },
-];
+export default async function CountryPreview() {
+    let countries = [];
+    try {
+        countries = await getCountries();
+    } catch (error) {
+        console.error("Failed to fetch preview countries:", error);
+    }
 
-export default function CountryPreview() {
     return (
         <section className="py-20 bg-gray-50 px-6 w-full">
             <div className="max-w-6xl mx-auto">
@@ -17,7 +18,7 @@ export default function CountryPreview() {
                 </h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                    {Object.values(COUNTRIES).slice(0, 6).map((country) => (
+                    {countries.slice(0, 6).map((country: any) => (
                         <CountryCard
                             key={country.slug}
                             name={country.name}

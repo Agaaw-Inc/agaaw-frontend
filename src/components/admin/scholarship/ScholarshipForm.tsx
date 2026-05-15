@@ -6,11 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { 
   Plus, Trash2, Loader2, CheckCircle2, 
-  AlertCircle, ChevronDown, ChevronUp, GraduationCap, MapPin, Layers, Target, FileText
+  AlertCircle, GraduationCap, MapPin, Layers, Target, FileText, ImageIcon
 } from "lucide-react";
 import * as adminApi from "@/lib/adminApi";
 import { scholarshipSchema, ScholarshipFormValues } from "@/lib/validation/scholarshipSchema";
-import type { Country } from "@/lib/adminTypes";
+import type { Country, CreateScholarshipPayload, Scholarship } from "@/lib/adminTypes";
 
 export default function ScholarshipForm({
   mode = "create",
@@ -18,7 +18,7 @@ export default function ScholarshipForm({
   scholarshipId,
 }: {
   mode?: "create" | "edit";
-  initialData?: any;
+  initialData?: Scholarship;
   scholarshipId?: string;
 }) {
   const router = useRouter();
@@ -31,7 +31,6 @@ export default function ScholarshipForm({
     register,
     control,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<ScholarshipFormValues>({
     resolver: zodResolver(scholarshipSchema),
@@ -45,6 +44,9 @@ export default function ScholarshipForm({
       coverage: initialData?.coverage || "full",
       deadline: initialData?.deadline ? new Date(initialData.deadline).toISOString().split('T')[0] : "",
       description: initialData?.description || "",
+      benefits: initialData?.benefits || "",
+      eligibility: initialData?.eligibility || "",
+      amount: initialData?.amount || "",
       howToApply: initialData?.howToApply || "",
       requiredDocuments: initialData?.requiredDocuments || "",
       officialLink: initialData?.officialLink || "",
@@ -54,7 +56,7 @@ export default function ScholarshipForm({
     },
   });
 
-  const { fields, append, remove, move } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "faqs",
   });
@@ -79,10 +81,21 @@ export default function ScholarshipForm({
     setIsSubmitting(true);
     setServerError(null);
     try {
+      const payload: CreateScholarshipPayload = {
+        ...data,
+        categoryId: data.categoryId || undefined,
+        deadline: data.deadline || undefined,
+        officialLink: data.officialLink || undefined,
+        bannerImage: data.bannerImage || undefined,
+        benefits: data.benefits || undefined,
+        eligibility: data.eligibility || undefined,
+        amount: data.amount || undefined,
+      };
+
       if (mode === "create") {
-        await adminApi.createScholarship(data as any);
+        await adminApi.createScholarship(payload);
       } else if (scholarshipId) {
-        await adminApi.updateScholarship(scholarshipId, data as any);
+        await adminApi.updateScholarship(scholarshipId, payload);
       }
       router.push("/admin/scholarships");
       router.refresh();
@@ -156,7 +169,37 @@ export default function ScholarshipForm({
             </div>
           </div>
 
-          {/* ── Eligibility & Steps ── */}
+          {/* ── Benefits & Eligibility ── */}
+          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               <div className="space-y-2">
+                 <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                   <CheckCircle2 size={16} className="text-teal-600" />
+                   Benefits
+                 </h3>
+                 <textarea
+                   {...register("benefits")}
+                   placeholder="List scholarship benefits, one per line..."
+                   rows={6}
+                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none transition-all resize-none"
+                 />
+               </div>
+               <div className="space-y-2">
+                 <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                   <Target size={16} className="text-teal-600" />
+                   Eligibility
+                 </h3>
+                 <textarea
+                   {...register("eligibility")}
+                   placeholder="List eligibility criteria, one per line..."
+                   rows={6}
+                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 outline-none transition-all resize-none"
+                 />
+               </div>
+            </div>
+          </div>
+
+          {/* ── Application & Documents ── */}
           <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                <div className="space-y-2">
@@ -304,6 +347,15 @@ export default function ScholarshipForm({
               </div>
 
               <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Amount / Stipend</label>
+                <input
+                  {...register("amount")}
+                  placeholder="e.g. $1,500/month, Full tuition"
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Official Link</label>
                 <input
                   {...register("officialLink")}
@@ -311,6 +363,18 @@ export default function ScholarshipForm({
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
                 />
                 {errors.officialLink && <p className="text-xs text-red-500">{errors.officialLink.message}</p>}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-tight flex items-center gap-1">
+                  <ImageIcon size={12} /> Banner Image URL
+                </label>
+                <input
+                  {...register("bannerImage")}
+                  placeholder="https://..."
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+                />
+                {errors.bannerImage && <p className="text-xs text-red-500">{errors.bannerImage.message}</p>}
               </div>
             </div>
           </div>

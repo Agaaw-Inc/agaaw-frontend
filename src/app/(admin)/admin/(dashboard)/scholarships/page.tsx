@@ -15,7 +15,7 @@ import {
   Edit2, Trash2, CheckCircle2, XCircle, Filter, MapPin, Layers, Check, X
 } from "lucide-react";
 import * as adminApi from "@/lib/adminApi";
-import type { Scholarship, Country, PaginatedResponse, ScholarshipLevel, Coverage, ScholarshipCategory } from "@/lib/adminTypes";
+import type { Scholarship, Country, ScholarshipLevel, Coverage, ScholarshipCategory } from "@/lib/adminTypes";
 
 /* ─── Toast ──────────────────────────────────────────────────── */
 function Toast({ message, type, onHide }: { message: string; type: "success" | "error"; onHide: () => void }) {
@@ -370,7 +370,7 @@ export default function ScholarshipsPage() {
             <GraduationCap size={15} className="text-gray-400" />
             <select
               value={level}
-              onChange={(e) => { setLevel(e.target.value as any); setPage(1); }}
+              onChange={(e) => { setLevel(e.target.value as ScholarshipLevel | ""); setPage(1); }}
               className="border border-gray-200 rounded-xl text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="">All Levels</option>
@@ -386,7 +386,7 @@ export default function ScholarshipsPage() {
             <Filter size={15} className="text-gray-400" />
             <select
               value={coverage}
-              onChange={(e) => { setCoverage(e.target.value as any); setPage(1); }}
+              onChange={(e) => { setCoverage(e.target.value as Coverage | ""); setPage(1); }}
               className="border border-gray-200 rounded-xl text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="">All Coverage</option>
@@ -432,6 +432,7 @@ export default function ScholarshipsPage() {
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
                       {s.country?.flagImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={s.country.flagImage} alt="" className="w-5 h-3.5 rounded-sm object-cover border border-gray-100" />
                       ) : (
                         <MapPin size={12} className="text-gray-300" />
