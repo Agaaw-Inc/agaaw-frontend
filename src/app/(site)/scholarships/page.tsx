@@ -6,7 +6,7 @@ import Link from "next/link";
 import Footer from "@/components/landing/Footer";
 import { Search, ChevronDown, Loader2, X } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Pagination from "@/components/ui/Pagination";
 import {
@@ -46,7 +46,7 @@ function getOptionLabel(
   return options.find((option) => option.value === value)?.label || fallback;
 }
 
-export default function ScholarshipsPage() {
+function ScholarshipList() {
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDebounced, setSearchDebounced] = useState("");
@@ -398,5 +398,18 @@ export default function ScholarshipsPage() {
 
       <Footer />
     </>
+  );
+}
+
+export default function ScholarshipsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-elm mb-4" />
+        <p className="text-bombay font-medium">Preparing scholarships...</p>
+      </div>
+    }>
+      <ScholarshipList />
+    </Suspense>
   );
 }
