@@ -43,7 +43,7 @@ export default function BlogForm({ mode, defaultValues, cancelHref, onSubmit }: 
       slug: "",
       content: "",
       authorId: "",
-      category: "general" as any,
+      category: "general",
       excerpt: "",
       metaDescription: "",
       coverImage: "",
