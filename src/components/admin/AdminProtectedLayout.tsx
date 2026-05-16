@@ -34,7 +34,7 @@ export default function AdminProtectedLayout({
   // ── Redirect to login if not authenticated ─────────────────
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace("/admin/login");
+      router.replace("/internal-hq/login");
     }
   }, [isLoading, isAuthenticated, router]);
 

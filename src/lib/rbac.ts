@@ -33,17 +33,17 @@ export function hasPermission(
  */
 export const ROUTE_PERMISSIONS: Record<string, AdminRole> = {
   // General — accessible by any admin
-  "/admin": "admin",
-  "/admin/countries": "admin",
-  "/admin/scholarships": "admin",
-  "/admin/blogs": "admin",
-  "/admin/mentors": "admin",
+  "/internal-hq": "admin",
+  "/internal-hq/countries": "admin",
+  "/internal-hq/scholarships": "admin",
+  "/internal-hq/blogs": "admin",
+  "/internal-hq/mentors": "admin",
 
   // Restricted — super_admin only
-  "/admin/users": "super_admin",
-  "/admin/admins": "super_admin",
-  "/admin/settings": "super_admin",
-  "/admin/logs": "super_admin",
+  "/internal-hq/users": "super_admin",
+  "/internal-hq/admins": "super_admin",
+  "/internal-hq/settings": "super_admin",
+  "/internal-hq/logs": "super_admin",
 };
 
 /**

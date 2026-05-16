@@ -40,6 +40,11 @@ import type {
   ScholarshipCategory,
   CreateScholarshipCategoryPayload,
   UpdateScholarshipCategoryPayload,
+  Blog,
+  CreateBlogPayload,
+  UpdateBlogPayload,
+  BlogQueryParams,
+  UpdateProfilePayload,
 } from "./adminTypes";
 
 // ─── Configuration ──────────────────────────────────────────
@@ -66,27 +71,37 @@ export function clearAccessToken(): void {
   accessToken = null;
 }
 
-// ─── Token Refresh ──────────────────────────────────────────
-/**
- * Attempt to refresh the access token using the HttpOnly cookie.
- * Returns the new access_token on success, or null if the
- * refresh token is expired/missing.
- */
+let refreshPromise: Promise<string | null> | null = null;
+
 async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const res = await fetch(`${API_URL}/auth/refresh`, {
-      method: "POST",
-      credentials: "include", // sends refresh_token cookie
-    });
-
-    if (!res.ok) return null;
-
-    const data: AuthRefreshResponse = await res.json();
-    setAccessToken(data.access_token);
-    return data.access_token;
-  } catch {
-    return null;
+  if (refreshPromise) {
+    return refreshPromise;
   }
+
+  refreshPromise = (async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        setAccessToken(null);
+        return null;
+      }
+
+      const data: AuthRefreshResponse = await res.json();
+      setAccessToken(data.access_token);
+      return data.access_token;
+    } catch {
+      setAccessToken(null);
+      return null;
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
 }
 
 // ─── Base Fetch Wrapper ─────────────────────────────────────
@@ -114,6 +129,7 @@ async function adminFetch<T>(
     ...options,
     headers,
     credentials: "include",
+    cache: "no-store",
   });
 
   // If 401, try refreshing the token and retry once
@@ -206,6 +222,19 @@ export async function logout(): Promise<void> {
  */
 export async function getMe(): Promise<AuthMeResponse> {
   return adminFetch<AuthMeResponse>(`${API_URL}/auth/me`);
+}
+
+/**
+ * Update the currently authenticated admin's profile.
+ * PATCH /api/admin/settings/profile
+ */
+export async function updateProfile(
+  payload: UpdateProfilePayload
+): Promise<void> {
+  return adminFetch<void>(`${API_URL}/admin/settings/profile`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 }
 
 /**
@@ -548,6 +577,44 @@ export async function updateScholarship(id: string, payload: CreateScholarshipPa
 
 export async function deleteScholarship(id: string): Promise<{ message: string }> {
   return adminFetch<{ message: string }>(`${API_URL}/admin/scholarships/${id}`, {
+    method: "DELETE",
+  });
+}
+
+// ================================================================
+// Blog Management Endpoints
+// ================================================================
+
+export async function listBlogs(
+  params: BlogQueryParams = {}
+): Promise<PaginatedResponse<Blog>> {
+  const qs = toQueryString(params as Record<string, unknown>);
+  return adminFetch<PaginatedResponse<Blog>>(`${API_URL}/admin/blogs${qs}`);
+}
+
+export async function getBlog(id: string): Promise<Blog> {
+  return adminFetch<Blog>(`${API_URL}/admin/blogs/${id}`);
+}
+
+export async function createBlog(payload: CreateBlogPayload): Promise<Blog> {
+  return adminFetch<Blog>(`${API_URL}/admin/blogs`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateBlog(
+  id: string,
+  payload: UpdateBlogPayload
+): Promise<Blog> {
+  return adminFetch<Blog>(`${API_URL}/admin/blogs/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteBlog(id: string): Promise<{ message: string }> {
+  return adminFetch<{ message: string }>(`${API_URL}/admin/blogs/${id}`, {
     method: "DELETE",
   });
 }

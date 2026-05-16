@@ -68,7 +68,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     async (credentials: AdminLoginCredentials) => {
       const loggedInAdmin = await adminAuthService.login(credentials);
       setAdmin(loggedInAdmin);
-      router.push("/admin");
+      router.push("/internal-hq");
     },
     [router]
   );
@@ -77,8 +77,20 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await adminAuthService.logout();
     setAdmin(null);
-    router.push("/admin/login");
+    router.push("/internal-hq/login");
   }, [router]);
+
+  // ── Refresh ────────────────────────────────────────────────
+  const refreshAdmin = useCallback(async () => {
+    try {
+      const updatedAdmin = await adminAuthService.restoreSession();
+      if (updatedAdmin) {
+        setAdmin(updatedAdmin);
+      }
+    } catch (error) {
+      console.error("[AdminAuth] Failed to refresh admin:", error);
+    }
+  }, []);
 
   // ── Context value ──────────────────────────────────────────
   const value: AdminAuthState = {
@@ -87,6 +99,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     login,
     logout,
+    refreshAdmin,
   };
 
   return (

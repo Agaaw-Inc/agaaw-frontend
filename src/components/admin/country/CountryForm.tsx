@@ -84,7 +84,7 @@ export default function CountryForm({
       } else if (countryId) {
         await adminApi.updateCountry(countryId, payload);
       }
-      router.push("/admin/countries");
+      router.push("/internal-hq/countries");
       router.refresh();
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Something went wrong");

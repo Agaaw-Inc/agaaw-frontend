@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.replace("/admin");
+      router.replace("/internal-hq");
     }
   }, [authLoading, isAuthenticated, router]);
 

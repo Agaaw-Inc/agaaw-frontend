@@ -41,15 +41,15 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/admin",              icon: <LayoutDashboard size={18} />, label: "Dashboard" },
-  { href: "/admin/countries",    icon: <Globe size={18} />,           label: "Countries" },
-  { href: "/admin/scholarships", icon: <GraduationCap size={18} />,   label: "Scholarships" },
-  { href: "/admin/blogs",        icon: <BookOpen size={18} />,        label: "Blogs" },
-  { href: "/admin/mentors",      icon: <GraduationCap size={18} />,   label: "Mentors" },
-  { href: "/admin/users",        icon: <Users size={18} />,           label: "Users",    requiredRole: "super_admin" },
-  { href: "/admin/admins",       icon: <UserCog size={18} />,         label: "Admins",   requiredRole: "super_admin" },
-  { href: "/admin/logs",         icon: <ScrollText size={18} />,      label: "Logs",     requiredRole: "super_admin" },
-  { href: "/admin/settings",     icon: <Settings size={18} />,        label: "Settings", requiredRole: "super_admin" },
+  { href: "/internal-hq",              icon: <LayoutDashboard size={18} />, label: "Dashboard" },
+  { href: "/internal-hq/countries",    icon: <Globe size={18} />,           label: "Countries" },
+  { href: "/internal-hq/scholarships", icon: <GraduationCap size={18} />,   label: "Scholarships" },
+  { href: "/internal-hq/blogs",        icon: <BookOpen size={18} />,        label: "Blogs" },
+  { href: "/internal-hq/mentors",      icon: <GraduationCap size={18} />,   label: "Mentors" },
+  { href: "/internal-hq/users",        icon: <Users size={18} />,           label: "Users",    requiredRole: "super_admin" },
+  { href: "/internal-hq/admins",       icon: <UserCog size={18} />,         label: "Admins",   requiredRole: "super_admin" },
+  { href: "/internal-hq/logs",         icon: <ScrollText size={18} />,      label: "Logs",     requiredRole: "super_admin" },
+  { href: "/internal-hq/settings",     icon: <Settings size={18} />,        label: "Settings", requiredRole: "super_admin" },
 ];
 
 export default function Sidebar() {
@@ -127,7 +127,7 @@ function SidebarItem({
 }) {
   const pathname = usePathname();
   const isActive =
-    pathname === href || (href !== "/admin" && pathname.startsWith(href));
+    pathname === href || (href !== "/internal-hq" && pathname.startsWith(href));
 
   return (
     <Link

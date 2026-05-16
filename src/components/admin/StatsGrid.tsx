@@ -31,8 +31,8 @@ function SkeletonCard() {
 export default function StatsGrid({ stats, isLoading }: StatsGridProps) {
   if (isLoading || !stats) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {Array.from({ length: 5 }).map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
           <SkeletonCard key={i} />
         ))}
       </div>
@@ -40,12 +40,13 @@ export default function StatsGrid({ stats, isLoading }: StatsGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6">
       <SummaryCard title="Total Users" value={stats.totalUsers} />
       <SummaryCard title="Total Students" value={stats.totalStudents} />
       <SummaryCard title="Total Mentors" value={stats.totalMentors} />
       <SummaryCard title="Pending Mentors" value={stats.pendingMentors} />
       <SummaryCard title="Scholarships" value={stats.totalScholarships} />
+      <SummaryCard title="Total Blogs" value={stats.totalBlogs} />
     </div>
   );
 }

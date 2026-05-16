@@ -319,7 +319,7 @@ export default function ScholarshipsPage() {
             Manage Categories
           </button>
           <Link
-            href="/admin/scholarships/create"
+            href="/internal-hq/scholarships/create"
             className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 shadow-sm shadow-teal-100"
           >
             <Plus size={16} />
@@ -454,7 +454,7 @@ export default function ScholarshipsPage() {
                   <td className="px-5 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        href={`/admin/scholarships/edit/${s.id}`}
+                        href={`/internal-hq/scholarships/edit/${s.id}`}
                         className="p-1.5 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-all"
                         title="Edit Scholarship"
                       >

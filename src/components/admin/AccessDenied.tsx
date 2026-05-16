@@ -50,7 +50,7 @@ export default function AccessDenied({ userRole, requiredRole }: AccessDeniedPro
 
         {/* Back button */}
         <Link
-          href="/admin"
+          href="/internal-hq"
           className="inline-flex items-center gap-2 px-6 py-2.5 bg-teal-700 text-white rounded-xl hover:bg-teal-800 transition-colors text-sm font-medium"
         >
           <ArrowLeft size={16} />

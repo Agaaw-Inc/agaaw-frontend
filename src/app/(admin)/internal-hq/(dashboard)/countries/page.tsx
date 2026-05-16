@@ -108,7 +108,7 @@ export default function CountriesPage() {
           </p>
         </div>
         <Link
-          href="/admin/countries/create"
+          href="/internal-hq/countries/create"
           className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 shadow-sm shadow-teal-100"
         >
           <Plus size={16} />
@@ -186,7 +186,7 @@ export default function CountriesPage() {
                   <td className="px-5 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        href={`/admin/countries/edit/${country.id}`}
+                        href={`/internal-hq/countries/edit/${country.id}`}
                         className="p-1.5 text-gray-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-all"
                         title="Edit Country"
                       >

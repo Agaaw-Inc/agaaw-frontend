@@ -10,21 +10,33 @@ import {
   Bell,
   Save,
   CheckCircle2,
+  UserCircle,
+  Loader2,
+  AlertCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import * as adminApi from "@/lib/adminApi";
+import { useEffect } from "react";
 
 /* ─── Toast ──────────────────────────────────────────────────── */
-function Toast({ onHide }: { onHide: () => void }) {
-  setTimeout(onHide, 2500);
+function Toast({ message, type, onHide }: { message: string; type: "success" | "error"; onHide: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onHide, 3000);
+    return () => clearTimeout(t);
+  }, [onHide]);
+
   return (
-    <div className="fixed bottom-6 right-6 z-[999] bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm flex items-center gap-2">
-      <CheckCircle2 size={16} className="text-emerald-400" />
-      Settings saved successfully!
+    <div className={`fixed bottom-6 right-6 z-[999] text-white px-5 py-3 rounded-2xl shadow-2xl text-sm flex items-center gap-2 ${type === "success" ? "bg-gray-900" : "bg-red-600"}`}>
+      {type === "success" ? <CheckCircle2 size={16} className="text-emerald-400" /> : <AlertCircle size={16} />}
+      {message}
     </div>
   );
 }
 
 /* ─── Section wrapper ────────────────────────────────────────── */
-function Section({ title, description, children, onSave }: { title: string; description: string; children: React.ReactNode; onSave: () => void }) {
+function Section({ title, description, children, onSave, saving }: { title: string; description: string; children: React.ReactNode; onSave: () => void; saving?: boolean }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="px-6 py-5 border-b border-gray-100">
@@ -35,9 +47,10 @@ function Section({ title, description, children, onSave }: { title: string; desc
       <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
         <button
           onClick={onSave}
-          className="inline-flex items-center gap-2 px-5 py-2 bg-teal-700 text-white rounded-xl hover:bg-teal-800 transition-colors text-sm font-medium"
+          disabled={saving}
+          className="inline-flex items-center gap-2 px-5 py-2 bg-teal-700 text-white rounded-xl hover:bg-teal-800 transition-colors text-sm font-medium disabled:opacity-50"
         >
-          <Save size={15} />
+          {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
           Save Changes
         </button>
       </div>
@@ -47,17 +60,33 @@ function Section({ title, description, children, onSave }: { title: string; desc
 
 /* ─── Form controls ──────────────────────────────────────────── */
 function TextField({ label, hint, value, onChange, type = "text", placeholder = "" }: { label: string; hint?: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+  const actualType = isPassword ? (showPassword ? "text" : "password") : type;
+
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1.5">{label}</label>
       {hint && <p className="text-xs text-gray-400 mb-1.5">{hint}</p>}
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
-      />
+      <div className="relative">
+        <input
+          type={actualType}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className={`w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all ${isPassword ? "pr-11" : ""}`}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1.5"
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -119,6 +148,7 @@ function NumberField({ label, hint, value, onChange, min = 0, max }: { label: st
 
 /* ─── Tab definitions ────────────────────────────────────────── */
 const TABS = [
+  { key: "profile",       label: "My Profile",      icon: UserCircle },
   { key: "general",       label: "General",         icon: Globe2 },
   { key: "users",         label: "User Management", icon: Users },
   { key: "email",         label: "Email",           icon: Mail },
@@ -131,9 +161,11 @@ type TabKey = typeof TABS[number]["key"];
 
 /* ─── Main Settings Page ─────────────────────────────────────── */
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<TabKey>("general");
-  const [toast, setToast] = useState(false);
-  const showToast = () => setToast(true);
+  const { admin, refreshAdmin } = useAdminAuth();
+  const [activeTab, setActiveTab] = useState<TabKey>("profile");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const showToast = () => setToast({ message: "Settings saved successfully!", type: "success" });
 
   /* ── General ── */
   const [general, setGeneral] = useState({
@@ -184,6 +216,53 @@ export default function SettingsPage() {
     weeklyDigest: false,
   });
 
+  /* ── Profile ── */
+  const [profile, setProfile] = useState({
+    firstName: "",
+    lastName: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  useEffect(() => {
+    if (admin) {
+      setProfile((prev) => ({
+        ...prev,
+        firstName: admin.firstName || "",
+        lastName: admin.lastName || "",
+      }));
+    }
+  }, [admin]);
+
+  const handleProfileSave = async () => {
+    if (profile.password && profile.password !== profile.confirmPassword) {
+      setToast({ message: "Passwords do not match", type: "error" });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const payload: any = {};
+      if (profile.firstName) payload.firstName = profile.firstName;
+      if (profile.lastName) payload.lastName = profile.lastName;
+      if (profile.password) payload.password = profile.password;
+
+      if (Object.keys(payload).length === 0) {
+        setToast({ message: "No changes to save", type: "error" });
+        return;
+      }
+
+      await adminApi.updateProfile(payload);
+      await refreshAdmin();
+      setToast({ message: "Profile updated successfully!", type: "success" });
+      setProfile({ ...profile, password: "", confirmPassword: "" });
+    } catch (err) {
+      setToast({ message: err instanceof Error ? err.message : "Failed to update profile", type: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -216,6 +295,50 @@ export default function SettingsPage() {
 
         {/* ── Tab content ── */}
         <div className="flex-1 min-w-0">
+          {/* ── PROFILE ── */}
+          {activeTab === "profile" && (
+            <Section 
+              title="My Profile" 
+              description="Update your personal information and account password" 
+              onSave={handleProfileSave}
+              saving={isSaving}
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <TextField 
+                  label="First Name" 
+                  value={profile.firstName} 
+                  onChange={(v) => setProfile({ ...profile, firstName: v })} 
+                  placeholder="Enter first name" 
+                />
+                <TextField 
+                  label="Last Name" 
+                  value={profile.lastName} 
+                  onChange={(v) => setProfile({ ...profile, lastName: v })} 
+                  placeholder="Enter last name" 
+                />
+              </div>
+              <div className="border-t border-gray-100 pt-5 space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <TextField 
+                    label="New Password" 
+                    type="password" 
+                    value={profile.password} 
+                    onChange={(v) => setProfile({ ...profile, password: v })} 
+                    placeholder="Leave blank to keep current" 
+                    hint="Minimum 8 characters with numbers and symbols"
+                  />
+                  <TextField 
+                    label="Confirm New Password" 
+                    type="password" 
+                    value={profile.confirmPassword} 
+                    onChange={(v) => setProfile({ ...profile, confirmPassword: v })} 
+                    placeholder="Repeat new password" 
+                  />
+                </div>
+              </div>
+            </Section>
+          )}
+
           {/* ── GENERAL ── */}
           {activeTab === "general" && (
             <Section title="General Settings" description="Basic information and configuration for the platform" onSave={showToast}>
@@ -417,7 +540,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Toast */}
-      {toast && <Toast onHide={() => setToast(false)} />}
+      {toast && <Toast message={toast.message} type={toast.type} onHide={() => setToast(null)} />}
     </div>
   );
 }

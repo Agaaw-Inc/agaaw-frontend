@@ -143,6 +143,8 @@ export interface AuthLoginResponse {
     id: string;
     email: string;
     role: UserRole;
+    firstName: string;
+    lastName: string;
   };
   access_token: string;
 }
@@ -164,6 +166,9 @@ export interface AuthMeResponse {
     id: string;
     email: string;
     role: UserRole;
+    firstName: string;
+    lastName: string;
+    profileImage?: string | null;
   };
 }
 
@@ -180,6 +185,8 @@ export interface AdminAuthState {
   login: (credentials: AdminLoginCredentials) => Promise<void>;
   /** Clear session and redirect to login */
   logout: () => void;
+  /** Refetch current admin profile to sync state */
+  refreshAdmin: () => Promise<void>;
 }
 
 // ─── Paginated Response ─────────────────────────────────────
@@ -406,6 +413,13 @@ export interface ChangeUserRolePayload {
   role: UserRole;
 }
 
+/** Body for PATCH /api/admin/profile (update own profile) */
+export interface UpdateProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  password?: string;
+}
+
 // ─── Country Types ──────────────────────────────────────────
 export interface CountrySection {
   id: string;
@@ -553,4 +567,63 @@ export interface ScholarshipQueryParams {
   countryId?: string;
   level?: ScholarshipLevel;
   coverage?: Coverage;
+}
+
+// ─── Blog Types ─────────────────────────────────────────────
+export type BlogCategory = "scholarship" | "visa" | "career" | "general" | "test_prep";
+
+export interface BlogTag {
+  id: string;
+  blogId: string;
+  tag: string;
+}
+
+export interface Blog {
+  id: string;
+  authorId: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  metaDescription: string | null;
+  coverImage: string | null;
+  category: BlogCategory;
+  readTime: number | null;
+  isPublished: boolean;
+  createdAt: string;
+  updatedAt: string;
+  author: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    profileImage?: string | null;
+  };
+  tags: BlogTag[];
+}
+
+export interface CreateBlogPayload {
+  title: string;
+  slug: string;
+  content: string;
+  authorId: string;
+  excerpt?: string;
+  metaDescription?: string;
+  coverImage?: string;
+  category: BlogCategory;
+  readTime?: number;
+  isPublished?: boolean;
+  tags?: string[];
+}
+
+export type UpdateBlogPayload = Partial<CreateBlogPayload>;
+
+export interface BlogQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: BlogCategory;
+  isPublished?: boolean;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
 }

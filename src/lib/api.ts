@@ -62,6 +62,46 @@ export interface PublicScholarshipFilters {
   categories: PublicScholarshipFilterOption[];
 }
 
+export interface PublicBlog {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string | null;
+  metaDescription: string | null;
+  coverImage: string | null;
+  category: "scholarship" | "visa" | "career" | "general" | "test_prep";
+  readTime: number | null;
+  createdAt: string;
+  updatedAt: string;
+  author: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    profileImage: string | null;
+  };
+  tags: { id: string; tag: string }[];
+}
+
+export interface PublicBlogQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  authorId?: string;
+}
+
+export interface PaginatedPublicBlogs {
+  data: PublicBlog[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 function toQueryString(params: Record<string, unknown>) {
   const entries = Object.entries(params)
     .filter(([, value]) => value !== undefined && value !== null && value !== "")
@@ -311,6 +351,49 @@ export async function getScholarshipBySlug(
   if (!res.ok) {
     if (res.status === 404) return null;
     throw new Error(json.message || "Failed to fetch scholarship details");
+  }
+
+  return json.data || null;
+}
+
+export async function getBlogs(
+  params: PublicBlogQueryParams = {}
+): Promise<PaginatedPublicBlogs> {
+  const qs = toQueryString(params as Record<string, unknown>);
+  const res = await fetch(`${API_URL}/blogs${qs}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch blogs");
+  }
+
+  return json.data || {
+    data: [],
+    meta: { total: 0, page: 1, limit: params.limit || 10, totalPages: 0 },
+  };
+}
+
+export async function getBlogBySlug(slug: string): Promise<PublicBlog | null> {
+  const res = await fetch(`${API_URL}/blogs/${slug}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(json.message || "Failed to fetch blog details");
   }
 
   return json.data || null;

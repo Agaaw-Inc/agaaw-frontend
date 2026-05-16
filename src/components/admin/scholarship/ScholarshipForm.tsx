@@ -97,7 +97,7 @@ export default function ScholarshipForm({
       } else if (scholarshipId) {
         await adminApi.updateScholarship(scholarshipId, payload);
       }
-      router.push("/admin/scholarships");
+      router.push("/internal-hq/scholarships");
       router.refresh();
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Something went wrong");

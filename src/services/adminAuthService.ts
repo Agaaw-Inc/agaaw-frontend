@@ -43,8 +43,8 @@ async function login(credentials: AdminLoginCredentials): Promise<Admin> {
   const admin: Admin = {
     id: response.user.id,
     email: response.user.email,
-    firstName: "", // Will be populated by fetchAdminProfile
-    lastName: "",
+    firstName: response.user.firstName || "",
+    lastName: response.user.lastName || "",
     role: response.user.role,
   };
 
@@ -86,11 +86,14 @@ async function logout(): Promise<void> {
  */
 async function restoreSession(): Promise<Admin | null> {
   try {
-    // Step 1: Try to refresh the token using the HttpOnly cookie
-    const refreshResult = await adminApi.refresh();
-    if (!refreshResult) return null;
+    // Step 1: Only call refresh if we don't have an access token yet.
+    // adminFetch will handle auto-refresh if the token expires later.
+    if (!adminApi.getAccessToken()) {
+      const refreshResult = await adminApi.refresh();
+      if (!refreshResult) return null;
+    }
 
-    // Step 2: Get current user info
+    // Step 2: Get current user info (firstName, lastName, role)
     const meResponse = await adminApi.getMe();
     if (!meResponse?.user) return null;
 
@@ -104,8 +107,8 @@ async function restoreSession(): Promise<Admin | null> {
     const admin: Admin = {
       id: meResponse.user.id,
       email: meResponse.user.email,
-      firstName: "",
-      lastName: "",
+      firstName: meResponse.user.firstName,
+      lastName: meResponse.user.lastName,
       role: meResponse.user.role,
     };
 
