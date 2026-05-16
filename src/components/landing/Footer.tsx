@@ -26,12 +26,8 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-sm text-bombay leading-relaxed">
-              The world's premier editorial gallery for international scholarships. We curate opportunities that shape global leaders.
+              Agaaw is your one-stop platform to discover international scholarships, universities, and global education opportunities. We make your journey to studying abroad easier, faster, and more reliable.
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mx-auto md:mx-0">
-              <Globe className="w-3.5 h-3.5 text-elm" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-bombay">Built for global students</span>
-            </div>
           </div>
 
           {/* Column 2 – Platform */}

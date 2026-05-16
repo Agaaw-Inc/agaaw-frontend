@@ -92,9 +92,6 @@ export default function CountriesPage() {
                 {/* Hero Section */}
                 <section className="relative px-6 pt-2 pb-15 max-w-7xl mx-auto overflow-hidden">
                     <div className="relative z-10 lg:w-2/3">
-                        <span className="inline-block px-3 py-1 mb-6 text-xs font-medium tracking-widest uppercase rounded-full bg-elm/10 text-elm">
-                            Global Destinations
-                        </span>
                         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-codgray mb-6 leading-[1.1]">
                             Explore <br />
                             <span className="text-elm">Countries</span>
@@ -170,11 +167,10 @@ export default function CountriesPage() {
                             <button
                                 key={region}
                                 onClick={() => { setRegionFilter(regionFilter === region ? "" : region); setCurrentPage(1); }}
-                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
-                                    regionFilter === region
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${regionFilter === region
                                         ? "bg-elm/10 text-elm hover:bg-elm/20"
                                         : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
-                                }`}
+                                    }`}
                             >
                                 {region}
                                 {regionFilter === region && <X className="w-3 h-3 ml-1" />}
@@ -184,11 +180,10 @@ export default function CountriesPage() {
                             <button
                                 key={language}
                                 onClick={() => { setLanguageFilter(languageFilter === language ? "" : language); setCurrentPage(1); }}
-                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
-                                    languageFilter === language
+                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${languageFilter === language
                                         ? "bg-elm/10 text-elm hover:bg-elm/20"
                                         : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
-                                }`}
+                                    }`}
                             >
                                 Study in {language}
                                 {languageFilter === language && <X className="w-3 h-3 ml-1" />}

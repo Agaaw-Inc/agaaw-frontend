@@ -68,10 +68,10 @@ export default function MainNavbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0">
             <Image
-              src="/agaaw_logo_01.png"
+              src="/Agaaw_logo_noBG.png"
               alt="Agaaw Logo"
-              width={38}
-              height={38}
+              width={50}
+              height={50}
               className="object-contain"
             />
             <div className="flex flex-col leading-tight">

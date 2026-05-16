@@ -63,16 +63,6 @@ export default function AboutPage() {
                             animate="visible"
                             variants={staggerContainer}
                         >
-                            <motion.div
-                                variants={fadeInUp}
-                                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-elm/10 text-elm text-sm font-medium mb-6"
-                            >
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-elm opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-elm"></span>
-                                </span>
-                                Redefining Global Education
-                            </motion.div>
 
                             <motion.h1
                                 variants={fadeInUp}

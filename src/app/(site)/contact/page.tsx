@@ -30,9 +30,6 @@ export default function ContactPage() {
         {/* Hero Section */}
         <section className="bg-white py-20 px-8 border-b border-slate-100">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="inline-block px-3 py-1 mb-6 text-xs font-semibold tracking-widest uppercase rounded-full bg-elm/10 text-elm">
-              Support & Connection
-            </span>
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-codgray mb-6">
               Get in <span className="text-elm">Touch</span>
             </h1>
@@ -55,7 +52,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-xl font-bold text-codgray mb-2">Email Us</h3>
                 <p className="text-bombay text-sm mb-4">Direct your inquiries to our support team.</p>
-                <a href="mailto:info@agaaw.com" className="text-elm font-semibold hover:underline">info@agaaw.com</a>
+                <a href="mailto:support@agaaw.com" className="text-elm font-semibold hover:underline">support@agaaw.com</a>
               </div>
 
               <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">

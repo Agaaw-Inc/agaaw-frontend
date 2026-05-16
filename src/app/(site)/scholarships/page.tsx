@@ -165,9 +165,6 @@ function ScholarshipList() {
         {/* Hero Section */}
         <section className="relative px-8 pt-10 pb-20 max-w-7xl mx-auto overflow-hidden">
           <div className="relative z-10 lg:w-2/3">
-            <span className="inline-block px-3 py-1 mb-6 text-xs font-medium tracking-widest uppercase rounded-full bg-elm/10 text-elm">
-              Curated Excellence
-            </span>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-codgray mb-6 leading-[1.1]">
               Find Your Path to <br />
               <span className="text-elm">Academic Excellence</span>
@@ -283,11 +280,10 @@ function ScholarshipList() {
             {filters.coverage.some((coverage) => coverage.value === "full") && (
               <button
                 onClick={() => { setCoverageFilter(coverageFilter === "full" ? "" : "full"); setCurrentPage(1); }}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
-                  coverageFilter === "full"
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${coverageFilter === "full"
                     ? "bg-elm/10 text-elm hover:bg-elm/20"
                     : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 {getOptionLabel(filters.coverage, "full", "Full Coverage")}
                 {coverageFilter === "full" && <X className="w-3 h-3 ml-1" />}
@@ -300,11 +296,10 @@ function ScholarshipList() {
                 <button
                   key={level.value}
                   onClick={() => { setLevelFilter(levelFilter === level.value ? "" : level.value as PublicScholarshipQueryParams["level"]); setCurrentPage(1); }}
-                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
-                    levelFilter === level.value
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${levelFilter === level.value
                       ? "bg-elm/10 text-elm hover:bg-elm/20"
                       : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
-                  }`}
+                    }`}
                 >
                   {level.label}
                   {levelFilter === level.value && <X className="w-3 h-3 ml-1" />}
@@ -314,11 +309,10 @@ function ScholarshipList() {
               <button
                 key={category.value}
                 onClick={() => { setCategoryFilter(categoryFilter === category.value ? "" : category.value); setCurrentPage(1); }}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${
-                  categoryFilter === category.value
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${categoryFilter === category.value
                     ? "bg-elm/10 text-elm hover:bg-elm/20"
                     : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
-                }`}
+                  }`}
               >
                 {category.label}
                 {categoryFilter === category.value && <X className="w-3 h-3 ml-1" />}

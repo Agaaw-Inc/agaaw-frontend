@@ -75,9 +75,6 @@ export default function BlogsPage() {
         {/* Hero Section */}
         <section className="relative px-8 pt-10 pb-20 max-w-7xl mx-auto overflow-hidden w-full">
           <div className="relative z-10 lg:w-2/3">
-            <span className="inline-block px-3 py-1 mb-6 text-xs font-medium tracking-widest uppercase rounded-full bg-teal-100/50 text-teal-800">
-              Insights &amp; Guides
-            </span>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 mb-6 leading-[1.1]">
               Read Our <br />
               <span className="text-teal-600">Latest Insights</span>
@@ -118,18 +115,17 @@ export default function BlogsPage() {
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-slate-400" />
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-3 mt-8 items-center">
             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 pr-2">Quick Filters:</span>
             {CATEGORIES.slice(1).map((cat) => (
               <button
                 key={cat.value}
                 onClick={() => { setCategoryFilter(categoryFilter === cat.value ? "all" : cat.value); setCurrentPage(1); }}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 border ${
-                  categoryFilter === cat.value 
-                  ? "bg-teal-50 text-teal-700 border-teal-200 shadow-sm" 
-                  : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                }`}
+                className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 border ${categoryFilter === cat.value
+                    ? "bg-teal-50 text-teal-700 border-teal-200 shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
               >
                 {cat.label}
                 {categoryFilter === cat.value && <X size={14} className="text-teal-600" />}
@@ -171,7 +167,7 @@ export default function BlogsPage() {
               <BookOpen size={64} className="mx-auto text-slate-200 mb-6" />
               <h3 className="text-xl font-bold text-slate-900 mb-2">No Insights Found</h3>
               <p className="text-slate-500 max-w-xs mx-auto mb-8">We couldn't find any articles matching your current filters. Try broadening your search.</p>
-              <button 
+              <button
                 onClick={() => { setSearchQuery(""); setCategoryFilter("all"); }}
                 className="text-teal-600 font-bold hover:underline"
               >
