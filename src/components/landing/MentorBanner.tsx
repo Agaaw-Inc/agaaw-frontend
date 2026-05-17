@@ -9,8 +9,8 @@ export default function MentorBanner() {
   const [isPaused, setIsPaused] = useState(false);
 
   const mentors = [
-    { id: 1, name: "Mahamudul Hasan Fuad", role: "Taxes Sate University, San Marcos", image: "/mentors/fuad.jpg" },
-    { id: 2, name: "Maynuddin Tuhin Joy", role: "Japan", image: "/mentors/joy.jpg" },
+    { id: 1, name: "Mahamudul Hasan Fuad", role: "Taxes Sate University, San Marcos", image: "/mentors/fuad.JPG" },
+    { id: 2, name: "Maynuddin Tuhin Joy", role: "Japan", image: "/mentors/joy.JPG" },
     { id: 3, name: "Michael Ross", role: "MIT Alumni", image: "/mentors/mentor_1.png" },
     { id: 4, name: "Elena Martinez", role: "Stanford Alumni", image: "/mentors/mentor_2.png" },
     { id: 5, name: "James Wilson", role: "Cambridge Alumni", image: "/mentors/mentor_3.png" },
