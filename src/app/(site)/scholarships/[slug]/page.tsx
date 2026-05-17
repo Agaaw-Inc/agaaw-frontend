@@ -133,7 +133,11 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                     <div className="bg-white/10 p-2.5 rounded-xl"><GraduationCap className="w-5 h-5 text-teal-200" /></div>
                                     <div>
                                         <p className="text-[11px] font-semibold tracking-wider text-teal-300 uppercase mb-0.5">Level</p>
-                                        <p className="font-medium text-white">{formatEnum(scholarship.level)}</p>
+                                        <p className="font-medium text-white">
+                                            {Array.isArray(scholarship.level)
+                                                ? scholarship.level.map(l => formatEnum(l)).join(", ")
+                                                : formatEnum(scholarship.level as any)}
+                                        </p>
                                     </div>
                                 </li>
                                 <li className="flex items-center gap-4">

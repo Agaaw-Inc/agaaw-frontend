@@ -15,7 +15,7 @@ export interface PublicScholarship {
   countryFlagImage: string | null;
   category: string | null;
   categorySlug: string | null;
-  level: "bachelors" | "masters" | "phd" | "other";
+  level: ("bachelors" | "masters" | "phd" | "other")[];
   coverage: "full" | "partial" | "varies";
   deadline: string | null;
   description: string;
@@ -34,7 +34,7 @@ export interface PublicScholarshipQueryParams {
   limit?: number;
   search?: string;
   country?: string;
-  level?: PublicScholarship["level"];
+  level?: ("bachelors" | "masters" | "phd" | "other")[] | string;
   coverage?: PublicScholarship["coverage"];
   category?: string;
 }

@@ -441,9 +441,19 @@ export default function ScholarshipsPage() {
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold uppercase tracking-wider border border-teal-100">
-                      {s.level}
-                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {Array.isArray(s.level) ? (
+                        s.level.map((lvl) => (
+                          <span key={lvl} className="inline-flex items-center px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold uppercase tracking-wider border border-teal-100">
+                            {lvl === "phd" ? "PhD" : lvl}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold uppercase tracking-wider border border-teal-100">
+                          {s.level === "phd" ? "PhD" : s.level}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5 text-gray-500 text-xs">

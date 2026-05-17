@@ -510,7 +510,7 @@ export interface Scholarship {
   provider: string;
   countryId: string;
   categoryId: string | null;
-  level: ScholarshipLevel;
+  level: ScholarshipLevel[];
   coverage: Coverage;
   deadline: string | null;
   description: string;
@@ -541,7 +541,7 @@ export interface CreateScholarshipPayload {
   provider: string;
   countryId: string;
   categoryId?: string;
-  level: ScholarshipLevel;
+  level: ScholarshipLevel[];
   coverage: Coverage;
   deadline?: string;
   description: string;
@@ -565,7 +565,7 @@ export interface ScholarshipQueryParams {
   limit?: number;
   search?: string;
   countryId?: string;
-  level?: ScholarshipLevel;
+  level?: ScholarshipLevel[] | ScholarshipLevel;
   coverage?: Coverage;
 }
 

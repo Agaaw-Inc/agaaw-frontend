@@ -26,11 +26,14 @@ export default function ScholarshipForm({
   const [serverError, setServerError] = useState<string | null>(null);
   const [countries, setCountries] = useState<Country[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [isLevelDropdownOpen, setIsLevelDropdownOpen] = useState(false);
 
   const {
     register,
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ScholarshipFormValues>({
     resolver: zodResolver(scholarshipSchema),
@@ -40,7 +43,11 @@ export default function ScholarshipForm({
       provider: initialData?.provider || "",
       countryId: initialData?.countryId || "",
       categoryId: initialData?.categoryId || "",
-      level: initialData?.level || "masters",
+      level: Array.isArray(initialData?.level)
+        ? initialData.level
+        : initialData?.level
+          ? [initialData.level as any]
+          : ["masters"],
       coverage: initialData?.coverage || "full",
       deadline: initialData?.deadline ? new Date(initialData.deadline).toISOString().split('T')[0] : "",
       description: initialData?.description || "",
@@ -76,6 +83,15 @@ export default function ScholarshipForm({
     }
     loadData();
   }, []);
+
+  const selectedLevels = watch("level") || [];
+
+  const toggleLevel = (levelVal: "bachelors" | "masters" | "phd" | "other") => {
+    const updated = selectedLevels.includes(levelVal)
+      ? selectedLevels.filter(l => l !== levelVal)
+      : [...selectedLevels, levelVal];
+    setValue("level", updated, { shouldValidate: true });
+  };
 
   const onSubmit = async (data: ScholarshipFormValues) => {
     setIsSubmitting(true);
@@ -308,19 +324,54 @@ export default function ScholarshipForm({
                 {errors.categoryId && <p className="text-xs text-red-500">{errors.categoryId.message}</p>}
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 relative">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-tight flex items-center gap-1">
-                  <Layers size={12} /> Study Level
+                  <Layers size={12} /> Study Levels
                 </label>
-                <select
-                  {...register("level")}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500"
-                >
-                  <option value="bachelors">Bachelors</option>
-                  <option value="masters">Masters</option>
-                  <option value="phd">PhD</option>
-                  <option value="other">Other</option>
-                </select>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsLevelDropdownOpen(!isLevelDropdownOpen)}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 text-left flex justify-between items-center transition-all bg-white"
+                  >
+                    <span className="truncate">
+                      {selectedLevels.length > 0
+                        ? selectedLevels.map(l => l === "phd" ? "PhD" : l.charAt(0).toUpperCase() + l.slice(1)).join(", ")
+                        : "Select Study Levels"}
+                    </span>
+                    <span className="text-gray-400 text-xs">▼</span>
+                  </button>
+                  {isLevelDropdownOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setIsLevelDropdownOpen(false)}
+                      />
+                      <div className="absolute left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-xl shadow-xl z-20 overflow-hidden divide-y divide-gray-50 animate-in fade-in slide-in-from-top-1 duration-100">
+                        {(["bachelors", "masters", "phd", "other"] as const).map((levelOption) => {
+                          const isSelected = selectedLevels.includes(levelOption);
+                          return (
+                            <label
+                              key={levelOption}
+                              className="flex items-center gap-3 px-4 py-3 hover:bg-teal-50/50 cursor-pointer transition-colors text-sm font-medium text-gray-700"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleLevel(levelOption)}
+                                className="w-4 h-4 rounded text-teal-600 focus:ring-teal-500 border-gray-300"
+                              />
+                              <span className={isSelected ? "text-teal-900 font-bold" : ""}>
+                                {levelOption === "phd" ? "PhD" : levelOption.charAt(0).toUpperCase() + levelOption.slice(1)}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {errors.level && <p className="text-xs text-red-500">{errors.level.message}</p>}
               </div>
 
               <div className="space-y-1.5">
