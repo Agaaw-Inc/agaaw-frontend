@@ -65,15 +65,6 @@ export default function WelcomeHero({ role }: WelcomeHeroProps) {
       </div>
 
       <div className="relative z-10 max-w-4xl w-full text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 text-teal-700 text-sm font-semibold mb-8 border border-teal-100 shadow-sm"
-        >
-          <Sparkles className="w-4 h-4" />
-          <span>Welcome to the Future of Agaaw</span>
-        </motion.div>
 
         <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 mb-8 leading-tight tracking-tight">
           Hello, <span className="text-teal-600 capitalize">{userName}</span>!

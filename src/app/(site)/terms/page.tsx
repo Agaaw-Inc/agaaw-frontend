@@ -39,7 +39,7 @@ export default function TermsPage() {
     <div className="min-h-screen bg-white flex flex-col">
       <MainNavbar />
 
-      <main className="flex-grow pt-16">
+      <main className="flex-grow">
         {/* Hero Section */}
         <section className="bg-slate-50 py-20 px-8 border-b border-slate-100">
           <div className="max-w-4xl mx-auto text-center">

@@ -107,8 +107,8 @@ export default function MainNavbar() {
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                   className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border-2 border-teal-50 shadow-sm">
-                    {user.firstName?.charAt(0) || "U"}
+                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border-2 border-teal-50 shadow-sm uppercase tracking-wide text-sm">
+                    {user.firstName?.substring(0, 2) || "U"}
                   </div>
                   <ChevronDown size={16} className={`text-gray-500 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -125,13 +125,6 @@ export default function MainNavbar() {
                     >
                       <GraduationCap size={18} className="text-gray-400" />
                       Home
-                    </Link>
-                    <Link
-                      href={`/profile/${user.username || 'me'}`}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
-                    >
-                      <User size={18} className="text-gray-400" />
-                      My Profile
                     </Link>
                     <div className="h-px bg-gray-100 my-1" />
                     <button
@@ -198,8 +191,8 @@ export default function MainNavbar() {
               {user ? (
                 <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-teal-50/50 border border-teal-100/50">
-                    <div className="w-10 h-10 rounded-full bg-teal-200 flex items-center justify-center text-teal-800 font-bold border-2 border-white shadow-sm">
-                      {user.firstName?.charAt(0) || "U"}
+                    <div className="w-10 h-10 rounded-full bg-teal-200 flex items-center justify-center text-teal-800 font-bold border-2 border-white shadow-sm uppercase tracking-wide text-sm">
+                      {user.firstName?.substring(0, 2) || "U"}
                     </div>
                     <div className="flex flex-col">
                       <p className="text-sm font-bold text-gray-900">{user.firstName} {user.lastName}</p>
@@ -212,13 +205,6 @@ export default function MainNavbar() {
                   >
                     <GraduationCap size={18} className="text-gray-400" />
                     Home
-                  </Link>
-                  <Link
-                    href={`/profile/${user.username || 'me'}`}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <User size={18} className="text-gray-400" />
-                    My Profile
                   </Link>
                   <button
                     onClick={handleLogout}

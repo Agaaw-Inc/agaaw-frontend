@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
-import { 
-    Plus, 
-    Minus, 
-    HelpCircle, 
-    BookOpen, 
-    Users, 
+import {
+    Plus,
+    Minus,
+    HelpCircle,
+    BookOpen,
+    Users,
     ShieldCheck,
     MessageCircle,
     Globe,
@@ -153,10 +153,6 @@ export default function FAQPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
                         >
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-elm/10 text-elm text-sm font-medium mb-6">
-                                <HelpCircle size={16} />
-                                FAQ Center
-                            </div>
                             <h1 className="text-4xl lg:text-6xl font-bold tracking-tight text-codgray mb-6">
                                 Everything you need <br />
                                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-elm via-elm-light to-teal-500">to know about Agaaw.</span>
@@ -172,7 +168,7 @@ export default function FAQPage() {
                 <section className="container mx-auto px-6">
                     <div className="max-w-4xl mx-auto">
                         {faqs.map((category, catIdx) => (
-                            <motion.div 
+                            <motion.div
                                 key={category.category}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -221,13 +217,13 @@ export default function FAQPage() {
                                 Can&apos;t find the answer you&apos;re looking for? Please chat with our friendly team.
                             </p>
                             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                <a 
+                                <a
                                     href="mailto:support@agaaw.com"
                                     className="w-full sm:w-auto px-8 py-4 bg-elm hover:bg-elm-dark text-white rounded-xl font-bold transition-all shadow-lg shadow-elm/20"
                                 >
                                     Email Support
                                 </a>
-                                <a 
+                                <a
                                     href="/contact"
                                     className="w-full sm:w-auto px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold transition-all"
                                 >

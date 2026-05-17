@@ -172,7 +172,7 @@ export async function getMe() {
     throw new Error(json.message || "Failed to fetch user");
   }
 
-  return json.data || json;
+  return json.data?.user || json.user || json.data || json;
 }
 
 export async function verifyEmail(token: string) {

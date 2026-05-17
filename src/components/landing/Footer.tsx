@@ -111,17 +111,15 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-bombay font-medium">
+        {/* Bottom Bar | position will be in center */}
+        <div className="mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-center items-center gap-6 text-xs text-bombay font-medium">
           <div className="flex items-center gap-4">
             <p>© {new Date().getFullYear()} Agaaw. All rights reserved.</p>
             <div className="hidden md:block w-px h-3 bg-white/10" />
-            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
-          </div>
-          <div className="flex items-center gap-2 text-white/50">
-            <span>Built for students worldwide</span>
-            <span className="text-sm">🌍</span>
+            <div className="flex items-center gap-2 text-white/50">
+              <span>Built for students worldwide</span>
+              <span className="text-sm">🌍</span>
+            </div>
           </div>
         </div>
       </div>

@@ -450,12 +450,12 @@ export default function AboutPage() {
                                         transition={{ delay: 0.2 }}
                                         className="flex flex-col sm:flex-row items-center gap-6"
                                     >
-                                        <Link href="/welcome/student" className="w-full sm:w-auto">
+                                        <Link href="/register/student" className="w-full sm:w-auto">
                                             <Button className="w-full sm:w-auto bg-black text-white hover:bg-gray-50 hover:text-black hover:shadow-xl hover:border-[#d7c96e]/40 border-none px-10 py-4 text-lg transform transition-all active:scale-95">
                                                 Join as Student
                                             </Button>
                                         </Link>
-                                        <Link href="/welcome/mentor" className="w-full sm:w-auto">
+                                        <Link href="/register/mentor" className="w-full sm:w-auto">
                                             <button className="w-full sm:w-auto px-10 py-4 text-lg font-bold text-white border-2 border-white/30 rounded-xl hover:bg-white/10 transition-all flex items-center justify-center gap-2 group">
                                                 Become a Mentor
                                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
