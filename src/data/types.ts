@@ -31,4 +31,7 @@ export interface Country {
     currency?: string;
     jobOpportunities: string[];
     image: string;
+    cons?: string[];
+    scholarshipsOverview?: string;
+    workRights?: string;
 }
