@@ -8,11 +8,12 @@ import {
     CheckCircle2,
     ChevronRight,
     Globe,
-    Search,
     Award,
     ListOrdered,
     Library,
-    Briefcase
+    Briefcase,
+    AlertTriangle,
+    GraduationCap
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -47,23 +48,16 @@ export default async function CountryDetails({ params }: CountryProps) {
         notFound();
     }
 
-    const studyBasics = [
-        {
-            icon: <Banknote className="w-5 h-5 text-teal-600" />,
-            label: "Average Cost",
-            value: data.avgCost,
-        },
-        {
-            icon: <Globe className="w-5 h-5 text-teal-600" />,
-            label: "Visa Info",
-            value: data.visaPolicy,
-        },
-        {
-            icon: <CalendarClock className="w-5 h-5 text-teal-600" />,
-            label: "When to Apply",
-            value: data.whenToApply,
-        },
-    ].filter((item) => item.value?.trim());
+
+
+    // Helper to parse line breaks and standard bullet points into clean lists
+    const parseTextToList = (text?: string | null): string[] => {
+        if (!text) return [];
+        return text
+            .split(/\n+/)
+            .map(line => line.replace(/^[\s•\-\*\d+\.\:\)]+/, "").trim())
+            .filter(line => line.length > 0);
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -98,68 +92,187 @@ export default async function CountryDetails({ params }: CountryProps) {
 
             {/* Main Content Area */}
             <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-                    {/* Left Column (Details) */}
-                    <div className="lg:col-span-2 space-y-5">
-                        {/* Opportunities Card */}
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
-                            <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
-                                <div className="bg-emerald-100 p-3 rounded-2xl">
-                                    <Award className="w-7 h-7 text-emerald-700" />
+                    {/* Scholarships Overview (spans 2 on desktop) */}
+                    {data.scholarshipsOverview && data.scholarshipsOverview.trim() !== "" && (
+                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                            <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-6">
+                                <div className="bg-violet-100 p-3 rounded-2xl">
+                                    <GraduationCap className="w-7 h-7 text-violet-700" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Opportunities</h2>
+                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Scholarships Overview</h2>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {data.opportunities.map((item: string, idx: number) => (
-                                    <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-5 rounded-2xl border border-slate-100">
-                                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                                        <span className="text-slate-700 leading-relaxed text-sm md:text-base font-medium">{item}</span>
-                                    </div>
-                                ))}
-                            </div>
+                            <p className="text-slate-600 text-base leading-relaxed whitespace-pre-line">
+                                {data.scholarshipsOverview}
+                            </p>
                         </section>
+                    )}
 
-                        {/* Top Universities Card */}
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                    {/* Opportunities & Cons Card (spans 2 on desktop) */}
+                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            {/* Opportunities (Pros) */}
+                            <div>
+                                <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                    <div className="bg-emerald-100 p-2.5 rounded-xl">
+                                        <Award className="w-6 h-6 text-emerald-700" />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-800 tracking-tight">Opportunities & Benefits</h2>
+                                </div>
+                                {data.opportunities && data.opportunities.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {data.opportunities.map((item: string, idx: number) => (
+                                            <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                                                <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-slate-400 text-sm">No opportunities listed.</p>
+                                )}
+                            </div>
+
+                            {/* Challenges (Cons) */}
+                            <div>
+                                <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                    <div className="bg-rose-100 p-2.5 rounded-xl">
+                                        <AlertTriangle className="w-6 h-6 text-rose-700" />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-800 tracking-tight">Challenges & Cons</h2>
+                                </div>
+                                {data.cons && data.cons.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {data.cons.map((item: string, idx: number) => (
+                                            <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                                <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                                                <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-slate-400 text-sm">No cons listed.</p>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Visa Info & Requirements Card (1 column in 50/50 split) */}
+                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">
+                        <div>
+                            <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                <div className="bg-teal-100 p-2.5 rounded-xl">
+                                    <Globe className="w-6 h-6 text-teal-700" />
+                                </div>
+                                <h2 className="text-xl font-bold text-slate-800 tracking-tight">Visa Info & Requirements</h2>
+                            </div>
+                            {data.visaPolicy && data.visaPolicy.trim() !== "" ? (
+                                <ul className="space-y-3">
+                                    {parseTextToList(data.visaPolicy).map((item: string, idx: number) => (
+                                        <li key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                            <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
+                                            <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-slate-400 text-sm">No visa info listed.</p>
+                            )}
+                        </div>
+                    </section>
+
+                    {/* Application Timeline & Costs Card (1 column in 50/50 split) */}
+                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">
+                        <div>
+                            <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                <div className="bg-blue-100 p-2.5 rounded-xl">
+                                    <CalendarClock className="w-6 h-6 text-blue-700" />
+                                </div>
+                                <h2 className="text-xl font-bold text-slate-800 tracking-tight">When to Apply & Costs</h2>
+                            </div>
+                            
+                            {/* Average Living Cost box */}
+                            {data.avgCost && data.avgCost.trim() !== "" && (
+                                <div className="mb-6 bg-teal-50/50 border border-teal-100/50 p-4 rounded-2xl flex gap-4 items-center">
+                                    <div className="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                                        <Banknote className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-teal-800">Estimated Cost of Living</h4>
+                                        <p className="text-slate-700 text-sm font-semibold">{data.avgCost}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* When to apply list */}
+                            {data.whenToApply && data.whenToApply.trim() !== "" ? (
+                                <div className="space-y-3">
+                                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Application Deadlines</h4>
+                                    <ul className="space-y-3">
+                                        {parseTextToList(data.whenToApply).map((item: string, idx: number) => (
+                                            <li key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                                <CalendarClock className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                                                <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <p className="text-slate-400 text-sm">No timeline info listed.</p>
+                            )}
+                        </div>
+                    </section>
+
+                    {/* Work Rights & Regulations Card (1 column in 50/50 split) */}
+                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">
+                        <div>
+                            <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                <div className="bg-amber-100 p-2.5 rounded-xl">
+                                    <Briefcase className="w-6 h-6 text-amber-700" />
+                                </div>
+                                <h2 className="text-xl font-bold text-slate-800 tracking-tight">Work Rights & Regulations</h2>
+                            </div>
+                            {data.workRights && data.workRights.trim() !== "" ? (
+                                <ul className="space-y-3">
+                                    {parseTextToList(data.workRights).map((item: string, idx: number) => (
+                                        <li key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                            <CheckCircle2 className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                                            <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p className="text-slate-400 text-sm">No work regulations listed.</p>
+                            )}
+                        </div>
+                    </section>
+
+                    {/* Top Universities Card (spans 2 on desktop) */}
+                    {data.universities && data.universities.length > 0 && (
+                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                             <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                 <div className="bg-indigo-100 p-3 rounded-2xl">
                                     <Library className="w-7 h-7 text-indigo-700" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Top Universities</h2>
+                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Top Universities in {data.name}</h2>
                             </div>
-                            <ul className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {data.universities.map((item: string, idx: number) => (
-                                    <li key={idx} className="flex gap-4 items-center px-4 py-2.5 hover:bg-slate-50 transition-colors rounded-xl border border-slate-50">
-                                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-                                            <Library className="w-4 h-4 text-indigo-400" />
+                                    <div key={idx} className="flex gap-4 items-center p-4 hover:bg-slate-50 transition-all duration-200 rounded-2xl border border-slate-100 hover:border-indigo-100 hover:shadow-sm">
+                                        <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+                                            <Library className="w-5 h-5 text-indigo-500" />
                                         </div>
-                                        <p className="text-slate-700 leading-relaxed font-medium flex-1">{item}</p>
-                                    </li>
+                                        <p className="text-slate-700 text-sm font-semibold flex-1 line-clamp-2">{item}</p>
+                                    </div>
                                 ))}
-                            </ul>
-                        </section>
-
-                        {/* Job Opportunities Card */}
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
-                            <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
-                                <div className="bg-amber-100 p-3 rounded-2xl">
-                                    <Briefcase className="w-7 h-7 text-amber-700" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Job Opportunities</h2>
                             </div>
-                            <ul className="space-y-4">
-                                {data.jobOpportunities.map((item: string, idx: number) => (
-                                    <li key={idx} className="flex gap-4 items-start p-4 hover:bg-slate-50 transition-colors rounded-xl">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 mt-2 shadow-sm"></div>
-                                        <p className="text-slate-700 leading-relaxed font-medium flex-1">{item}</p>
-                                    </li>
-                                ))}
-                            </ul>
                         </section>
+                    )}
 
-                        {/* How to Apply Card */}
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                    {/* How to Apply Card (spans 2 on desktop) */}
+                    {data.howToApply && data.howToApply.length > 0 && (
+                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                             <div className="flex items-center gap-4 mb-10 border-b border-slate-100 pb-6">
                                 <div className="bg-blue-100 p-3 rounded-2xl">
                                     <ListOrdered className="w-7 h-7 text-blue-700" />
@@ -180,47 +293,31 @@ export default async function CountryDetails({ params }: CountryProps) {
                                 ))}
                             </div>
                         </section>
-                    </div>
+                    )}
 
-                    {/* Right Column (Sidebar CTA) */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-28 space-y-5">
-                            <div className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 text-center">
-                                <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <Search className="w-8 h-8 text-teal-600 ml-1" />
-                                </div>
-                                <h3 className="text-2xl font-bold text-slate-800 mb-3">Looking for Scholarships?</h3>
-                                <p className="text-slate-500 text-sm mb-8 leading-relaxed">
-                                    Discover fully funded opportunities in <span className="font-bold text-slate-800">{data.name}</span> and start your application process today.
+                    {/* Looking for Scholarships? (CTA Card) - spans 2 at the bottom */}
+                    <section className="bg-teal-900 border border-teal-800 rounded-3xl p-10 lg:col-span-2 text-white relative overflow-hidden shadow-xl">
+                        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(20,184,166,0.1),transparent)] pointer-events-none"></div>
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 max-w-4xl mx-auto">
+                            <div className="text-center md:text-left">
+                                <span className="inline-block bg-teal-500/20 text-teal-300 font-bold text-xs uppercase tracking-widest px-3 py-1 rounded-full mb-4">
+                                    Take Action
+                                </span>
+                                <h3 className="text-3xl font-extrabold mb-3 tracking-tight">Looking for Scholarships?</h3>
+                                <p className="text-teal-200 text-base max-w-xl leading-relaxed">
+                                    Discover fully funded and partially funded opportunities in <span className="font-bold text-white">{data.name}</span> and start your application process today.
                                 </p>
+                            </div>
+                            <div className="shrink-0 w-full md:w-auto">
                                 <Link
                                     href={`/scholarships?country=${data.slug}`}
-                                    className="flex items-center justify-center gap-2 w-full bg-teal-600 hover:bg-teal-700 text-white text-lg font-semibold py-4 px-6 rounded-2xl transition-all shadow-lg shadow-teal-600/25 active:scale-[0.98]"
+                                    className="flex items-center justify-center gap-2 w-full md:w-auto bg-white hover:bg-teal-50 text-teal-900 text-lg font-bold py-4 px-8 rounded-2xl transition-all shadow-lg active:scale-[0.98] border border-white hover:shadow-teal-900/30"
                                 >
-                                    Find Scholarships <ChevronRight className="w-5 h-5" />
+                                    Find Scholarships <ChevronRight className="w-5 h-5 text-teal-900" />
                                 </Link>
                             </div>
-
-                            {studyBasics.length > 0 && (
-                                <div className="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
-                                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-5">Study Basics</h3>
-                                    <ul className="space-y-4">
-                                        {studyBasics.map((item) => (
-                                            <li key={item.label} className="flex items-start gap-3">
-                                                <div className="w-10 h-10 rounded-2xl bg-teal-50 flex items-center justify-center shrink-0">
-                                                    {item.icon}
-                                                </div>
-                                                <div className="min-w-0">
-                                                    <p className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-0.5">{item.label}</p>
-                                                    <p className="text-sm font-semibold text-slate-800 leading-relaxed break-words">{item.value}</p>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
                         </div>
-                    </div>
+                    </section>
 
                 </div>
             </main>

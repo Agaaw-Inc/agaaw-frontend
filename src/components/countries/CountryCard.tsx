@@ -3,13 +3,14 @@ import Image from "next/image";
 
 interface CountryCardProps {
     name: string;
+    slug: string;
     image: string;
 }
 
-export default function CountryCard({ name, image }: CountryCardProps) {
+export default function CountryCard({ name, slug, image }: CountryCardProps) {
     return (
         <Link
-            href={`/countries/${name.toLowerCase()}`}
+            href={`/countries/${slug}`}
             className="border rounded-lg overflow-hidden shadow hover:shadow-lg transition block"
         >
             <div className="w-full h-40 relative">

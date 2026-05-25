@@ -22,6 +22,7 @@ export default async function CountryPreview() {
                         <CountryCard
                             key={country.slug}
                             name={country.name}
+                            slug={country.slug}
                             image={country.image}
                         />
                     ))}
