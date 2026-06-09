@@ -48,14 +48,19 @@ export default async function CountryDetails({ params }: CountryProps) {
         notFound();
     }
 
-
-
     // Helper to parse line breaks and standard bullet points into clean lists
-    const parseTextToList = (text?: string | null): string[] => {
+    const parseTextToList = (text?: string | null,
+        removeNumbers: boolean = true
+    ): string[] => {
         if (!text) return [];
+
+        const regex = removeNumbers
+            ? /^[\s•\-\*\d+\.\:\)]+/
+            : /^[\s•\-\*]+/;
+
         return text
             .split(/\n+/)
-            .map(line => line.replace(/^[\s•\-\*\d+\.\:\)]+/, "").trim())
+            .map(line => line.replace(regex, "").trim())
             .filter(line => line.length > 0);
     };
 
@@ -191,7 +196,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                                 </div>
                                 <h2 className="text-xl font-bold text-slate-800 tracking-tight">When to Apply & Costs</h2>
                             </div>
-                            
+
                             {/* Average Living Cost box */}
                             {data.avgCost && data.avgCost.trim() !== "" && (
                                 <div className="mb-6 bg-teal-50/50 border border-teal-100/50 p-4 rounded-2xl flex gap-4 items-center">
@@ -235,7 +240,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                             </div>
                             {data.workRights && data.workRights.trim() !== "" ? (
                                 <ul className="space-y-3">
-                                    {parseTextToList(data.workRights).map((item: string, idx: number) => (
+                                    {parseTextToList(data.workRights, false).map((item: string, idx: number) => (
                                         <li key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
                                             <CheckCircle2 className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                                             <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
