@@ -32,7 +32,7 @@ function formatDeadline(deadline: string | null) {
 
 function formatCoverage(coverage: PublicScholarship["coverage"]) {
   return {
-    full: "Full Coverage",
+    fully_funded: "Full Coverage",
     partial: "Partial Coverage",
     varies: "Varies",
   }[coverage];
@@ -277,16 +277,16 @@ function ScholarshipList() {
           </div>
           <div className="flex flex-wrap gap-3 mt-6 items-center">
             <span className="text-xs font-bold uppercase tracking-widest text-bombay pr-2">Popular:</span>
-            {filters.coverage.some((coverage) => coverage.value === "full") && (
+            {filters.coverage.some((coverage) => coverage.value === "fully_funded") && (
               <button
-                onClick={() => { setCoverageFilter(coverageFilter === "full" ? "" : "full"); setCurrentPage(1); }}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${coverageFilter === "full"
+                onClick={() => { setCoverageFilter(coverageFilter === "fully_funded" ? "" : "fully_funded"); setCurrentPage(1); }}
+                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${coverageFilter === "fully_funded"
                     ? "bg-elm/10 text-elm hover:bg-elm/20"
                     : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
                   }`}
               >
-                {getOptionLabel(filters.coverage, "full", "Full Coverage")}
-                {coverageFilter === "full" && <X className="w-3 h-3 ml-1" />}
+                {getOptionLabel(filters.coverage, "fully_funded", "Full Coverage")}
+                {coverageFilter === "fully_funded" && <X className="w-3 h-3 ml-1" />}
               </button>
             )}
             {filters.levels

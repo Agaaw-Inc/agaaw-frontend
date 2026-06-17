@@ -48,7 +48,7 @@ export default function ScholarshipForm({
         : initialData?.level
           ? [initialData.level as any]
           : ["masters"],
-      coverage: initialData?.coverage || "full",
+      coverage: initialData?.coverage || "fully_funded",
       deadline: initialData?.deadline ? new Date(initialData.deadline).toISOString().split('T')[0] : "",
       description: initialData?.description || "",
       benefits: initialData?.benefits || "",
@@ -382,7 +382,7 @@ export default function ScholarshipForm({
                   {...register("coverage")}
                   className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500"
                 >
-                  <option value="full">Full Coverage</option>
+                  <option value="fully_funded">Full Coverage</option>
                   <option value="partial">Partial Coverage</option>
                   <option value="varies">Varies</option>
                 </select>

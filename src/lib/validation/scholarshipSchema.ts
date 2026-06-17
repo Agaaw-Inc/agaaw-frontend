@@ -7,7 +7,7 @@ export const scholarshipSchema = z.object({
   countryId: z.string().uuid("Invalid country selection"),
   categoryId: z.string().uuid().optional().or(z.literal("")),
   level: z.array(z.enum(["bachelors", "masters", "phd", "other"])).min(1, "At least one level is required"),
-  coverage: z.enum(["full", "partial", "varies"]),
+  coverage: z.enum(["fully_funded", "partial", "varies"]),
   deadline: z.string().optional().or(z.literal("")),
   description: z.string().min(10, "Description is too short"),
   benefits: z.string().optional(),

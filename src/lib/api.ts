@@ -16,7 +16,7 @@ export interface PublicScholarship {
   category: string | null;
   categorySlug: string | null;
   level: ("bachelors" | "masters" | "phd" | "other")[];
-  coverage: "full" | "partial" | "varies";
+  coverage: "fully_funded" | "partial" | "varies";
   deadline: string | null;
   description: string;
   benefits: string | null;

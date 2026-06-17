@@ -16,7 +16,7 @@ function formatDeadline(deadline: string | null) {
 
 function formatCoverage(coverage: PublicScholarship["coverage"]) {
   return {
-    full: "Full Coverage",
+    fully_funded: "Full Coverage",
     partial: "Partial Coverage",
     varies: "Varies",
   }[coverage];

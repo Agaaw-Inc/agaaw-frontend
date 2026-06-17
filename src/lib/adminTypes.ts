@@ -480,7 +480,7 @@ export interface CountryQueryParams {
 
 // ─── Scholarship Types ──────────────────────────────────────
 export type ScholarshipLevel = "bachelors" | "masters" | "phd" | "other";
-export type Coverage = "full" | "partial" | "varies";
+export type Coverage = "fully_funded" | "partial" | "varies";
 
 export interface ScholarshipFaq {
   id: string;
