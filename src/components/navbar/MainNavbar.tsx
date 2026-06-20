@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
@@ -100,18 +100,33 @@ export default function MainNavbar() {
           </nav>
 
           {/* Desktop Login & Register */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-4">
             {user ? (
-              <div className="relative" ref={profileRef}>
-                <button
-                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
+              <>
+                <button 
+                  onClick={() => window.dispatchEvent(new Event('open-chat'))}
+                  className="text-gray-500 hover:text-teal-600 transition-colors relative"
                 >
-                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border-2 border-teal-50 shadow-sm uppercase tracking-wide text-sm">
-                    {user.firstName?.substring(0, 2) || "U"}
-                  </div>
-                  <ChevronDown size={16} className={`text-gray-500 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                  <MessageSquare size={22} />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">2</span>
                 </button>
+                <button className="text-gray-500 hover:text-teal-600 transition-colors relative">
+                  <Bell size={22} />
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                
+                <div className="h-6 w-px bg-gray-200 mx-1"></div>
+
+                <div className="relative" ref={profileRef}>
+                  <button
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                    className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border-2 border-teal-50 shadow-sm uppercase tracking-wide text-sm">
+                      {user.firstName?.substring(0, 2) || "U"}
+                    </div>
+                    <ChevronDown size={16} className={`text-gray-500 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
 
                 {profileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden">
@@ -119,13 +134,52 @@ export default function MainNavbar() {
                       <p className="text-sm font-bold text-gray-900 truncate">{user.firstName} {user.lastName}</p>
                       <p className="text-[11px] text-gray-500 truncate uppercase tracking-wider font-semibold">{user.role}</p>
                     </div>
-                    <Link
-                      href={user.role === 'mentor' ? '/welcome/mentor' : '/welcome/student'}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors"
-                    >
-                      <GraduationCap size={18} className="text-gray-400" />
-                      Home
-                    </Link>
+                    {user.role === 'mentor' ? (
+                      <>
+                        <Link href='/dashboard/mentor/profile' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <User size={18} className="text-gray-400 group-hover:text-teal-600" /> My Profile
+                        </Link>
+                        <Link href='/dashboard/mentor/students' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Users size={18} className="text-gray-400 group-hover:text-teal-600" /> Students
+                        </Link>
+                        <Link href='/dashboard/mentor/requests' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Inbox size={18} className="text-gray-400 group-hover:text-teal-600" /> Mentorship Requests
+                        </Link>
+                        <Link href='/dashboard/mentor/services' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Briefcase size={18} className="text-gray-400 group-hover:text-teal-600" /> Services
+                        </Link>
+                        <Link href='/dashboard/mentor/blogs' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <BookOpen size={18} className="text-gray-400 group-hover:text-teal-600" /> Blog & Resources
+                        </Link>
+                        <Link href='/dashboard/mentor/messages' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <MessageSquare size={18} className="text-gray-400 group-hover:text-teal-600" /> Messages
+                        </Link>
+                        <Link href='/dashboard/mentor/reviews' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Star size={18} className="text-gray-400 group-hover:text-teal-600" /> Reviews
+                        </Link>
+                        <Link href='/dashboard/mentor/notifications' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Bell size={18} className="text-gray-400 group-hover:text-teal-600" /> Notifications
+                        </Link>
+                        <Link href='/dashboard/mentor/settings' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Settings size={18} className="text-gray-400 group-hover:text-teal-600" /> Settings
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link href='/dashboard/student/profile' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <User size={18} className="text-gray-400 group-hover:text-teal-600" /> My Profile
+                        </Link>
+                        <Link href='/dashboard/student/documents' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <FileText size={18} className="text-gray-400 group-hover:text-teal-600" /> Documents
+                        </Link>
+                        <Link href='/dashboard/student/saved' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Bookmark size={18} className="text-gray-400 group-hover:text-teal-600" /> Saved Scholarships
+                        </Link>
+                        <Link href='/dashboard/student/settings' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Settings size={18} className="text-gray-400 group-hover:text-teal-600" /> Settings
+                        </Link>
+                      </>
+                    )}
                     <div className="h-px bg-gray-100 my-1" />
                     <button
                       onClick={handleLogout}
@@ -137,6 +191,7 @@ export default function MainNavbar() {
                   </div>
                 )}
               </div>
+              </>
             ) : (
               <>
                 <Link
@@ -199,13 +254,52 @@ export default function MainNavbar() {
                       <p className="text-[10px] text-teal-700 font-semibold uppercase tracking-tight">{user.role}</p>
                     </div>
                   </div>
-                  <Link
-                    href={user.role === 'mentor' ? '/welcome/mentor' : '/welcome/student'}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                  >
-                    <GraduationCap size={18} className="text-gray-400" />
-                    Home
-                  </Link>
+                  {user.role === 'mentor' ? (
+                    <>
+                      <Link href='/dashboard/mentor/profile' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <User size={18} className="text-gray-400" /> My Profile
+                      </Link>
+                      <Link href='/dashboard/mentor/students' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Users size={18} className="text-gray-400" /> Students
+                      </Link>
+                      <Link href='/dashboard/mentor/requests' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Inbox size={18} className="text-gray-400" /> Mentorship Requests
+                      </Link>
+                      <Link href='/dashboard/mentor/services' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Briefcase size={18} className="text-gray-400" /> Services
+                      </Link>
+                      <Link href='/dashboard/mentor/blogs' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <BookOpen size={18} className="text-gray-400" /> Blog & Resources
+                      </Link>
+                      <Link href='/dashboard/mentor/messages' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <MessageSquare size={18} className="text-gray-400" /> Messages
+                      </Link>
+                      <Link href='/dashboard/mentor/reviews' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Star size={18} className="text-gray-400" /> Reviews
+                      </Link>
+                      <Link href='/dashboard/mentor/notifications' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Bell size={18} className="text-gray-400" /> Notifications
+                      </Link>
+                      <Link href='/dashboard/mentor/settings' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Settings size={18} className="text-gray-400" /> Settings
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link href='/dashboard/student/profile' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <User size={18} className="text-gray-400" /> My Profile
+                      </Link>
+                      <Link href='/dashboard/student/documents' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <FileText size={18} className="text-gray-400" /> Documents
+                      </Link>
+                      <Link href='/dashboard/student/saved' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Bookmark size={18} className="text-gray-400" /> Saved Scholarships
+                      </Link>
+                      <Link href='/dashboard/student/settings' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Settings size={18} className="text-gray-400" /> Settings
+                      </Link>
+                    </>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors mt-2 border border-red-100/50"
