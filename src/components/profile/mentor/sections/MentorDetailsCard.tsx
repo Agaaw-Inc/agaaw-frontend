@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { GraduationCap, MapPin, Briefcase, DollarSign, Languages, CheckCircle2, Eye, Edit3, Award, Bookmark, Calendar } from "lucide-react";
+import { GraduationCap, MapPin, Briefcase, DollarSign, Languages, CheckCircle2, Eye, Edit3, Award, Bookmark, Calendar, Phone, } from "lucide-react";
 
 interface MentorDetailsCardProps {
     onEdit: () => void;
@@ -65,6 +65,16 @@ export default function MentorDetailsCard({ onEdit }: MentorDetailsCardProps) {
                     icon={<CheckCircle2 size={18} className="text-teal-600" />}
                     label="Visa Status"
                     value="Tier 4 (General) Student Visa"
+                />
+                <DetailRow
+                    icon={<Phone size={18} className="text-teal-600" />}
+                    label="Phone Number"
+                    value="+1234567890"
+                />
+                <DetailRow
+                    icon={<MapPin size={18} className="text-teal-600" />}
+                    label="City Name"
+                    value="London"
                 />
                 <div className="flex items-start gap-3">
                     <CheckCircle2 size={18} className="text-teal-600 mt-0.5 shrink-0" />
