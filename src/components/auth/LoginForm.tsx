@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema, LoginType } from "@/lib/validators/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { loginUser } from "@/lib/api";
 import { setToken, setUserInfo } from "@/lib/auth";
@@ -17,6 +17,8 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +40,9 @@ export default function LoginForm() {
       setUserInfo(response.user);
 
       const role = response.user.role;
-      if (role === "mentor") {
+      if (redirect) {
+        router.push(redirect);
+      } else if (role === "mentor") {
         router.push("/dashboard/mentor");
       } else {
         router.push("/dashboard/student");

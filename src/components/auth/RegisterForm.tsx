@@ -39,7 +39,8 @@ export default function RegisterForm({ role }: { role: "student" | "mentor" }) {
         password: data.password,
         role: role,
       });
-      router.push(`/otp?email=${encodeURIComponent(data.email)}`);
+      sessionStorage.setItem("temp_reg_password", data.password);
+      router.push(`/otp?email=${encodeURIComponent(data.email)}&role=${role}`);
     } catch (err: any) {
       setError(err.message || "An error occurred during registration");
     } finally {

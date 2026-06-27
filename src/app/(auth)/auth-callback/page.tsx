@@ -24,11 +24,11 @@ function AuthCallbackContent() {
           // 3. Save user info to localStorage
           setUserInfo(user);
 
-          // 4. Redirect to dashboard based on role
+          // 4. Redirect based on role
           if (user.role === "mentor") {
-            router.push("/welcome/mentor");
+            router.push("/register/mentor/onboarding");
           } else {
-            router.push("/welcome/student");
+            router.push("/register/student/student-onboarding");
           }
         })
         .catch((err) => {

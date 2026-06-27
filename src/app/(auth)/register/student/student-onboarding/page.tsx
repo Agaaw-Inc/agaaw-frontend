@@ -1,46 +1,42 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { 
-  GraduationCap, 
-  MapPin, 
-  Award, 
-  Bookmark, 
-  Calendar, 
-  ChevronDown, 
-  Upload, 
-  Plus, 
-  Search, 
-  Globe, 
-  Phone, 
-  ArrowRight, 
-  ArrowLeft, 
-  Check, 
-  Bell, 
-  FileText, 
-  Link2, 
+import {
+  GraduationCap,
+  Award,
+  Bookmark,
+  Calendar,
+  ChevronDown,
+  Upload,
+  Plus,
+  Search,
+  Globe,
+  Phone,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  Bell,
+  FileText,
+  Link2,
   Info,
   X
 } from "lucide-react";
+import { COUNTRY_LIST, PHONE_CODES } from "@/data/geo";
+import { SUBJECTS } from "@/data/subjects";
 
 export default function StudentOnboarding() {
   const router = useRouter();
   const [step, setStep] = useState(1);
 
   // --- Step 1 State: Study Goals ---
-  const [targetCountries, setTargetCountries] = useState<string[]>(["USA", "Canada", "UK"]);
+  const [targetCountries, setTargetCountries] = useState<string[]>([]);
   const [countryInput, setCountryInput] = useState("");
-  const [targetSubject, setTargetSubject] = useState<string[]>(["Data Science", "Machine Learning"]);
+  const [targetSubject, setTargetSubject] = useState<string[]>([]);
   const [subjectInput, setSubjectInput] = useState("");
-  const [degreeLevel, setDegreeLevel] = useState<"Bachelor's" | "Master's" | "PhD" | "">("Bachelor's");
-  const [preferredIntake, setPreferredIntake] = useState("Fall (September)");
+  const [degreeLevel, setDegreeLevel] = useState<"Bachelor's" | "Master's" | "PhD" | "">("");
+  const [preferredIntake, setPreferredIntake] = useState("");
 
-  const allCountries = ["USA", "Canada", "UK", "Germany", "Australia", "Japan", "Sweden", "Netherlands", "Bangladesh", "India", "Malaysia"];
-  const allSubjects = ["Computer Science", "Artificial Intelligence", "Data Science", "Machine Learning", "Software Engineering", "Information Technology", "Business Administration", "Economics", "Mechanical Engineering", "Electrical Engineering", "Physics", "Chemistry"];
-
-  // --- Step 2 State: Academic Background ---
   const [educationLevel, setEducationLevel] = useState("");
   const [graduationYear, setGraduationYear] = useState("");
   const [institutionName, setInstitutionName] = useState("");
@@ -193,16 +189,16 @@ export default function StudentOnboarding() {
                 Step {step} of 4
               </span>
             )}
-            
+
             <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors relative">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full"></span>
             </button>
 
             <div className="h-8 w-8 rounded-full bg-slate-200 border border-slate-100 overflow-hidden">
-              <img 
-                src="https://i.pravatar.cc/100?img=12" 
-                alt="User Avatar" 
+              <img
+                src="https://i.pravatar.cc/100?img=12"
+                alt="User Avatar"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -219,7 +215,7 @@ export default function StudentOnboarding() {
           <div className="w-full md:w-[35%] bg-[#005F59] text-white p-8 md:p-12 flex flex-col justify-between relative overflow-hidden">
             {/* Visual element / background pattern */}
             <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-            
+
             <div className="relative z-10 space-y-6">
               <div className="inline-block bg-teal-850/40 text-teal-200 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                 Onboarding
@@ -233,9 +229,9 @@ export default function StudentOnboarding() {
 
               {/* Study Hall Mockup Image */}
               <div className="rounded-2xl overflow-hidden border border-teal-500/30 shadow-2xl relative aspect-video bg-teal-950 mt-8">
-                <img 
-                  src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=600&auto=format&fit=crop" 
-                  alt="Study Hall" 
+                <img
+                  src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=600&auto=format&fit=crop"
+                  alt="Study Hall"
                   className="w-full h-full object-cover opacity-80"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-teal-950/80 to-transparent"></div>
@@ -293,16 +289,16 @@ export default function StudentOnboarding() {
                       </span>
                     ))}
                     <div className="relative flex-1 min-w-[120px]">
-                      <input 
-                        type="text" 
-                        placeholder="Add country..." 
+                      <input
+                        type="text"
+                        placeholder="Add country..."
                         value={countryInput}
                         onChange={(e) => setCountryInput(e.target.value)}
                         className="w-full bg-transparent border-none outline-none text-sm p-0.5 placeholder:text-slate-400 focus:ring-0"
                       />
                       {countryInput && (
                         <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-150 rounded-xl shadow-lg max-h-40 overflow-y-auto z-50 py-1">
-                          {allCountries
+                          {COUNTRY_LIST
                             .filter(c => c.toLowerCase().includes(countryInput.toLowerCase()) && !targetCountries.includes(c))
                             .map(c => (
                               <button key={c} type="button" onClick={() => addCountry(c)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold transition-colors">
@@ -310,7 +306,7 @@ export default function StudentOnboarding() {
                               </button>
                             ))
                           }
-                          {allCountries.filter(c => c.toLowerCase().includes(countryInput.toLowerCase()) && !targetCountries.includes(c)).length === 0 && (
+                          {COUNTRY_LIST.filter(c => c.toLowerCase().includes(countryInput.toLowerCase()) && !targetCountries.includes(c)).length === 0 && (
                             <button type="button" onClick={() => addCountry(countryInput)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-teal-600 transition-colors">
                               Add "{countryInput}"
                             </button>
@@ -330,16 +326,16 @@ export default function StudentOnboarding() {
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                       <Search className="h-4.5 w-4.5" />
                     </div>
-                    <input 
-                      type="text" 
-                      placeholder="Search majors (e.g., Computer Science, Economics)" 
+                    <input
+                      type="text"
+                      placeholder="Search majors (e.g., Computer Science, Economics)"
                       value={subjectInput}
                       onChange={(e) => setSubjectInput(e.target.value)}
                       className="w-full bg-slate-50/50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all placeholder:text-slate-400"
                     />
                     {subjectInput && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-150 rounded-xl shadow-lg max-h-40 overflow-y-auto z-50 py-1">
-                        {allSubjects
+                        {SUBJECTS
                           .filter(s => s.toLowerCase().includes(subjectInput.toLowerCase()) && !targetSubject.includes(s))
                           .map(s => (
                             <button key={s} type="button" onClick={() => addSubject(s)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold transition-colors">
@@ -347,7 +343,7 @@ export default function StudentOnboarding() {
                             </button>
                           ))
                         }
-                        {allSubjects.filter(s => s.toLowerCase().includes(subjectInput.toLowerCase()) && !targetSubject.includes(s)).length === 0 && (
+                        {SUBJECTS.filter(s => s.toLowerCase().includes(subjectInput.toLowerCase()) && !targetSubject.includes(s)).length === 0 && (
                           <button type="button" onClick={() => addSubject(subjectInput)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-teal-600 transition-colors">
                             Add "{subjectInput}"
                           </button>
@@ -355,7 +351,7 @@ export default function StudentOnboarding() {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Selected and quick-choice tags */}
                   <div className="flex flex-wrap gap-2 pt-1.5">
                     {targetSubject.map(subj => (
@@ -367,8 +363,8 @@ export default function StudentOnboarding() {
                       </span>
                     ))}
                     {!targetSubject.includes("Data Science") && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => addSubject("Data Science")}
                         className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-semibold py-1.5 px-3.5 rounded-lg transition-colors"
                       >
@@ -376,8 +372,8 @@ export default function StudentOnboarding() {
                       </button>
                     )}
                     {!targetSubject.includes("Machine Learning") && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => addSubject("Machine Learning")}
                         className="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-semibold py-1.5 px-3.5 rounded-lg transition-colors"
                       >
@@ -393,38 +389,35 @@ export default function StudentOnboarding() {
                     Degree Level
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setDegreeLevel("Bachelor's")}
-                      className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all text-center space-y-2 py-6 ${
-                        degreeLevel === "Bachelor's" 
-                          ? "border-[#005F59] bg-teal-50/50 text-[#005F59] font-bold shadow-sm" 
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-350 hover:bg-slate-50/30"
-                      }`}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all text-center space-y-2 py-6 ${degreeLevel === "Bachelor's"
+                        ? "border-[#005F59] bg-teal-50/50 text-[#005F59] font-bold shadow-sm"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-350 hover:bg-slate-50/30"
+                        }`}
                     >
                       <Award className={`h-6 w-6 ${degreeLevel === "Bachelor's" ? "text-[#005F59]" : "text-slate-400"}`} />
                       <span className="text-xs font-semibold">Bachelor's</span>
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setDegreeLevel("Master's")}
-                      className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all text-center space-y-2 py-6 ${
-                        degreeLevel === "Master's" 
-                          ? "border-[#005F59] bg-teal-50/50 text-[#005F59] font-bold shadow-sm" 
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-350 hover:bg-slate-50/30"
-                      }`}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all text-center space-y-2 py-6 ${degreeLevel === "Master's"
+                        ? "border-[#005F59] bg-teal-50/50 text-[#005F59] font-bold shadow-sm"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-350 hover:bg-slate-50/30"
+                        }`}
                     >
                       <GraduationCap className={`h-6 w-6 ${degreeLevel === "Master's" ? "text-[#005F59]" : "text-slate-400"}`} />
                       <span className="text-xs font-semibold">Master's</span>
                     </button>
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setDegreeLevel("PhD")}
-                      className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all text-center space-y-2 py-6 ${
-                        degreeLevel === "PhD" 
-                          ? "border-[#005F59] bg-teal-50/50 text-[#005F59] font-bold shadow-sm" 
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-350 hover:bg-slate-50/30"
-                      }`}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border transition-all text-center space-y-2 py-6 ${degreeLevel === "PhD"
+                        ? "border-[#005F59] bg-teal-50/50 text-[#005F59] font-bold shadow-sm"
+                        : "border-slate-200 bg-white text-slate-600 hover:border-slate-350 hover:bg-slate-50/30"
+                        }`}
                     >
                       <Bookmark className={`h-6 w-6 ${degreeLevel === "PhD" ? "text-[#005F59]" : "text-slate-400"}`} />
                       <span className="text-xs font-semibold">PhD</span>
@@ -438,8 +431,8 @@ export default function StudentOnboarding() {
                     Preferred Intake
                   </label>
                   <div className="relative">
-                    <select 
-                      value={preferredIntake} 
+                    <select
+                      value={preferredIntake}
                       onChange={(e) => setPreferredIntake(e.target.value)}
                       className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all font-semibold"
                     >
@@ -457,15 +450,15 @@ export default function StudentOnboarding() {
 
             {/* Footer */}
             <div className="flex items-center justify-between pt-10 border-t border-slate-100 mt-12">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleBackStep}
                 className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" /> Back to Profile
               </button>
-              
-              <button 
+
+              <button
                 type="button"
                 onClick={handleNextStep}
                 disabled={targetCountries.length === 0 || !degreeLevel}
@@ -519,7 +512,7 @@ export default function StudentOnboarding() {
                       Current Education Level
                     </label>
                     <div className="relative">
-                      <select 
+                      <select
                         value={educationLevel}
                         onChange={(e) => setEducationLevel(e.target.value)}
                         className="w-full bg-slate-50/50 border border-slate-250 rounded-xl px-4 py-3 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 font-semibold"
@@ -542,7 +535,7 @@ export default function StudentOnboarding() {
                       Graduation Year
                     </label>
                     <div className="relative">
-                      <select 
+                      <select
                         value={graduationYear}
                         onChange={(e) => setGraduationYear(e.target.value)}
                         className="w-full bg-slate-50/50 border border-slate-250 rounded-xl px-4 py-3 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 font-semibold"
@@ -572,8 +565,8 @@ export default function StudentOnboarding() {
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                       <GraduationCap className="h-4.5 w-4.5" />
                     </div>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="e.g. University of Oxford"
                       value={institutionName}
                       onChange={(e) => setInstitutionName(e.target.value)}
@@ -592,8 +585,8 @@ export default function StudentOnboarding() {
                       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                         <Award className="h-4.5 w-4.5" />
                       </div>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         placeholder="e.g. 3.85"
                         value={cgpa}
                         onChange={(e) => setCgpa(e.target.value)}
@@ -607,36 +600,33 @@ export default function StudentOnboarding() {
                       GPA Scale
                     </label>
                     <div className="flex border border-slate-200 rounded-xl p-1 bg-slate-50/50 h-[46px] items-center">
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setGpaScale("4.0")}
-                        className={`flex-1 text-xs font-extrabold py-2 px-3 rounded-lg transition-all ${
-                          gpaScale === "4.0" 
-                            ? "bg-white text-slate-900 shadow-sm border border-slate-100" 
-                            : "text-slate-450 hover:text-slate-700"
-                        }`}
+                        className={`flex-1 text-xs font-extrabold py-2 px-3 rounded-lg transition-all ${gpaScale === "4.0"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-100"
+                          : "text-slate-450 hover:text-slate-700"
+                          }`}
                       >
                         4.0
                       </button>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setGpaScale("5.0")}
-                        className={`flex-1 text-xs font-extrabold py-2 px-3 rounded-lg transition-all ${
-                          gpaScale === "5.0" 
-                            ? "bg-white text-slate-900 shadow-sm border border-slate-100" 
-                            : "text-slate-450 hover:text-slate-700"
-                        }`}
+                        className={`flex-1 text-xs font-extrabold py-2 px-3 rounded-lg transition-all ${gpaScale === "5.0"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-100"
+                          : "text-slate-450 hover:text-slate-700"
+                          }`}
                       >
                         5.0
                       </button>
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => setGpaScale("100%")}
-                        className={`flex-1 text-xs font-extrabold py-2 px-3 rounded-lg transition-all ${
-                          gpaScale === "100%" 
-                            ? "bg-white text-slate-900 shadow-sm border border-slate-100" 
-                            : "text-slate-450 hover:text-slate-700"
-                        }`}
+                        className={`flex-1 text-xs font-extrabold py-2 px-3 rounded-lg transition-all ${gpaScale === "100%"
+                          ? "bg-white text-slate-900 shadow-sm border border-slate-100"
+                          : "text-slate-450 hover:text-slate-700"
+                          }`}
                       >
                         100%
                       </button>
@@ -664,18 +654,18 @@ export default function StudentOnboarding() {
               </div>
 
               <div className="relative shrink-0 w-full sm:w-auto">
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept="application/pdf"
                   onChange={handleTranscriptUpload}
-                  className="hidden" 
+                  className="hidden"
                   id="transcript-upload-input"
                 />
-                <label 
+                <label
                   htmlFor="transcript-upload-input"
                   className="flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 hover:border-teal-500 rounded-xl px-6 py-3 cursor-pointer text-xs font-bold text-slate-600 hover:text-teal-600 bg-white transition-all w-full text-center"
                 >
-                  <Upload className="h-4 w-4" /> 
+                  <Upload className="h-4 w-4" />
                   {transcriptFile ? transcriptFile.name : "Upload PDF"}
                 </label>
               </div>
@@ -684,23 +674,23 @@ export default function StudentOnboarding() {
 
           {/* Footer buttons */}
           <div className="flex items-center justify-between pt-10 border-t border-slate-100 mt-12">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={handleBackStep}
               className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </button>
 
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={handleSkip}
               className="text-sm font-bold text-slate-450 hover:text-slate-650 transition-colors"
             >
               Skip for now
             </button>
 
-            <button 
+            <button
               type="button"
               onClick={handleNextStep}
               disabled={!educationLevel || !graduationYear || !institutionName || !cgpa}
@@ -732,7 +722,7 @@ export default function StudentOnboarding() {
                 <span className="text-sm font-bold text-slate-800">75%</span>
               </div>
             </div>
-            
+
             <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
               <div className="h-full w-3/4 bg-[#005F59] rounded-full"></div>
             </div>
@@ -753,7 +743,7 @@ export default function StudentOnboarding() {
                     <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                       <Globe className="h-4.5 w-4.5" />
                     </div>
-                    <select 
+                    <select
                       value={currentCountry}
                       onChange={(e) => setCurrentCountry(e.target.value)}
                       className="w-full bg-slate-50/50 border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 font-semibold"
@@ -781,17 +771,17 @@ export default function StudentOnboarding() {
                   </label>
                   <div className="flex gap-2">
                     <div className="relative w-32 shrink-0">
-                      <select 
+                      <select
                         value={phoneCode}
                         onChange={(e) => setPhoneCode(e.target.value)}
                         className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 font-semibold text-center"
                       >
-                        <option value="+880">+880 (BD)</option>
-                        <option value="+91">+91 (IN)</option>
-                        <option value="+1">+1 (US/CA)</option>
-                        <option value="+44">+44 (UK)</option>
-                        <option value="+49">+49 (DE)</option>
-                        <option value="+61">+61 (AU)</option>
+                        <option value="">Select</option>
+                        {PHONE_CODES.map((p) => (
+                          <option key={p.country} value={p.code}>
+                            {p.label}
+                          </option>
+                        ))}
                       </select>
                       <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                         <ChevronDown className="h-4 w-4" />
@@ -802,8 +792,8 @@ export default function StudentOnboarding() {
                       <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
                         <Phone className="h-4.5 w-4.5" />
                       </div>
-                      <input 
-                        type="tel" 
+                      <input
+                        type="tel"
                         placeholder="1712-345678"
                         value={phoneNumber}
                         onChange={(e) => setPhoneNumber(e.target.value)}
@@ -819,8 +809,8 @@ export default function StudentOnboarding() {
                     Date of Birth
                   </label>
                   <div className="relative">
-                    <input 
-                      type="date" 
+                    <input
+                      type="date"
                       value={dob}
                       onChange={(e) => setDob(e.target.value)}
                       className="w-full bg-slate-50/50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 font-semibold placeholder:text-slate-455 transition-all"
@@ -841,7 +831,7 @@ export default function StudentOnboarding() {
 
           {/* Centered side-by-side action buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-10 border-t border-slate-100 mt-12 w-full">
-            <button 
+            <button
               type="button"
               onClick={handleNextStep}
               disabled={!currentCountry || !phoneNumber || !dob}
@@ -849,8 +839,8 @@ export default function StudentOnboarding() {
             >
               Continue <ArrowRight className="h-4 w-4" />
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={handleBackStep}
               className="w-full sm:w-48 order-2 sm:order-1 flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-250 text-slate-700 px-6 py-3.5 rounded-lg text-sm font-bold transition-all"
             >
@@ -911,14 +901,14 @@ export default function StudentOnboarding() {
                 </div>
 
                 <div className="relative pt-2">
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     accept="application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     onChange={handleCvUpload}
-                    className="hidden" 
+                    className="hidden"
                     id="cv-upload-input"
                   />
-                  <label 
+                  <label
                     htmlFor="cv-upload-input"
                     className="flex items-center gap-2 bg-[#005F59] hover:bg-teal-850 active:scale-[0.98] text-white px-6 py-3 rounded-xl text-xs font-bold shadow-md cursor-pointer transition-all"
                   >
@@ -934,8 +924,8 @@ export default function StudentOnboarding() {
               {/* Right Manual & LinkedIn Stack */}
               <div className="flex flex-col gap-4">
                 {/* Enter Manually Card */}
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleNextStep}
                   className="bg-white border border-slate-105 hover:border-teal-500 rounded-2xl p-6 shadow-sm flex items-start gap-4 text-left transition-all hover:shadow-md"
                 >
@@ -951,7 +941,7 @@ export default function StudentOnboarding() {
                 </button>
 
                 {/* LinkedIn Import Card */}
-                <button 
+                <button
                   type="button"
                   onClick={handleNextStep}
                   className="bg-white border border-slate-105 hover:border-[#0077b5] rounded-2xl p-6 shadow-sm flex items-start gap-4 text-left transition-all hover:shadow-md"
@@ -972,9 +962,9 @@ export default function StudentOnboarding() {
             {/* Testimonial Quote Block */}
             <div className="bg-slate-50/50 border border-slate-150 rounded-2xl p-6 flex flex-col md:flex-row items-center gap-4 mt-8">
               <div className="h-14 w-14 rounded-full bg-slate-200 overflow-hidden shrink-0 border border-slate-100">
-                <img 
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" 
-                  alt="Student testimonial" 
+                <img
+                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop"
+                  alt="Student testimonial"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -991,23 +981,23 @@ export default function StudentOnboarding() {
 
           {/* Footer buttons */}
           <div className="flex items-center justify-between pt-10 border-t border-slate-100 mt-12">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={handleBackStep}
               className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </button>
 
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={handleSkip}
               className="text-sm font-bold text-slate-450 hover:text-slate-650 transition-colors"
             >
               Skip for now
             </button>
 
-            <button 
+            <button
               type="button"
               onClick={handleNextStep}
               className="flex items-center gap-2 bg-[#005F59] hover:bg-teal-850 active:scale-[0.98] text-white px-6 py-3 rounded-lg text-sm font-bold shadow-md shadow-teal-900/10 transition-all"

@@ -11,6 +11,7 @@ export default function OtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
+  const role = searchParams.get("role");
   
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -49,8 +50,65 @@ export default function OtpForm() {
     setLoading(true);
     setError(null);
     try {
-      await verifyEmail(otpValue);
-      router.push("/login");
+      const response = await verifyEmail(otpValue);
+      
+      // Attempt auto-login if backend returns token
+      if (response && response.access_token && response.user) {
+        // We need to import setToken and setUserInfo from @/lib/auth at the top!
+        // I will do a multi replace or assume we can import it.
+        // Actually, let's just do it cleanly. I'll add the import in another step.
+        const { setToken, setUserInfo } = require("@/lib/auth");
+        setToken(response.access_token);
+        setUserInfo(response.user);
+        
+        if (role === "student") {
+          router.push("/register/student/student-onboarding");
+        } else if (role === "mentor") {
+          router.push("/register/mentor/onboarding");
+        } else {
+          router.push("/");
+        }
+        return;
+      } else {
+        // Fallback: try to login using password from sessionStorage
+        const tempPassword = sessionStorage.getItem("temp_reg_password");
+        if (email && tempPassword) {
+          try {
+            const { loginUser } = require("@/lib/api");
+            const loginResponse = await loginUser({ email: email, password: tempPassword });
+            if (loginResponse && loginResponse.access_token && loginResponse.user) {
+              const { setToken, setUserInfo } = require("@/lib/auth");
+              setToken(loginResponse.access_token);
+              setUserInfo(loginResponse.user);
+              
+              // Clean up
+              sessionStorage.removeItem("temp_reg_password");
+              
+              if (role === "student") {
+                router.push("/register/student/student-onboarding");
+              } else if (role === "mentor") {
+                router.push("/register/mentor/onboarding");
+              } else {
+                router.push("/");
+              }
+              return;
+            }
+          } catch (loginErr) {
+            console.error("Auto-login failed:", loginErr);
+            // Fall through to manual login page
+          }
+        }
+      }
+
+      // If no token is returned, fallback to login page
+      let redirectUrl = "/login";
+      if (role === "student") {
+        redirectUrl = `/login?redirect=${encodeURIComponent("/register/student/student-onboarding")}`;
+      } else if (role === "mentor") {
+        redirectUrl = `/login?redirect=${encodeURIComponent("/register/mentor/onboarding")}`;
+      }
+      
+      router.push(redirectUrl);
     } catch (err: any) {
       setError(err.message || "Invalid or expired OTP");
     } finally {
