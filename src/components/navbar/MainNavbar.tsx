@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell } from "lucide-react";
-import { getToken, getUserInfo, removeToken, removeUserInfo } from "@/lib/auth";
+import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
 const NAV_LINKS = [
@@ -15,33 +15,48 @@ const NAV_LINKS = [
   { href: "/about-us", label: "About", icon: Info },
 ];
 
+function getStoredUser(): UserInfo | null {
+  const token = getToken();
+  const userInfo = getUserInfo();
+
+  return token && userInfo ? userInfo : null;
+}
+
+function subscribeToUserStore(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener("focus", onStoreChange);
+  window.addEventListener("agaaw-auth-change", onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener("focus", onStoreChange);
+    window.removeEventListener("agaaw-auth-change", onStoreChange);
+  };
+}
+
 export default function MainNavbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const user = useSyncExternalStore(subscribeToUserStore, getStoredUser, () => null);
   const pathname = usePathname();
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const token = getToken();
-    const userInfo = getUserInfo();
-    if (token && userInfo) {
-      setUser(userInfo);
-    } else {
-      setUser(null);
-    }
-  }, [pathname]);
-
   const handleLogout = () => {
     removeToken();
     removeUserInfo();
-    setUser(null);
+    window.dispatchEvent(new Event("agaaw-auth-change"));
     setProfileDropdownOpen(false);
     router.push("/");
   };
+
+  const dashboardRole = user?.role === "mentor" ? "mentor" : "student";
+  const messagesHref = `/dashboard/${dashboardRole}/messages`;
+  const messagesActive = pathname.startsWith(messagesHref);
 
   // Close menus on outside click
   useEffect(() => {
@@ -58,7 +73,14 @@ export default function MainNavbar() {
   }, []);
 
   // Close menu on route change
-  useEffect(() => { setMenuOpen(false); }, [pathname]);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setMenuOpen(false);
+      setProfileDropdownOpen(false);
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, [pathname]);
 
   return (
     <>
@@ -103,13 +125,16 @@ export default function MainNavbar() {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
-                <button 
-                  onClick={() => window.dispatchEvent(new Event('open-chat'))}
-                  className="text-gray-500 hover:text-teal-600 transition-colors relative"
+                <Link
+                  href={messagesHref}
+                  aria-label="Open messages"
+                  className={`relative rounded-lg p-2 transition-colors ${
+                    messagesActive ? "bg-teal-50 text-teal-700" : "text-gray-500 hover:bg-gray-100 hover:text-teal-600"
+                  }`}
                 >
                   <MessageSquare size={22} />
                   <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">2</span>
-                </button>
+                </Link>
                 <button className="text-gray-500 hover:text-teal-600 transition-colors relative">
                   <Bell size={22} />
                   <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
@@ -174,6 +199,9 @@ export default function MainNavbar() {
                         </Link>
                         <Link href='/dashboard/student/saved' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                           <Bookmark size={18} className="text-gray-400 group-hover:text-teal-600" /> Saved Scholarships
+                        </Link>
+                        <Link href='/dashboard/student/messages' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <MessageSquare size={18} className="text-gray-400 group-hover:text-teal-600" /> Messages
                         </Link>
                         <Link href='/dashboard/student/settings' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                           <Settings size={18} className="text-gray-400 group-hover:text-teal-600" /> Settings
@@ -294,6 +322,9 @@ export default function MainNavbar() {
                       </Link>
                       <Link href='/dashboard/student/saved' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Bookmark size={18} className="text-gray-400" /> Saved Scholarships
+                      </Link>
+                      <Link href='/dashboard/student/messages' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <MessageSquare size={18} className="text-gray-400" /> Messages
                       </Link>
                       <Link href='/dashboard/student/settings' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Settings size={18} className="text-gray-400" /> Settings
