@@ -54,8 +54,21 @@ export default function BlogForm({ mode, defaultValues, cancelHref, onSubmit }: 
     },
   });
 
+  const [isMentor, setIsMentor] = useState(false);
+
+  useEffect(() => {
+    const userInfo = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem("user_info") || "{}") : null;
+    const mentorStatus = userInfo?.role === "mentor";
+    setIsMentor(mentorStatus);
+    if (mentorStatus && userInfo?.id) {
+      setValue("authorId", userInfo.id, { shouldValidate: true });
+    }
+  }, [setValue]);
+
   // Fetch authors (admins and mentors)
   useEffect(() => {
+    if (isMentor) return;
+
     async function fetchAuthors() {
       try {
         setIsLoadingAuthors(true);
@@ -81,7 +94,7 @@ export default function BlogForm({ mode, defaultValues, cancelHref, onSubmit }: 
     }
 
     fetchAuthors();
-  }, []);
+  }, [isMentor]);
 
   useEffect(() => {
     if (defaultValues) {
@@ -168,34 +181,36 @@ export default function BlogForm({ mode, defaultValues, cancelHref, onSubmit }: 
         {/* Right Column: Metadata & Settings */}
         <div className="space-y-6">
           {/* Author Selection */}
-          <div className="bg-gray-50/50 p-5 rounded-3xl border border-gray-100 space-y-4">
-            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-              <User size={16} className="text-teal-600" /> Authorship
-            </h3>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Select Author</label>
-              {isLoadingAuthors ? (
-                <div className="flex items-center gap-2 text-xs text-gray-400 py-2">
-                  <Loader2 size={14} className="animate-spin" /> Loading authors...
-                </div>
-              ) : authorError ? (
-                <p className="text-xs text-red-500">{authorError}</p>
-              ) : (
-                <select
-                  {...register("authorId")}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
-                >
-                  <option value="">Select an author...</option>
-                  {authors.map((author) => (
-                    <option key={author.id} value={author.id}>
-                      {author.firstName} {author.lastName} ({author.role})
-                    </option>
-                  ))}
-                </select>
-              )}
-              {errors.authorId && <p className="text-red-500 text-[10px] mt-1">{errors.authorId.message}</p>}
+          {!isMentor && (
+            <div className="bg-gray-50/50 p-5 rounded-3xl border border-gray-100 space-y-4">
+              <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <User size={16} className="text-teal-600" /> Authorship
+              </h3>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5 uppercase tracking-wider">Select Author</label>
+                {isLoadingAuthors ? (
+                  <div className="flex items-center gap-2 text-xs text-gray-400 py-2">
+                    <Loader2 size={14} className="animate-spin" /> Loading authors...
+                  </div>
+                ) : authorError ? (
+                  <p className="text-xs text-red-500">{authorError}</p>
+                ) : (
+                  <select
+                    {...register("authorId")}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                  >
+                    <option value="">Select an author...</option>
+                    {authors.map((author) => (
+                      <option key={author.id} value={author.id}>
+                        {author.firstName} {author.lastName} ({author.role})
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {errors.authorId && <p className="text-red-500 text-[10px] mt-1">{errors.authorId.message}</p>}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Taxonomy & Meta */}
           <div className="bg-gray-50/50 p-5 rounded-3xl border border-gray-100 space-y-5">

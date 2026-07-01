@@ -4,10 +4,13 @@ import React from "react";
 import { Wallet } from "lucide-react";
 
 interface FinancialDetailsCardProps {
+    profile: any;
     onEdit: () => void;
 }
 
-export default function FinancialDetailsCard({ onEdit }: FinancialDetailsCardProps) {
+export default function FinancialDetailsCard({ profile, onEdit }: FinancialDetailsCardProps) {
+    const fin = profile?.financialDetails || {};
+
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
@@ -28,21 +31,33 @@ export default function FinancialDetailsCard({ onEdit }: FinancialDetailsCardPro
                     <tbody>
                         <tr className="border-b border-gray-100/50">
                             <td className="py-3 px-4 text-gray-500 font-semibold w-1/4">Annual Family Income</td>
-                            <td className="py-3 px-4 text-teal-600 font-bold w-1/4">BDT 4,60,000</td>
+                            <td className="py-3 px-4 text-teal-600 font-bold w-1/4">
+                                {fin.annualIncome ? `BDT ${fin.annualIncome}` : "Add details..."}
+                            </td>
                             <td className="py-3 px-4 text-gray-500 font-semibold w-1/4">Guardian Name</td>
-                            <td className="py-3 px-4 text-gray-900 font-semibold w-1/4 text-right">Md. Abdul Karim</td>
+                            <td className="py-3 px-4 text-gray-900 font-semibold w-1/4 text-right">
+                                {fin.guardianName || "Add details..."}
+                            </td>
                         </tr>
                         <tr className="border-b border-gray-100/50">
                             <td className="py-3 px-4 text-gray-500 font-semibold">Income Source</td>
-                            <td className="py-3 px-4 text-gray-900 font-semibold">Service (Government)</td>
+                            <td className="py-3 px-4 text-gray-900 font-semibold">
+                                {fin.incomeSource || "Add details..."}
+                            </td>
                             <td className="py-3 px-4 text-gray-500 font-semibold">Relation to</td>
-                            <td className="py-3 px-4 text-gray-900 font-semibold text-right">Father</td>
+                            <td className="py-3 px-4 text-gray-900 font-semibold text-right">
+                                {fin.relation || "Add details..."}
+                            </td>
                         </tr>
                         <tr>
                             <td className="py-3 px-4 text-gray-500 font-semibold">Occupation</td>
-                            <td className="py-3 px-4 text-gray-900 font-semibold">Government Officer</td>
+                            <td className="py-3 px-4 text-gray-900 font-semibold">
+                                {fin.occupation || "Add details..."}
+                            </td>
                             <td className="py-3 px-4 text-gray-500 font-semibold">Guardian Phone</td>
-                            <td className="py-3 px-4 text-gray-900 font-semibold text-right">+880 1611-224567</td>
+                            <td className="py-3 px-4 text-gray-900 font-semibold text-right">
+                                {fin.phone || "Add details..."}
+                            </td>
                         </tr>
                     </tbody>
                 </table>

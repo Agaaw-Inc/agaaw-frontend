@@ -4,28 +4,12 @@ import React from "react";
 import { Clock, Settings } from "lucide-react";
 
 interface MentorServicesCardProps {
+    profile: any;
     onEdit: () => void;
 }
 
-export default function MentorServicesCard({ onEdit }: MentorServicesCardProps) {
-    const services = [
-        {
-            id: 1,
-            title: "Full Application Review",
-            description: "Complete review of your university application including personal statement, CV, and...",
-            price: 120,
-            currency: "$",
-            duration: "95 min",
-        },
-        {
-            id: 2,
-            title: "Scholarship Strategy Session",
-            description: "Personalized session to identify the best scholarship opportunities for your profile and...",
-            price: 80,
-            currency: "$",
-            duration: "60 min",
-        },
-    ];
+export default function MentorServicesCard({ profile, onEdit }: MentorServicesCardProps) {
+    const services = Array.isArray(profile?.services) ? profile.services : [];
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
@@ -40,10 +24,10 @@ export default function MentorServicesCard({ onEdit }: MentorServicesCardProps) 
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {services.map((service) => (
+                {services.map((service: any, index: number) => (
                     <div 
-                        key={service.id} 
-                        className="border border-gray-100 rounded-xl p-5 hover:shadow-md hover:border-gray-200 transition-all group relative"
+                        key={service.id || index} 
+                        className="border border-gray-100 rounded-xl p-5 hover:shadow-md hover:border-gray-200 transition-all group relative bg-white"
                     >
                         {/* Top accent */}
                         <div className="absolute top-0 left-5 right-5 h-0.5 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-b-full" />
@@ -55,7 +39,7 @@ export default function MentorServicesCard({ onEdit }: MentorServicesCardProps) 
 
                         <div className="flex items-center gap-3">
                             <span className="text-lg font-bold text-teal-700">
-                                {service.currency} {service.price}
+                                {service.currency || "$"} {service.price}
                             </span>
                             <span className="text-xs text-gray-400 flex items-center gap-1">
                                 <Clock size={12} />
@@ -64,6 +48,9 @@ export default function MentorServicesCard({ onEdit }: MentorServicesCardProps) 
                         </div>
                     </div>
                 ))}
+                {services.length === 0 && (
+                    <p className="text-sm text-gray-400 italic col-span-2">No services added yet. Click manage to list your mentoring services!</p>
+                )}
             </div>
         </div>
     );

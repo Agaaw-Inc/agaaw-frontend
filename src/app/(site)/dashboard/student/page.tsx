@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Users, Search, GraduationCap } from "lucide-react";
 import MentorsSection from "@/components/dashboard/student/MentorsSection";
@@ -8,10 +10,38 @@ import ScholarshipsPreview from "@/components/scholarships/ScholarshipsPreview";
 import CountriesPreview from "@/components/countries/CountriesPreview";
 import BlogsPreview from "@/components/shared/BlogsPreview";
 import Footer from "@/components/landing/Footer";
+import { getToken, getUserInfo, type UserInfo } from "@/lib/auth";
+import { getMentorCount } from "@/lib/api";
+
+function getStoredUser(): UserInfo | null {
+    const token = getToken();
+    const userInfo = getUserInfo();
+    return token && userInfo ? userInfo : null;
+}
+
+function subscribeToUserStore(onStoreChange: () => void) {
+    if (typeof window === "undefined") return () => {};
+    window.addEventListener("storage", onStoreChange);
+    window.addEventListener("focus", onStoreChange);
+    window.addEventListener("agaaw-auth-change", onStoreChange);
+    return () => {
+        window.removeEventListener("storage", onStoreChange);
+        window.removeEventListener("focus", onStoreChange);
+        window.removeEventListener("agaaw-auth-change", onStoreChange);
+    };
+}
 
 export default function StudentDashboardPage() {
-    // For demo purposes, hardcoding user name. In a real app, this would come from auth context/session
-    const userFirstName = "Fahim";
+    const user = useSyncExternalStore(subscribeToUserStore, getStoredUser, () => null);
+    const [mentorCount, setMentorCount] = useState<number | null>(null);
+
+    useEffect(() => {
+        getMentorCount()
+            .then(setMentorCount)
+            .catch(() => setMentorCount(0));
+    }, []);
+
+    const userFirstName = user?.firstName || "Student";
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
@@ -49,7 +79,11 @@ export default function StudentDashboardPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm flex flex-col justify-center">
                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Active Mentors</p>
-                            <p className="text-3xl font-bold text-gray-900">156</p>
+                            <p className="text-3xl font-bold text-gray-900">
+                                {mentorCount !== null ? mentorCount : (
+                                    <span className="inline-block w-12 h-8 bg-gray-100 rounded animate-pulse" />
+                                )}
+                            </p>
                         </div>
                         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm flex flex-col justify-center">
                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Universities</p>

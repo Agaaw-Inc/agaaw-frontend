@@ -4,18 +4,12 @@ import React from "react";
 import { Edit3 } from "lucide-react";
 
 interface MentorExpertiseCardProps {
+    profile: any;
     onEdit: () => void;
 }
 
-export default function MentorExpertiseCard({ onEdit }: MentorExpertiseCardProps) {
-    const expertise = [
-        "Scholarship Essays",
-        "UK Universities",
-        "Personal Statements",
-        "IELTS Preparation",
-        "Application Strategy",
-        "Interview Coaching"
-    ];
+export default function MentorExpertiseCard({ profile, onEdit }: MentorExpertiseCardProps) {
+    const expertise = profile?.expertiseTags?.map((et: any) => et.tag) || [];
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
@@ -30,7 +24,7 @@ export default function MentorExpertiseCard({ onEdit }: MentorExpertiseCardProps
             </div>
 
             <div className="flex flex-wrap gap-2.5">
-                {expertise.map((tag, index) => (
+                {expertise.map((tag: string, index: number) => (
                     <span 
                         key={index} 
                         className="px-4 py-2 rounded-lg border border-gray-200 text-gray-700 text-sm font-semibold hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition-colors cursor-default"
@@ -38,6 +32,9 @@ export default function MentorExpertiseCard({ onEdit }: MentorExpertiseCardProps
                         {tag}
                     </span>
                 ))}
+                {expertise.length === 0 && (
+                    <p className="text-sm text-gray-400 italic">No expertise tags added yet. Click edit to add your specialties!</p>
+                )}
             </div>
         </div>
     );

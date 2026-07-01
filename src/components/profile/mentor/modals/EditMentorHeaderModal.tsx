@@ -1,25 +1,39 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Save, Upload } from "lucide-react";
+import { X, Save, Upload, Loader2 } from "lucide-react";
 
 interface EditMentorHeaderModalProps {
+    profile: any;
     onClose: () => void;
-    onSave?: (data: any) => void;
+    onSave: (data: any) => Promise<void>;
 }
 
-export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHeaderModalProps) {
-    const [firstName, setFirstName] = useState("Arif");
-    const [lastName, setLastName] = useState("Rahman");
-    const [university, setUniversity] = useState("University of Oxford");
-    const [country, setCountry] = useState("United Kingdom");
+export default function EditMentorHeaderModal({ profile, onClose, onSave }: EditMentorHeaderModalProps) {
+    const user = profile?.user;
+    const [firstName, setFirstName] = useState(user?.firstName || "");
+    const [lastName, setLastName] = useState(user?.lastName || "");
+    const [university, setUniversity] = useState(profile?.currentUniversity || "");
+    const [country, setCountry] = useState(profile?.countryName || "");
+    const [isSaving, setIsSaving] = useState(false);
 
-    const handleSave = (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (onSave) {
-            onSave({ firstName, lastName, university, country });
+        setIsSaving(true);
+        try {
+            await onSave({
+                firstName,
+                lastName,
+                currentUniversity: university || null,
+                countryName: country || null,
+            });
+            onClose();
+        } catch (err) {
+            console.error("Failed to save mentor header:", err);
+            alert("Failed to save changes. Please try again.");
+        } finally {
+            setIsSaving(false);
         }
-        onClose();
     };
 
     return (
@@ -30,7 +44,8 @@ export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHea
                     <h2 className="text-xl font-bold text-gray-900">Edit Profile Header</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
+                        disabled={isSaving}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
                     >
                         <X size={20} />
                     </button>
@@ -41,15 +56,19 @@ export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHea
                     <div className="p-6 space-y-6 flex-1">
                         {/* Profile Image upload simulator */}
                         <div className="flex items-center gap-5">
-                            <div className="relative w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
-                                <img 
-                                    src="https://i.pravatar.cc/250?img=32" 
-                                    alt="Arif Rahman" 
-                                    className="w-full h-full object-cover"
-                                />
+                            <div className="relative w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-teal-700 font-bold text-xl uppercase">
+                                {user?.profileImage ? (
+                                    <img 
+                                        src={user.profileImage} 
+                                        alt={user.firstName} 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    user?.firstName?.substring(0, 2) || "M"
+                                )}
                             </div>
                             <div>
-                                <button type="button" className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-semibold transition-colors">
+                                <button type="button" disabled className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-400 bg-gray-50 rounded-lg text-sm font-semibold cursor-not-allowed">
                                     <Upload size={16} /> Upload New Photo
                                 </button>
                                 <p className="text-xs text-gray-500 mt-1.5">JPG, PNG or GIF. Max size 2MB.</p>
@@ -64,7 +83,8 @@ export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHea
                                         type="text" 
                                         value={firstName} 
                                         onChange={(e) => setFirstName(e.target.value)} 
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
                                     />
                                 </div>
                                 <div className="space-y-1.5">
@@ -73,7 +93,8 @@ export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHea
                                         type="text" 
                                         value={lastName} 
                                         onChange={(e) => setLastName(e.target.value)} 
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
                                     />
                                 </div>
                             </div>
@@ -85,7 +106,8 @@ export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHea
                                         type="text" 
                                         value={university} 
                                         onChange={(e) => setUniversity(e.target.value)} 
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
                                     />
                                 </div>
                                 <div className="space-y-1.5">
@@ -94,7 +116,8 @@ export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHea
                                         type="text" 
                                         value={country} 
                                         onChange={(e) => setCountry(e.target.value)} 
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
                                     />
                                 </div>
                             </div>
@@ -106,15 +129,25 @@ export default function EditMentorHeaderModal({ onClose, onSave }: EditMentorHea
                         <button 
                             type="button"
                             onClick={onClose}
-                            className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                            disabled={isSaving}
+                            className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                         >
                             Cancel
                         </button>
                         <button 
                             type="submit"
-                            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors"
+                            disabled={isSaving}
+                            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
                         >
-                            <Save size={16} /> Save Changes
+                            {isSaving ? (
+                                <>
+                                    <Loader2 size={16} className="animate-spin" /> Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <Save size={16} /> Save Changes
+                                </>
+                            )}
                         </button>
                     </div>
                 </form>

@@ -1,23 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Save, Plus } from "lucide-react";
+import { X, Save, Plus, Loader2 } from "lucide-react";
 
 interface EditMentorExpertiseModalProps {
+    profile: any;
     onClose: () => void;
-    onSave?: (data: string[]) => void;
+    onSave: (data: any) => Promise<void>;
 }
 
-export default function EditMentorExpertiseModal({ onClose, onSave }: EditMentorExpertiseModalProps) {
-    const [tags, setTags] = useState([
-        "Scholarship Essays",
-        "UK Universities",
-        "Personal Statements",
-        "IELTS Preparation",
-        "Application Strategy",
-        "Interview Coaching"
-    ]);
+export default function EditMentorExpertiseModal({ profile, onClose, onSave }: EditMentorExpertiseModalProps) {
+    const initialTags = profile?.expertiseTags?.map((et: any) => et.tag) || [];
+    const [tags, setTags] = useState<string[]>(initialTags);
     const [newTag, setNewTag] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleAddTag = (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,11 +27,17 @@ export default function EditMentorExpertiseModal({ onClose, onSave }: EditMentor
         setTags(tags.filter(t => t !== tagToRemove));
     };
 
-    const handleSave = () => {
-        if (onSave) {
-            onSave(tags);
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onSave({ expertise: tags });
+            onClose();
+        } catch (err) {
+            console.error("Failed to save mentor expertise tags:", err);
+            alert("Failed to save changes. Please try again.");
+        } finally {
+            setIsSaving(false);
         }
-        onClose();
     };
 
     return (
@@ -46,7 +48,8 @@ export default function EditMentorExpertiseModal({ onClose, onSave }: EditMentor
                     <h2 className="text-xl font-bold text-gray-900">Edit Expertise Tags</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
+                        disabled={isSaving}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
                     >
                         <X size={20} />
                     </button>
@@ -61,11 +64,13 @@ export default function EditMentorExpertiseModal({ onClose, onSave }: EditMentor
                             placeholder="Add new expertise tag (e.g., TOEFL, Germany Applications)"
                             value={newTag}
                             onChange={(e) => setNewTag(e.target.value)}
-                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                            disabled={isSaving}
+                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50"
                         />
                         <button 
                             type="submit"
-                            className="flex items-center gap-1.5 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-semibold transition"
+                            disabled={isSaving}
+                            className="flex items-center gap-1.5 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-semibold transition disabled:opacity-50"
                         >
                             <Plus size={16} /> Add
                         </button>
@@ -84,7 +89,8 @@ export default function EditMentorExpertiseModal({ onClose, onSave }: EditMentor
                                     <button 
                                         type="button"
                                         onClick={() => handleRemoveTag(tag)}
-                                        className="p-0.5 hover:bg-gray-200 text-gray-400 hover:text-gray-600 rounded-full transition"
+                                        disabled={isSaving}
+                                        className="p-0.5 hover:bg-gray-200 text-gray-400 hover:text-gray-600 rounded-full transition disabled:opacity-50"
                                     >
                                         <X size={14} />
                                     </button>
@@ -102,16 +108,26 @@ export default function EditMentorExpertiseModal({ onClose, onSave }: EditMentor
                     <button 
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                        disabled={isSaving}
+                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button 
                         type="button"
                         onClick={handleSave}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors"
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
                     >
-                        <Save size={16} /> Save Changes
+                        {isSaving ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" /> Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save size={16} /> Save Changes
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

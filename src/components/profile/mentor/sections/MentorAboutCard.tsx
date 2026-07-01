@@ -4,15 +4,16 @@ import React, { useState } from "react";
 import { Edit3 } from "lucide-react";
 
 interface MentorAboutCardProps {
+    profile: any;
     onEdit: () => void;
 }
 
-export default function MentorAboutCard({ onEdit }: MentorAboutCardProps) {
+export default function MentorAboutCard({ profile, onEdit }: MentorAboutCardProps) {
     const [expanded, setExpanded] = useState(false);
 
-    const bio = `Scholarship consultant and study abroad expert with 8+ years of experience helping students achieve their academic dreams. I've personally guided over 300 students through successful applications to top universities in the UK, US, and Europe. My approach combines strategic planning with personalized application review to ensure every student presents their best self to admissions committees.`;
-
-    const shortBio = bio.slice(0, 220) + "...";
+    const bio = profile?.bio || "";
+    const hasLongBio = bio.length > 220;
+    const shortBio = hasLongBio ? bio.slice(0, 220) + "..." : bio;
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
@@ -26,15 +27,23 @@ export default function MentorAboutCard({ onEdit }: MentorAboutCardProps) {
                 </button>
             </div>
 
-            <p className="text-sm text-gray-600 leading-relaxed">
-                {expanded ? bio : shortBio}
-            </p>
-            <button 
-                onClick={() => setExpanded(!expanded)}
-                className="text-sm font-semibold text-teal-600 hover:text-teal-700 mt-2 transition-colors"
-            >
-                {expanded ? "Show less" : "Read more ▾"}
-            </button>
+            {bio ? (
+                <>
+                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                        {expanded ? bio : shortBio}
+                    </p>
+                    {hasLongBio && (
+                        <button 
+                            onClick={() => setExpanded(!expanded)}
+                            className="text-sm font-semibold text-teal-600 hover:text-teal-700 mt-2 transition-colors"
+                        >
+                            {expanded ? "Show less" : "Read more ▾"}
+                        </button>
+                    )}
+                </>
+            ) : (
+                <p className="text-sm text-gray-400 italic">No details provided yet. Click edit to tell students about yourself!</p>
+            )}
         </div>
     );
 }

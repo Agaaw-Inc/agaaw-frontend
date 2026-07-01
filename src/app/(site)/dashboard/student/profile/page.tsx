@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "@/components/landing/Footer";
+import { getStudentProfile, updateStudentProfile, getStudentDocuments, uploadStudentDocument, deleteStudentDocument } from "@/lib/api";
+import { Loader2 } from "lucide-react";
 
 // Sections
 import StudentProfileHeader from "@/components/profile/student/sections/StudentProfileHeader";
@@ -51,40 +53,100 @@ type ModalType =
 
 export default function StudentProfilePage() {
     const [activeModal, setActiveModal] = useState<ModalType>(null);
+    const [profile, setProfile] = useState<any>(null);
+    const [documents, setDocuments] = useState<any[]>([]);
+    const [selectedDoc, setSelectedDoc] = useState<{ type: string; title: string; subtitle: string } | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+ 
+    const fetchProfileAndDocs = async () => {
+        try {
+            const [profileData, docsData] = await Promise.all([
+                getStudentProfile(),
+                getStudentDocuments()
+            ]);
+            setProfile(profileData);
+            setDocuments(docsData);
+        } catch (err) {
+            console.error("Error loading profile details:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+ 
+    useEffect(() => {
+        fetchProfileAndDocs();
+    }, []);
+ 
+    const closeModal = () => {
+        setActiveModal(null);
+        setSelectedDoc(null);
+    };
+ 
+    const handleSaveProfile = async (data: any) => {
+        const updated = await updateStudentProfile(data);
+        setProfile(updated);
+    };
 
-    const closeModal = () => setActiveModal(null);
+    const handleUploadClick = (type: string, title: string, subtitle: string) => {
+        setSelectedDoc({ type, title, subtitle });
+        setActiveModal("documents");
+    };
+
+    const handleUploadDocument = async (type: string, file: File) => {
+        await uploadStudentDocument(type, file);
+        const docsData = await getStudentDocuments();
+        setDocuments(docsData);
+    };
+
+    const handleDeleteDocument = async (id: string) => {
+        await deleteStudentDocument(id);
+        const docsData = await getStudentDocuments();
+        setDocuments(docsData);
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-teal-600 mb-2" />
+                <p className="text-sm font-semibold text-gray-500">Loading student profile...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
 
-                <StudentProfileHeader onEdit={() => setActiveModal("header")} />
+                <StudentProfileHeader profile={profile} onEdit={() => setActiveModal("header")} />
 
-                <PersonalInfoCard onEdit={() => setActiveModal("personal")} />
+                <PersonalInfoCard profile={profile} onEdit={() => setActiveModal("personal")} />
 
-                <AcademicInfoCard onEdit={() => setActiveModal("academic")} />
+                <AcademicInfoCard profile={profile} onEdit={() => setActiveModal("academic")} />
 
-                <ExperienceCard onEdit={() => setActiveModal("experience")} />
+                <ExperienceCard profile={profile} onEdit={() => setActiveModal("experience")} />
 
-                {/* Documents Card typically has inline actions, but we can pass a dummy edit handler */}
-                <DocumentsCard />
+                <DocumentsCard 
+                    documents={documents} 
+                    onUploadClick={handleUploadClick} 
+                    onDelete={handleDeleteDocument} 
+                />
 
-                <SkillsCard onEdit={() => setActiveModal("skills")} />
+                <SkillsCard profile={profile} onEdit={() => setActiveModal("skills")} />
 
                 <div className="grid grid-cols-1 gap-6">
-                    <CertificationsCard onEdit={() => setActiveModal("certifications")} />
+                    <CertificationsCard profile={profile} onEdit={() => setActiveModal("certifications")} />
                 </div>
 
-                <FinancialDetailsCard onEdit={() => setActiveModal("financial")} />
+                <FinancialDetailsCard profile={profile} onEdit={() => setActiveModal("financial")} />
 
-                <ResearchCard onEdit={() => setActiveModal("research")} />
+                <ResearchCard profile={profile} onEdit={() => setActiveModal("research")} />
 
-                <VolunteerCard onEdit={() => setActiveModal("volunteer")} />
+                <VolunteerCard profile={profile} onEdit={() => setActiveModal("volunteer")} />
 
-                <AchievementsCard onEdit={() => setActiveModal("achievements")} />
+                <AchievementsCard profile={profile} onEdit={() => setActiveModal("achievements")} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                    <SocialLinksCard onEdit={() => setActiveModal("social")} />
+                    <SocialLinksCard profile={profile} onEdit={() => setActiveModal("social")} />
                     <AccountSettingsCard />
                 </div>
 
@@ -93,18 +155,90 @@ export default function StudentProfilePage() {
             <Footer />
 
             {/* Render Active Modal */}
-            {activeModal === "header" && <EditProfileHeaderModal onClose={closeModal} />}
-            {activeModal === "personal" && <EditPersonalInfoModal onClose={closeModal} />}
-            {activeModal === "academic" && <EditAcademicInfoModal onClose={closeModal} />}
-            {activeModal === "experience" && <EditExperienceModal onClose={closeModal} />}
-            {activeModal === "documents" && <EditDocumentsModal onClose={closeModal} />}
-            {activeModal === "skills" && <EditSkillsModal onClose={closeModal} />}
-            {activeModal === "certifications" && <EditCertificationsModal onClose={closeModal} />}
-            {activeModal === "financial" && <EditFinancialDetailsModal onClose={closeModal} />}
-            {activeModal === "research" && <EditResearchModal onClose={closeModal} />}
-            {activeModal === "volunteer" && <EditVolunteerModal onClose={closeModal} />}
-            {activeModal === "achievements" && <EditAchievementsModal onClose={closeModal} />}
-            {activeModal === "social" && <EditSocialLinksModal onClose={closeModal} />}
+            {activeModal === "header" && (
+                <EditProfileHeaderModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "personal" && (
+                <EditPersonalInfoModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "academic" && (
+                <EditAcademicInfoModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "experience" && (
+                <EditExperienceModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "documents" && selectedDoc && (
+                <EditDocumentsModal 
+                    docInfo={selectedDoc} 
+                    onClose={closeModal} 
+                    onUpload={handleUploadDocument} 
+                />
+            )}
+            {activeModal === "skills" && (
+                <EditSkillsModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "certifications" && (
+                <EditCertificationsModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "financial" && (
+                <EditFinancialDetailsModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "research" && (
+                <EditResearchModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "volunteer" && (
+                <EditVolunteerModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "achievements" && (
+                <EditAchievementsModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
+            {activeModal === "social" && (
+                <EditSocialLinksModal 
+                    profile={profile} 
+                    onClose={closeModal} 
+                    onSave={handleSaveProfile} 
+                />
+            )}
             {activeModal === "account" && <EditAccountSettingsModal onClose={closeModal} />}
         </div>
     );

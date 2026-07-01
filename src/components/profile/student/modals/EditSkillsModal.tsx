@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Save, Plus } from "lucide-react";
+import { X, Save, Plus, Loader2 } from "lucide-react";
 
 interface EditSkillsModalProps {
+    profile: any;
     onClose: () => void;
+    onSave: (data: any) => Promise<void>;
 }
 
-export default function EditSkillsModal({ onClose }: EditSkillsModalProps) {
-    const [skills, setSkills] = useState([
-        "Python", "JavaScript", "React", "Data Analysis", "Public Speaking", "Leadership"
-    ]);
+export default function EditSkillsModal({ profile, onClose, onSave }: EditSkillsModalProps) {
+    const [skills, setSkills] = useState<string[]>(profile?.skills || []);
     const [newSkill, setNewSkill] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleAddSkill = (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,6 +26,19 @@ export default function EditSkillsModal({ onClose }: EditSkillsModalProps) {
         setSkills(skills.filter(s => s !== skillToRemove));
     };
 
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onSave({ skills });
+            onClose();
+        } catch (err) {
+            console.error("Failed to save skills:", err);
+            alert("Failed to save changes. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-in zoom-in-95">
@@ -33,7 +47,8 @@ export default function EditSkillsModal({ onClose }: EditSkillsModalProps) {
                     <h2 className="text-xl font-bold text-gray-900">Edit Skills</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
+                        disabled={isSaving}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
                     >
                         <X size={20} />
                     </button>
@@ -46,10 +61,11 @@ export default function EditSkillsModal({ onClose }: EditSkillsModalProps) {
                             type="text" 
                             value={newSkill}
                             onChange={(e) => setNewSkill(e.target.value)}
+                            disabled={isSaving}
                             placeholder="Add a new skill..." 
-                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
+                            className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
                         />
-                        <button type="submit" className="bg-teal-500 hover:bg-teal-600 text-white p-2.5 rounded-xl transition-colors">
+                        <button type="submit" disabled={isSaving} className="bg-teal-500 hover:bg-teal-600 text-white p-2.5 rounded-xl transition-colors disabled:opacity-50">
                             <Plus size={20} />
                         </button>
                     </form>
@@ -63,7 +79,8 @@ export default function EditSkillsModal({ onClose }: EditSkillsModalProps) {
                                 {skill}
                                 <button 
                                     onClick={() => removeSkill(skill)}
-                                    className="text-gray-400 hover:text-red-500 transition-colors"
+                                    disabled={isSaving}
+                                    className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
                                 >
                                     <X size={14} />
                                 </button>
@@ -76,15 +93,25 @@ export default function EditSkillsModal({ onClose }: EditSkillsModalProps) {
                 <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-2xl">
                     <button 
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                        disabled={isSaving}
+                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button 
-                        onClick={onClose}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
                     >
-                        <Save size={16} /> Save
+                        {isSaving ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" /> Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save size={16} /> Save
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

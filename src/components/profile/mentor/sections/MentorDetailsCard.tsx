@@ -1,13 +1,19 @@
 "use client";
 
 import React from "react";
-import { GraduationCap, MapPin, Briefcase, DollarSign, Languages, CheckCircle2, Eye, Edit3, Award, Bookmark, Calendar, Phone, } from "lucide-react";
+import { GraduationCap, MapPin, Briefcase, DollarSign, Languages, CheckCircle2, Edit3, Award, Bookmark, Calendar, Phone } from "lucide-react";
 
 interface MentorDetailsCardProps {
+    profile: any;
     onEdit: () => void;
 }
 
-export default function MentorDetailsCard({ onEdit }: MentorDetailsCardProps) {
+export default function MentorDetailsCard({ profile, onEdit }: MentorDetailsCardProps) {
+    const formatLanguages = (langs: string[]) => {
+        if (!langs || langs.length === 0) return "Not Specified";
+        return langs.join(", ");
+    };
+
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
@@ -24,65 +30,65 @@ export default function MentorDetailsCard({ onEdit }: MentorDetailsCardProps) {
                 <DetailRow
                     icon={<GraduationCap size={18} className="text-teal-600" />}
                     label="University"
-                    value="University of Oxford"
+                    value={profile?.currentUniversity || "Not Specified"}
                 />
                 <DetailRow
                     icon={<MapPin size={18} className="text-teal-600" />}
-                    label="Country"
-                    value="🇬🇧 United Kingdom"
+                    label="Country Location"
+                    value={profile?.countryName || "Not Specified"}
                 />
                 <DetailRow
                     icon={<Briefcase size={18} className="text-teal-600" />}
                     label="Experience"
-                    value="8 years"
+                    value={profile?.experienceYears ? `${profile.experienceYears} years` : "Not Specified"}
                 />
                 <DetailRow
                     icon={<DollarSign size={18} className="text-teal-600" />}
                     label="Hourly Rate"
-                    value="$60/hr"
+                    value={profile?.hourlyRate ? `$${profile.hourlyRate}/hr` : "Not Specified"}
                 />
                 <DetailRow
                     icon={<Languages size={18} className="text-teal-600" />}
                     label="Languages"
-                    value="English, Bengali, Arabic"
+                    value={formatLanguages(profile?.languages)}
                 />
                 <DetailRow
                     icon={<Award size={18} className="text-teal-600" />}
                     label="Degree"
-                    value="M.Sc. in Computer Science"
+                    value={profile?.degree || "Not Specified"}
                 />
                 <DetailRow
                     icon={<Bookmark size={18} className="text-teal-600" />}
                     label="Subject / Specialization"
-                    value="Artificial Intelligence"
+                    value={profile?.subject || "Not Specified"}
                 />
                 <DetailRow
                     icon={<Calendar size={18} className="text-teal-600" />}
                     label="Current Semester"
-                    value="Graduated / Alumnus"
+                    value={profile?.semester || "Not Specified"}
                 />
                 <DetailRow
                     icon={<CheckCircle2 size={18} className="text-teal-600" />}
                     label="Visa Status"
-                    value="Tier 4 (General) Student Visa"
+                    value={profile?.visaStatus || "Not Specified"}
                 />
                 <DetailRow
                     icon={<Phone size={18} className="text-teal-600" />}
                     label="Phone Number"
-                    value="+1234567890"
+                    value={profile?.phone || "Not Specified"}
                 />
                 <DetailRow
                     icon={<MapPin size={18} className="text-teal-600" />}
                     label="City Name"
-                    value="London"
+                    value={profile?.cityName || "Not Specified"}
                 />
                 <div className="flex items-start gap-3">
                     <CheckCircle2 size={18} className="text-teal-600 mt-0.5 shrink-0" />
                     <div>
                         <p className="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Availability</p>
-                        <p className="text-sm font-semibold text-emerald-600 flex items-center gap-1.5">
-                            <span className="w-2 h-2 bg-emerald-500 rounded-full inline-block"></span>
-                            Available
+                        <p className={`text-sm font-semibold flex items-center gap-1.5 ${profile?.isAvailable ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            <span className={`w-2 h-2 rounded-full inline-block ${profile?.isAvailable ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                            {profile?.isAvailable ? "Available" : "Busy / Fully Booked"}
                         </p>
                     </div>
                 </div>

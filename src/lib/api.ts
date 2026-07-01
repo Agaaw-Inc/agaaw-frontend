@@ -399,3 +399,322 @@ export async function getBlogBySlug(slug: string): Promise<PublicBlog | null> {
   return json.data || null;
 }
 
+export async function getStudentProfile() {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/students/profile`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch student profile");
+  }
+  return json.data || json;
+}
+
+export async function updateStudentProfile(data: any) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/students/profile`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to update student profile");
+  }
+  return json.data || json;
+}
+
+export async function getMentorProfile() {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/profile`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch mentor profile");
+  }
+  return json.data || json;
+}
+
+export async function updateMentorProfile(data: any) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/profile`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to update mentor profile");
+  }
+  return json.data || json;
+}
+
+
+export async function getStudentDocuments() {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/students/documents`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch student documents");
+  }
+  return json.data || json;
+}
+
+export async function uploadStudentDocument(type: string, file: File) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const formData = new FormData();
+  formData.append("type", type);
+  formData.append("file", file);
+
+  const res = await fetch(`${API_URL}/students/documents`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload student document");
+  }
+  return json.data || json;
+}
+
+export async function deleteStudentDocument(id: string) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/students/documents/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to delete student document");
+  }
+  return json.data || json;
+}
+
+export async function getMentorDocuments() {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/documents`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch mentor documents");
+  }
+  return json.data || json;
+}
+
+export async function uploadMentorDocument(type: string, file: File) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const formData = new FormData();
+  formData.append("type", type);
+  formData.append("file", file);
+
+  const res = await fetch(`${API_URL}/mentors/documents`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload mentor document");
+  }
+  return json.data || json;
+}
+
+export async function deleteMentorDocument(id: string) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/documents/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to delete mentor document");
+  }
+  return json.data || json;
+}
+
+export async function getMentorBlogs() {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/blogs`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch mentor blogs");
+  }
+  return json.data || json;
+}
+
+export async function getMentorBlogById(id: string) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/blogs/${id}`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch mentor blog details");
+  }
+  return json.data || json;
+}
+
+export async function createMentorBlog(data: any) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/blogs`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to create mentor blog");
+  }
+  return json.data || json;
+}
+
+export async function updateMentorBlog(id: string, data: any) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/blogs/${id}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to update mentor blog");
+  }
+  return json.data || json;
+}
+
+export async function deleteMentorBlog(id: string) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/blogs/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to delete mentor blog");
+  }
+  return json.data || json;
+}
+
+export async function getMentorCount(): Promise<number> {
+  const res = await fetch(`${API_URL}/users/stats/mentor-count`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    return 0;
+  }
+  return json.data?.count ?? 0;
+}

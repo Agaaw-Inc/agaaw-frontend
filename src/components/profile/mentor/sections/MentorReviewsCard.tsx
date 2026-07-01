@@ -4,7 +4,11 @@ import React from "react";
 import Image from "next/image";
 import { Star } from "lucide-react";
 
-export default function MentorReviewsCard() {
+interface MentorReviewsCardProps {
+    profile?: any;
+}
+
+export default function MentorReviewsCard({ profile }: MentorReviewsCardProps) {
     const averageRating = 4.9;
     const totalReviews = 38;
 

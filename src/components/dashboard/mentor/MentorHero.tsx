@@ -1,24 +1,47 @@
 "use client";
 
 import React from "react";
-import { CheckCircle2, GraduationCap, MapPin, BookOpen, Clock, Briefcase } from "lucide-react";
+import { CheckCircle2, GraduationCap, MapPin, BookOpen, Clock, Briefcase, AlertCircle } from "lucide-react";
 
-export default function MentorHero() {
-    const mentorName = "Omar"; // In real app, fetch from auth context
+interface MentorHeroProps {
+    profile: any;
+}
+
+export default function MentorHero({ profile }: MentorHeroProps) {
+    const firstName = profile?.user?.firstName || "Mentor";
+    const lastName = profile?.user?.lastName || "";
+    const mentorName = `${firstName} ${lastName}`.trim();
+
+    const university = profile?.currentUniversity || "University not specified";
+    const country = profile?.countryName || "Country not specified";
+    const subject = profile?.subject || "Subject not specified";
+    const semester = profile?.semester ? `${profile.semester}` : "Semester not specified";
+    const experience = profile?.experienceYears !== null && profile?.experienceYears !== undefined
+        ? `${profile.experienceYears} Years Exp.` 
+        : "Experience not specified";
+
+    const isApproved = !!profile?.isApproved;
 
     return (
         <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
             
             <div className="space-y-4 flex-1">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h1 className="text-3xl font-extrabold text-gray-900">
-                            Welcome Back, {mentorName} <span className="text-2xl">👋</span>
+                            Welcome Back, {firstName} <span className="text-2xl">👋</span>
                         </h1>
-                        <span className="flex items-center gap-1 bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full border border-teal-100">
-                            <CheckCircle2 size={14} />
-                            Verified Mentor
-                        </span>
+                        {isApproved ? (
+                            <span className="flex items-center gap-1 bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full border border-teal-100">
+                                <CheckCircle2 size={14} />
+                                Verified Mentor
+                            </span>
+                        ) : (
+                            <span className="flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-bold px-3 py-1 rounded-full border border-amber-100">
+                                <AlertCircle size={14} />
+                                Pending Verification
+                            </span>
+                        )}
                     </div>
                     <p className="text-gray-600 text-lg">Helping students achieve their study abroad dreams.</p>
                 </div>
@@ -26,23 +49,23 @@ export default function MentorHero() {
                 <div className="flex flex-wrap gap-x-6 gap-y-3 mt-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <GraduationCap size={16} className="text-gray-400" />
-                        <span className="font-medium">Technical University of Munich</span>
+                        <span className="font-medium">{university}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <MapPin size={16} className="text-gray-400" />
-                        <span className="font-medium">Germany</span>
+                        <span className="font-medium">{country}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <BookOpen size={16} className="text-gray-400" />
-                        <span className="font-medium">MSc. Informatics</span>
+                        <span className="font-medium">{subject}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Clock size={16} className="text-gray-400" />
-                        <span className="font-medium">3rd Semester</span>
+                        <span className="font-medium">{semester}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Briefcase size={16} className="text-gray-400" />
-                        <span className="font-medium">2 Years Exp.</span>
+                        <span className="font-medium">{experience}</span>
                     </div>
                 </div>
             </div>
@@ -64,15 +87,15 @@ export default function MentorHero() {
                     <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Verification Center</h3>
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex items-center gap-2">
-                            <CheckCircle2 size={16} className="text-teal-500" />
+                            <CheckCircle2 size={16} className={isApproved ? "text-teal-500" : "text-gray-300"} />
                             <span className="text-xs font-semibold text-gray-700">University ID</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <CheckCircle2 size={16} className="text-teal-500" />
+                            <CheckCircle2 size={16} className={isApproved ? "text-teal-500" : "text-gray-300"} />
                             <span className="text-xs font-semibold text-gray-700">Enrollment</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <CheckCircle2 size={16} className="text-teal-500" />
+                            <CheckCircle2 size={16} className={isApproved ? "text-teal-500" : "text-gray-300"} />
                             <span className="text-xs font-semibold text-gray-700">Identity</span>
                         </div>
                         <div className="flex items-center gap-2">

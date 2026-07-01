@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Save, Trash2, Plus, Edit3 } from "lucide-react";
+import { X, Save, Trash2, Plus, Edit3, Loader2 } from "lucide-react";
 
 interface Achievement {
     id: number;
@@ -11,24 +11,15 @@ interface Achievement {
 }
 
 interface EditAchievementsModalProps {
+    profile: any;
     onClose: () => void;
+    onSave: (data: any) => Promise<void>;
 }
 
-export default function EditAchievementsModal({ onClose }: EditAchievementsModalProps) {
-    const [achievements, setAchievements] = useState<Achievement[]>([
-        {
-            id: 1,
-            title: "Dean's List",
-            issuer: "University of Dhaka (Session: 2021-2022)",
-            icon: "🏆"
-        },
-        {
-            id: 2,
-            title: "Merit Scholarship Award",
-            issuer: "Board of Education (Higher Secondary 2019)",
-            icon: "🥇"
-        }
-    ]);
+export default function EditAchievementsModal({ profile, onClose, onSave }: EditAchievementsModalProps) {
+    const [achievements, setAchievements] = useState<Achievement[]>(
+        (profile?.achievements as Achievement[]) || []
+    );
 
     // State for the "Add New" form
     const [newTitle, setNewTitle] = useState("");
@@ -37,6 +28,7 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
 
     // State for tracking which item is currently being edited
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleAdd = (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,6 +61,19 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
         setEditingId(null);
     };
 
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onSave({ achievements });
+            onClose();
+        } catch (err) {
+            console.error("Failed to save achievements details:", err);
+            alert("Failed to save changes. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col animate-in zoom-in-95">
@@ -77,7 +82,8 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                     <h2 className="text-xl font-bold text-gray-900">Manage Achievements & Awards</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
+                        disabled={isSaving}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
                     >
                         <X size={20} />
                     </button>
@@ -100,7 +106,8 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                                         placeholder="e.g. Dean's List Award"
                                         value={newTitle}
                                         onChange={(e) => setNewTitle(e.target.value)}
-                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
+                                        disabled={isSaving}
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
@@ -108,7 +115,8 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                                     <select 
                                         value={newIcon}
                                         onChange={(e) => setNewIcon(e.target.value)}
-                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
+                                        disabled={isSaving}
+                                        className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                     >
                                         <option value="🏆">🏆 Trophy</option>
                                         <option value="🥇">🥇 Gold Medal</option>
@@ -126,7 +134,8 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                                     placeholder="e.g. University of Dhaka - 2022"
                                     value={newIssuer}
                                     onChange={(e) => setNewIssuer(e.target.value)}
-                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500"
+                                    disabled={isSaving}
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                 />
                             </div>
                             
@@ -134,7 +143,8 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                                 <button 
                                     type="button"
                                     onClick={handleCancelAdd}
-                                    className="px-4 py-2 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                                    disabled={isSaving}
+                                    className="px-4 py-2 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                                 >
                                     Clear
                                 </button>
@@ -142,7 +152,7 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                                     type="button"
                                     onClick={handleAdd}
                                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors"
-                                    disabled={!newTitle.trim() || !newIssuer.trim()}
+                                    disabled={!newTitle.trim() || !newIssuer.trim() || isSaving}
                                 >
                                     <Plus size={16} /> Add Achievement
                                 </button>
@@ -180,13 +190,14 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                                                 <div className="flex items-center gap-2 shrink-0">
                                                     <button 
                                                         onClick={() => setEditingId(item.id)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors border border-gray-200"
+                                                        disabled={isSaving}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors border border-gray-200 disabled:opacity-50"
                                                     >
                                                         <Edit3 size={14} /> Edit
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDelete(item.id)}
-                                                        disabled={editingId !== null}
+                                                        disabled={editingId !== null || isSaving}
                                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         <Trash2 size={14} /> Delete
@@ -204,10 +215,19 @@ export default function EditAchievementsModal({ onClose }: EditAchievementsModal
                 {/* Footer Actions */}
                 <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-2xl">
                     <button 
-                        onClick={onClose}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-gray-900 hover:bg-gray-800 transition-colors disabled:opacity-50"
                     >
-                        Done
+                        {isSaving ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" /> Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save size={16} /> Save & Done
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Save, Plus, Trash2, Clock, DollarSign } from "lucide-react";
+import { X, Save, Plus, Trash2, Clock, Loader2 } from "lucide-react";
 
 interface Service {
-    id: number;
+    id: number | string;
     title: string;
     description: string;
     price: number;
@@ -13,29 +13,15 @@ interface Service {
 }
 
 interface EditMentorServicesModalProps {
+    profile: any;
     onClose: () => void;
-    onSave?: (services: Service[]) => void;
+    onSave: (data: any) => Promise<void>;
 }
 
-export default function EditMentorServicesModal({ onClose, onSave }: EditMentorServicesModalProps) {
-    const [services, setServices] = useState<Service[]>([
-        {
-            id: 1,
-            title: "Full Application Review",
-            description: "Complete review of your university application including personal statement, CV, and profile positioning.",
-            price: 120,
-            currency: "$",
-            duration: "95 min",
-        },
-        {
-            id: 2,
-            title: "Scholarship Strategy Session",
-            description: "Personalized session to identify the best scholarship opportunities for your profile and map out next steps.",
-            price: 80,
-            currency: "$",
-            duration: "60 min",
-        },
-    ]);
+export default function EditMentorServicesModal({ profile, onClose, onSave }: EditMentorServicesModalProps) {
+    const initialServices = Array.isArray(profile?.services) ? profile.services : [];
+    const [services, setServices] = useState<Service[]>(initialServices);
+    const [isSaving, setIsSaving] = useState(false);
 
     const [newTitle, setNewTitle] = useState("");
     const [newDesc, setNewDesc] = useState("");
@@ -46,7 +32,7 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
         e.preventDefault();
         if (newTitle.trim() && newPrice && newDuration) {
             const newService: Service = {
-                id: Date.now(),
+                id: Date.now().toString(),
                 title: newTitle.trim(),
                 description: newDesc.trim() || "No description provided.",
                 price: Number(newPrice),
@@ -61,15 +47,22 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
         }
     };
 
-    const handleRemoveService = (id: number) => {
+    const handleRemoveService = (id: number | string) => {
         setServices(services.filter(s => s.id !== id));
     };
 
-    const handleSave = () => {
-        if (onSave) {
-            onSave(services);
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            // In a future phase we will map services to the database table, but for now we keep it compiled
+            await onSave({ services });
+            onClose();
+        } catch (err) {
+            console.error("Failed to save mentor services:", err);
+            alert("Failed to save changes. Please try again.");
+        } finally {
+            setIsSaving(false);
         }
-        onClose();
     };
 
     return (
@@ -80,7 +73,8 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                     <h2 className="text-xl font-bold text-gray-900">Manage Services & Pricing</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
+                        disabled={isSaving}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
                     >
                         <X size={20} />
                     </button>
@@ -98,7 +92,8 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                                 placeholder="Service Title (e.g. Statement of Purpose Check)"
                                 value={newTitle}
                                 onChange={(e) => setNewTitle(e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500"
+                                disabled={isSaving}
+                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                 required
                             />
                             
@@ -106,7 +101,8 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                                 placeholder="Service Description..."
                                 value={newDesc}
                                 onChange={(e) => setNewDesc(e.target.value)}
-                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500 resize-none h-20"
+                                disabled={isSaving}
+                                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500 resize-none h-20 disabled:opacity-50"
                             />
                             
                             <div className="grid grid-cols-2 gap-3">
@@ -117,7 +113,8 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                                         placeholder="Price"
                                         value={newPrice}
                                         onChange={(e) => setNewPrice(e.target.value)}
-                                        className="w-full bg-white border border-gray-200 rounded-xl pl-8 pr-4 py-2 text-sm focus:outline-none focus:border-teal-500"
+                                        disabled={isSaving}
+                                        className="w-full bg-white border border-gray-200 rounded-xl pl-8 pr-4 py-2 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                         required
                                     />
                                 </div>
@@ -126,7 +123,8 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                                     placeholder="Duration (e.g. 45 min)"
                                     value={newDuration}
                                     onChange={(e) => setNewDuration(e.target.value)}
-                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500"
+                                    disabled={isSaving}
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                     required
                                 />
                             </div>
@@ -134,7 +132,8 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                         
                         <button 
                             type="submit"
-                            className="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-semibold transition"
+                            disabled={isSaving}
+                            className="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-semibold transition disabled:opacity-50"
                         >
                             <Plus size={16} /> Add Service
                         </button>
@@ -147,20 +146,21 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                             {services.map((service) => (
                                 <div 
                                     key={service.id} 
-                                    className="flex items-start justify-between gap-4 p-4 border border-gray-150 rounded-xl hover:border-gray-300 transition-colors"
+                                    className="flex items-start justify-between gap-4 p-4 border border-gray-150 rounded-xl hover:border-gray-300 transition-colors bg-white shadow-sm"
                                 >
                                     <div className="space-y-1">
                                         <h4 className="text-sm font-bold text-gray-900">{service.title}</h4>
                                         <p className="text-xs text-gray-500 leading-relaxed">{service.description}</p>
                                         <div className="flex items-center gap-3 pt-1">
-                                            <span className="text-sm font-bold text-teal-700">{service.currency}{service.price}</span>
+                                            <span className="text-sm font-bold text-teal-700">{service.currency || "$"}{service.price}</span>
                                             <span className="text-xs text-gray-400 flex items-center gap-1"><Clock size={12} /> {service.duration}</span>
                                         </div>
                                     </div>
                                     <button 
                                         type="button"
                                         onClick={() => handleRemoveService(service.id)}
-                                        className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50 transition-colors shrink-0"
+                                        disabled={isSaving}
+                                        className="p-2 text-gray-400 hover:text-red-650 rounded-full hover:bg-red-50 transition-colors shrink-0 disabled:opacity-50"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -178,16 +178,26 @@ export default function EditMentorServicesModal({ onClose, onSave }: EditMentorS
                     <button 
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                        disabled={isSaving}
+                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button 
                         type="button"
                         onClick={handleSave}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors"
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
                     >
-                        <Save size={16} /> Save Changes
+                        {isSaving ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" /> Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save size={16} /> Save Changes
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

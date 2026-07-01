@@ -1,45 +1,35 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Save, Plus, Trash2 } from "lucide-react";
+import { X, Save, Plus, Trash2, Loader2 } from "lucide-react";
 
 interface Achievement {
-    id: number;
+    id: number | string;
     title: string;
     issuer: string;
     icon: string;
 }
 
 interface EditMentorAchievementsModalProps {
+    profile: any;
     onClose: () => void;
-    onSave?: (achievements: Achievement[]) => void;
+    onSave: (data: any) => Promise<void>;
 }
 
-export default function EditMentorAchievementsModal({ onClose, onSave }: EditMentorAchievementsModalProps) {
-    const [achievements, setAchievements] = useState<Achievement[]>([
-        {
-            id: 1,
-            title: "Outstanding Graduate Mentor Award",
-            issuer: "University of Oxford (2024)",
-            icon: "🏆"
-        },
-        {
-            id: 2,
-            title: "Global Excellence Scholarship Recipient",
-            issuer: "British Council (2018)",
-            icon: "🥇"
-        }
-    ]);
+export default function EditMentorAchievementsModal({ profile, onClose, onSave }: EditMentorAchievementsModalProps) {
+    const initialAchievements = Array.isArray(profile?.achievements) ? profile.achievements : [];
+    const [achievements, setAchievements] = useState<Achievement[]>(initialAchievements);
 
     const [title, setTitle] = useState("");
     const [issuer, setIssuer] = useState("");
     const [icon, setIcon] = useState("🏆");
+    const [isSaving, setIsSaving] = useState(false);
 
     const handleAdd = (e: React.FormEvent) => {
         e.preventDefault();
         if (title.trim() && issuer.trim()) {
             const newItem: Achievement = {
-                id: Date.now(),
+                id: Date.now().toString(),
                 title: title.trim(),
                 issuer: issuer.trim(),
                 icon
@@ -50,15 +40,21 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
         }
     };
 
-    const handleRemove = (id: number) => {
+    const handleRemove = (id: number | string) => {
         setAchievements(achievements.filter(item => item.id !== id));
     };
 
-    const handleSave = () => {
-        if (onSave) {
-            onSave(achievements);
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onSave({ achievements });
+            onClose();
+        } catch (err) {
+            console.error("Failed to save mentor achievements:", err);
+            alert("Failed to save changes. Please try again.");
+        } finally {
+            setIsSaving(false);
         }
-        onClose();
     };
 
     return (
@@ -69,7 +65,8 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
                     <h2 className="text-xl font-bold text-gray-900">Manage Achievements & Awards</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
+                        disabled={isSaving}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
                     >
                         <X size={20} />
                     </button>
@@ -87,7 +84,8 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
                                     placeholder="Title (e.g. Dean's List Award)"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500"
+                                    disabled={isSaving}
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                     required
                                 />
                             </div>
@@ -95,7 +93,8 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
                                 <select 
                                     value={icon}
                                     onChange={(e) => setIcon(e.target.value)}
-                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500"
+                                    disabled={isSaving}
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                                 >
                                     <option value="🏆">🏆 Trophy</option>
                                     <option value="🥇">🥇 Gold Medal</option>
@@ -111,12 +110,14 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
                             placeholder="Issuer & Date (e.g. University of Dhaka - 2022)"
                             value={issuer}
                             onChange={(e) => setIssuer(e.target.value)}
-                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500"
+                            disabled={isSaving}
+                            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50"
                             required
                         />
                         <button 
                             type="submit"
-                            className="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-semibold transition"
+                            disabled={isSaving}
+                            className="w-full flex items-center justify-center gap-1.5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-sm font-semibold transition disabled:opacity-50"
                         >
                             <Plus size={16} /> Add Achievement
                         </button>
@@ -127,7 +128,7 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
                         <label className="text-xs font-bold text-gray-700 uppercase tracking-wider block">Current Achievements</label>
                         <div className="space-y-2.5">
                             {achievements.map((item) => (
-                                <div key={item.id} className="flex items-center justify-between p-4 border border-gray-150 rounded-xl">
+                                <div key={item.id} className="flex items-center justify-between p-4 border border-gray-150 rounded-xl bg-white shadow-sm">
                                     <div className="flex items-center gap-3">
                                         <span className="text-2xl">{item.icon}</span>
                                         <div>
@@ -138,7 +139,8 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
                                     <button 
                                         type="button"
                                         onClick={() => handleRemove(item.id)}
-                                        className="p-2 text-gray-400 hover:text-red-650 rounded-full hover:bg-red-50 transition-colors"
+                                        disabled={isSaving}
+                                        className="p-2 text-gray-400 hover:text-red-650 rounded-full hover:bg-red-50 transition-colors disabled:opacity-50"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -156,16 +158,26 @@ export default function EditMentorAchievementsModal({ onClose, onSave }: EditMen
                     <button 
                         type="button"
                         onClick={onClose}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                        disabled={isSaving}
+                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button 
                         type="button"
                         onClick={handleSave}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors"
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
                     >
-                        <Save size={16} /> Save Changes
+                        {isSaving ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" /> Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save size={16} /> Save Changes
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

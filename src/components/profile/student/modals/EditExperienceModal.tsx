@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Save, Trash2, Plus, Edit3 } from "lucide-react";
+import { X, Save, Trash2, Plus, Edit3, Loader2 } from "lucide-react";
 
 interface Experience {
     id: number;
@@ -14,21 +14,15 @@ interface Experience {
 }
 
 interface EditExperienceModalProps {
+    profile: any;
     onClose: () => void;
+    onSave: (data: any) => Promise<void>;
 }
 
-export default function EditExperienceModal({ onClose }: EditExperienceModalProps) {
-    const [experiences, setExperiences] = useState<Experience[]>([
-        {
-            id: 1,
-            title: "Software Engineer Intern",
-            company: "Pathao Ltd.",
-            location: "Dhaka, Bangladesh",
-            startDate: "2024-01",
-            endDate: "2024-08",
-            description: "- Assisted in developing RESTful APIs using Node.js and Express for the core logistics platform.\n- Collaborated with the frontend team to integrate backend components with external services.\n- Participated in daily stand-ups and code reviews following Agile methodologies."
-        }
-    ]);
+export default function EditExperienceModal({ profile, onClose, onSave }: EditExperienceModalProps) {
+    const [experiences, setExperiences] = useState<Experience[]>(
+        (profile?.experience as Experience[]) || []
+    );
 
     // State for the "Add New" form
     const [newTitle, setNewTitle] = useState("");
@@ -40,6 +34,7 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
 
     // State for tracking which item is currently being edited
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
 
     // Form handlers
     const handleAdd = (e: React.FormEvent) => {
@@ -83,6 +78,19 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
         setEditingId(null);
     };
 
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            await onSave({ experience: experiences });
+            onClose();
+        } catch (err) {
+            console.error("Failed to save experience:", err);
+            alert("Failed to save changes. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col animate-in zoom-in-95">
@@ -91,7 +99,8 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
                     <h2 className="text-xl font-bold text-gray-900">Manage Experience</h2>
                     <button 
                         onClick={onClose}
-                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition"
+                        disabled={isSaving}
+                        className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
                     >
                         <X size={20} />
                     </button>
@@ -109,27 +118,27 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Title</label>
-                                    <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="e.g. Software Engineer Intern" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" />
+                                    <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} disabled={isSaving} placeholder="e.g. Software Engineer Intern" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50" />
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Company</label>
-                                    <input type="text" value={newCompany} onChange={(e) => setNewCompany(e.target.value)} placeholder="e.g. Pathao Ltd." className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" />
+                                    <input type="text" value={newCompany} onChange={(e) => setNewCompany(e.target.value)} disabled={isSaving} placeholder="e.g. Pathao Ltd." className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50" />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Location</label>
-                                    <input type="text" value={newLocation} onChange={(e) => setNewLocation(e.target.value)} placeholder="e.g. Dhaka, Bangladesh" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" />
+                                    <input type="text" value={newLocation} onChange={(e) => setNewLocation(e.target.value)} disabled={isSaving} placeholder="e.g. Dhaka, Bangladesh" className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50" />
                                 </div>
                                 <div className="flex items-end gap-4">
                                     <div className="space-y-1.5 flex-1">
                                         <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Start Date</label>
-                                        <input type="month" value={newStartDate} onChange={(e) => setNewStartDate(e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" />
+                                        <input type="month" value={newStartDate} onChange={(e) => setNewStartDate(e.target.value)} disabled={isSaving} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50" />
                                     </div>
                                     <div className="space-y-1.5 flex-1">
                                         <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">End Date</label>
-                                        <input type="month" value={newEndDate} onChange={(e) => setNewEndDate(e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" />
+                                        <input type="month" value={newEndDate} onChange={(e) => setNewEndDate(e.target.value)} disabled={isSaving} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50" />
                                     </div>
                                 </div>
                             </div>
@@ -140,8 +149,9 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
                                     rows={4}
                                     value={newDescription}
                                     onChange={(e) => setNewDescription(e.target.value)}
+                                    disabled={isSaving}
                                     placeholder="Describe your responsibilities and achievements..."
-                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 resize-none leading-relaxed" 
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 disabled:opacity-50 resize-none leading-relaxed" 
                                 />
                             </div>
                             
@@ -149,7 +159,8 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
                                 <button 
                                     type="button"
                                     onClick={handleCancelAdd}
-                                    className="px-4 py-2 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+                                    disabled={isSaving}
+                                    className="px-4 py-2 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
                                 >
                                     Clear
                                 </button>
@@ -157,7 +168,7 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
                                     type="button"
                                     onClick={handleAdd}
                                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors"
-                                    disabled={!newTitle.trim() || !newCompany.trim()}
+                                    disabled={!newTitle.trim() || !newCompany.trim() || isSaving}
                                 >
                                     <Plus size={16} /> Add Experience
                                 </button>
@@ -195,13 +206,14 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
                                                 <div className="flex items-center gap-2 shrink-0 mt-2 sm:mt-0">
                                                     <button 
                                                         onClick={() => setEditingId(exp.id)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors border border-gray-200"
+                                                        disabled={isSaving}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors border border-gray-200 disabled:opacity-50"
                                                     >
                                                         <Edit3 size={14} /> Edit
                                                     </button>
                                                     <button 
                                                         onClick={() => handleDelete(exp.id)}
-                                                        disabled={editingId !== null}
+                                                        disabled={editingId !== null || isSaving}
                                                         className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                                     >
                                                         <Trash2 size={14} /> Delete
@@ -220,10 +232,19 @@ export default function EditExperienceModal({ onClose }: EditExperienceModalProp
                 {/* Footer Actions */}
                 <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-2xl">
                     <button 
-                        onClick={onClose}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-gray-900 hover:bg-gray-800 transition-colors"
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-gray-900 hover:bg-gray-800 transition-colors disabled:opacity-50"
                     >
-                        Done
+                        {isSaving ? (
+                            <>
+                                <Loader2 size={16} className="animate-spin" /> Saving...
+                            </>
+                        ) : (
+                            <>
+                                <Save size={16} /> Save & Done
+                            </>
+                        )}
                     </button>
                 </div>
             </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 
@@ -160,6 +160,9 @@ export default function MainNavbar() {
                       </div>
                       {user.role === 'mentor' ? (
                         <>
+                          <Link href='/dashboard/mentor' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors font-semibold">
+                            <LayoutDashboard size={18} className="text-teal-600" /> Dashboard
+                          </Link>
                           <Link href='/dashboard/mentor/profile' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <User size={18} className="text-gray-400 group-hover:text-teal-600" /> My Profile
                           </Link>
@@ -184,6 +187,9 @@ export default function MainNavbar() {
                         </>
                       ) : (
                         <>
+                          <Link href='/dashboard/student' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors font-semibold">
+                            <LayoutDashboard size={18} className="text-teal-600" /> Dashboard
+                          </Link>
                           <Link href='/dashboard/student/profile' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <User size={18} className="text-gray-400 group-hover:text-teal-600" /> My Profile
                           </Link>
@@ -277,6 +283,9 @@ export default function MainNavbar() {
                   </div>
                   {user.role === 'mentor' ? (
                     <>
+                      <Link href='/dashboard/mentor' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-teal-700 hover:bg-teal-50 transition-colors">
+                        <LayoutDashboard size={18} className="text-teal-600" /> Dashboard
+                      </Link>
                       <Link href='/dashboard/mentor/profile' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <User size={18} className="text-gray-400" /> My Profile
                       </Link>
@@ -307,6 +316,9 @@ export default function MainNavbar() {
                     </>
                   ) : (
                     <>
+                      <Link href='/dashboard/student' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-teal-700 hover:bg-teal-50 transition-colors">
+                        <LayoutDashboard size={18} className="text-teal-600" /> Dashboard
+                      </Link>
                       <Link href='/dashboard/student/profile' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <User size={18} className="text-gray-400" /> My Profile
                       </Link>
