@@ -20,7 +20,7 @@ function getStoredUser(): UserInfo | null {
 }
 
 function subscribeToUserStore(onStoreChange: () => void) {
-    if (typeof window === "undefined") return () => {};
+    if (typeof window === "undefined") return () => { };
     window.addEventListener("storage", onStoreChange);
     window.addEventListener("focus", onStoreChange);
     window.addEventListener("agaaw-auth-change", onStoreChange);
@@ -115,7 +115,7 @@ export default function StudentDashboardPage() {
                 {/* Discovery Modules */}
                 <div className="space-y-12">
                     <MentorsSection />
-                    
+
                     <div className="space-y-6">
                         <div className="flex items-center justify-between">
                             <h2 className="text-2xl font-bold text-gray-900">Explore Countries</h2>
@@ -138,7 +138,7 @@ export default function StudentDashboardPage() {
                     </div>
                 </div>
             </div>
-            
+
             <Footer />
         </div>
     );

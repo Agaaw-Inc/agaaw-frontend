@@ -20,10 +20,12 @@ import {
   FileText,
   Link2,
   Info,
-  X
+  X,
+  Loader2
 } from "lucide-react";
 import { COUNTRY_LIST, PHONE_CODES } from "@/data/geo";
 import { SUBJECTS } from "@/data/subjects";
+import { updateStudentProfile, uploadStudentDocument } from "@/lib/api";
 
 export default function StudentOnboarding() {
   const router = useRouter();
@@ -52,6 +54,10 @@ export default function StudentOnboarding() {
 
   // --- Step 4 State: CV Upload & About yourself ---
   const [cvFile, setCvFile] = useState<File | null>(null);
+
+  // Submission state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Load from LocalStorage if exists
   useEffect(() => {
@@ -101,13 +107,81 @@ export default function StudentOnboarding() {
     setStep(nextStep);
   };
 
+  // Map degree level label to backend enum
+  const mapStudyLevel = (level: string) => {
+    if (level === "Bachelor's") return "bachelors";
+    if (level === "Master's") return "masters";
+    if (level === "PhD") return "phd";
+    return undefined;
+  };
+
+  // Submit all onboarding data to the backend
+  const submitOnboarding = async (withCv: boolean) => {
+    setIsSubmitting(true);
+    setSubmitError("");
+    try {
+      // Build the profile payload
+      const profilePayload: Record<string, unknown> = {
+        // Use fieldOfInterest to store target subjects (joined) + target countries context
+        fieldOfInterest: [
+          ...targetSubject,
+          ...(targetCountries.length > 0 ? [`Target: ${targetCountries.join(", ")}`] : []),
+        ].join(" | ") || undefined,
+        studyLevel: mapStudyLevel(degreeLevel),
+        degreeLevel: educationLevel || undefined,
+        expectedGraduation: graduationYear || undefined,
+        institution: institutionName || undefined,
+        cgpa: cgpa || undefined,
+        cgpaScale: gpaScale || undefined,
+        nationality: currentCountry || undefined,
+        phone: phoneNumber ? `${phoneCode}${phoneNumber}` : undefined,
+        dateOfBirth: dob || undefined,
+        // Store subjects as skills array as well for richer profile
+        skills: targetSubject.length > 0 ? targetSubject : undefined,
+      };
+
+      // Remove undefined values
+      Object.keys(profilePayload).forEach((key) => {
+        if (profilePayload[key] === undefined) delete profilePayload[key];
+      });
+
+      await updateStudentProfile(profilePayload);
+
+      // Upload transcript if provided
+      if (transcriptFile) {
+        try {
+          await uploadStudentDocument("transcript", transcriptFile);
+        } catch (err) {
+          console.warn("Transcript upload failed (non-critical):", err);
+        }
+      }
+
+      // Upload CV if provided
+      if (withCv && cvFile) {
+        try {
+          await uploadStudentDocument("cv", cvFile);
+        } catch (err) {
+          console.warn("CV upload failed (non-critical):", err);
+        }
+      }
+
+      // Clear local storage and redirect
+      localStorage.removeItem("student_onboarding_data");
+      localStorage.setItem("student_onboarding_completed", "true");
+      router.push("/dashboard/student");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to save profile. Please try again.";
+      setSubmitError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleNextStep = () => {
     if (step < 4) {
       saveProgress(step + 1);
     } else {
-      // Completed! Mark completed and redirect to dashboard
-      localStorage.setItem("student_onboarding_completed", "true");
-      router.push("/dashboard/student");
+      submitOnboarding(true);
     }
   };
 
@@ -121,8 +195,7 @@ export default function StudentOnboarding() {
 
   const handleSkip = () => {
     if (step === 4) {
-      localStorage.setItem("student_onboarding_completed", "true");
-      router.push("/dashboard/student");
+      submitOnboarding(false);
     } else {
       saveProgress(step + 1);
     }
@@ -984,7 +1057,8 @@ export default function StudentOnboarding() {
             <button
               type="button"
               onClick={handleBackStep}
-              className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+              disabled={isSubmitting}
+              className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-50"
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </button>
@@ -992,7 +1066,8 @@ export default function StudentOnboarding() {
             <button
               type="button"
               onClick={handleSkip}
-              className="text-sm font-bold text-slate-450 hover:text-slate-650 transition-colors"
+              disabled={isSubmitting}
+              className="text-sm font-bold text-slate-450 hover:text-slate-650 transition-colors disabled:opacity-50"
             >
               Skip for now
             </button>
@@ -1000,11 +1075,27 @@ export default function StudentOnboarding() {
             <button
               type="button"
               onClick={handleNextStep}
-              className="flex items-center gap-2 bg-[#005F59] hover:bg-teal-850 active:scale-[0.98] text-white px-6 py-3 rounded-lg text-sm font-bold shadow-md shadow-teal-900/10 transition-all"
+              disabled={isSubmitting}
+              className="flex items-center gap-2 bg-[#005F59] hover:bg-teal-850 active:scale-[0.98] text-white px-6 py-3 rounded-lg text-sm font-bold shadow-md shadow-teal-900/10 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Complete <Check className="h-4 w-4" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                </>
+              ) : (
+                <>
+                  Complete <Check className="h-4 w-4" />
+                </>
+              )}
             </button>
           </div>
+
+          {/* Error message */}
+          {submitError && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs font-semibold text-red-700 text-center">
+              {submitError}
+            </div>
+          )}
         </main>
       )}
 

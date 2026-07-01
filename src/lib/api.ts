@@ -1,4 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+import { removeToken, removeUserInfo } from "./auth";
 
 export interface PublicScholarshipFaq {
   question: string;
@@ -401,7 +402,7 @@ export async function getBlogBySlug(slug: string): Promise<PublicBlog | null> {
 
 export async function getStudentProfile() {
   const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
+  if (!token) return null;
 
   const res = await fetch(`${API_URL}/students/profile`, {
     method: "GET",
@@ -414,6 +415,9 @@ export async function getStudentProfile() {
 
   const json = await res.json();
   if (!res.ok) {
+    if (res.status === 401 || res.status === 404) {
+      return null;
+    }
     throw new Error(json.message || "Failed to fetch student profile");
   }
   return json.data || json;
@@ -434,6 +438,11 @@ export async function updateStudentProfile(data: any) {
 
   const json = await res.json();
   if (!res.ok) {
+    if (res.status === 401) {
+      removeToken();
+      removeUserInfo();
+      if (typeof window !== "undefined") window.location.href = "/";
+    }
     throw new Error(json.message || "Failed to update student profile");
   }
   return json.data || json;
@@ -441,7 +450,7 @@ export async function updateStudentProfile(data: any) {
 
 export async function getMentorProfile() {
   const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
+  if (!token) return null;
 
   const res = await fetch(`${API_URL}/mentors/profile`, {
     method: "GET",
@@ -454,6 +463,9 @@ export async function getMentorProfile() {
 
   const json = await res.json();
   if (!res.ok) {
+    if (res.status === 401 || res.status === 404) {
+      return null;
+    }
     throw new Error(json.message || "Failed to fetch mentor profile");
   }
   return json.data || json;
@@ -474,6 +486,11 @@ export async function updateMentorProfile(data: any) {
 
   const json = await res.json();
   if (!res.ok) {
+    if (res.status === 401) {
+      removeToken();
+      removeUserInfo();
+      if (typeof window !== "undefined") window.location.href = "/";
+    }
     throw new Error(json.message || "Failed to update mentor profile");
   }
   return json.data || json;

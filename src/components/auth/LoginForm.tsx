@@ -70,11 +70,11 @@ export default function LoginForm() {
 
       {/* Social Logins */}
       <div className="space-y-2 mb-4">
-        <button type="button" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/google`} className="w-full flex items-center justify-center gap-3 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <button type="button" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/google`} className="w-full flex items-center justify-center gap-3 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
           <Image src="https://www.vectorlogo.zone/logos/google/google-icon.svg" width={20} height={20} alt="Google" />
           <span className="text-sm font-semibold text-gray-700">Continue with Google</span>
         </button>
-        <button type="button" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/facebook`} className="w-full flex items-center justify-center gap-3 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+        <button type="button" onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/facebook`} className="w-full flex items-center justify-center gap-3 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
           <Image src="https://www.vectorlogo.zone/logos/facebook/facebook-official.svg" width={20} height={20} alt="Facebook" />
           <span className="text-sm font-semibold text-gray-700">Continue with Facebook</span>
         </button>

@@ -17,8 +17,10 @@ import {
     User,
     Briefcase,
     CheckCircle,
+    Loader2,
 } from "lucide-react";
 import { PHONE_CODES, COUNTRY_LIST } from "@/data/geo";
+import { updateMentorProfile } from "@/lib/api";
 
 interface Service {
     id: number;
@@ -82,6 +84,8 @@ export default function MentorOnboarding() {
     const [newPrice, setNewPrice] = useState("");
     const [newDuration, setNewDuration] = useState("");
     const [addingService, setAddingService] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState("");
     // Load saved progress
     useEffect(() => {
         const saved = localStorage.getItem("mentor_onboarding_data");
@@ -112,13 +116,37 @@ export default function MentorOnboarding() {
         localStorage.setItem("mentor_onboarding_data", JSON.stringify(data));
         setStep(nextStep);
     };
-    const handleNext = () => {
+    const handleNext = async () => {
         if (step < 2) {
             saveProgress(step + 1);
         } else {
-            localStorage.setItem("mentor_onboarding_completed", "true");
-            localStorage.removeItem("mentor_onboarding_data");
-            router.push("/dashboard/mentor");
+            setIsSubmitting(true);
+            setSubmitError("");
+            try {
+                const payload: Record<string, unknown> = {
+                    countryName: country || undefined,
+                    cityName: city || undefined,
+                    currentUniversity: university || undefined,
+                    subject: subject || undefined,
+                    degree: educationLevel || undefined,
+                    semester: semester || undefined,
+                    phone: phoneNumber ? `${phoneCode}${phoneNumber}` : undefined,
+                    hourlyRate: hourlyRate ? Number(hourlyRate) : undefined,
+                };
+                // Remove undefined values
+                Object.keys(payload).forEach((key) => {
+                    if (payload[key] === undefined) delete payload[key];
+                });
+                await updateMentorProfile(payload);
+                localStorage.removeItem("mentor_onboarding_data");
+                localStorage.setItem("mentor_onboarding_completed", "true");
+                router.push("/dashboard/mentor");
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : "Failed to save profile. Please try again.";
+                setSubmitError(message);
+            } finally {
+                setIsSubmitting(false);
+            }
         }
     };
     const handleBack = () => {

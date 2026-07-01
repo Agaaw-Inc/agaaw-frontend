@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, GraduationCap, Globe, BookOpen, Info, LogOut, User } from "lucide-react";
+import { getUserInfo, removeToken, removeUserInfo, UserInfo } from "@/lib/auth";
 
 const NAV_LINKS = [
     { href: "/scholarships", label: "Scholarship", icon: GraduationCap },
@@ -18,10 +19,13 @@ export default function DashboardNavbar() {
     const pathname = usePathname();
     const [menuOpen, setMenuOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
+    const [user, setUser] = useState<UserInfo | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        setUser(getUserInfo());
+
         const handler = (e: MouseEvent) => {
             if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setProfileOpen(false);
@@ -67,16 +71,23 @@ export default function DashboardNavbar() {
                     <div className="relative" ref={dropdownRef}>
                         <button
                             onClick={() => setProfileOpen((v) => !v)}
-                            className="h-9 w-9 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-semibold text-sm hover:bg-teal-200 transition"
+                            className="h-9 w-9 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-semibold text-sm hover:bg-teal-200 transition uppercase"
                         >
-                            FK
+                            {user ? `${user.firstName[0] || ""}${user.lastName?.[0] || ""}` : "U"}
                         </button>
                         {profileOpen && (
                             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-lg py-2 z-50">
                                 <Link href="/dashboard/student/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors" onClick={() => setProfileOpen(false)}>
                                     <User size={15} className="text-gray-400" /> Profile
                                 </Link>
-                                <button onClick={() => router.push("/")} className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                <button 
+                                    onClick={() => {
+                                        removeToken();
+                                        removeUserInfo();
+                                        router.push("/");
+                                    }} 
+                                    className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                >
                                     <LogOut size={15} /> Sign Out
                                 </button>
                             </div>
@@ -116,7 +127,14 @@ export default function DashboardNavbar() {
                             <Link href="/dashboard/student/profile" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                                 <User size={18} className="text-gray-400" /> Profile
                             </Link>
-                            <button onClick={() => router.push("/")} className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+                            <button 
+                                onClick={() => {
+                                    removeToken();
+                                    removeUserInfo();
+                                    router.push("/");
+                                }} 
+                                className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                            >
                                 <LogOut size={18} /> Sign Out
                             </button>
                         </div>
