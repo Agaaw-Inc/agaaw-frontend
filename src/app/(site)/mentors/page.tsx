@@ -151,15 +151,6 @@ function MentorList() {
                         <p className="text-lg md:text-xl text-bombay max-w-xl leading-relaxed mb-8">
                             Gain a massive competitive edge with direct guidance from students and alumni at the world's most prestigious universities.
                         </p>
-                        {studentProfile && (
-                            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 text-sm text-emerald-800 font-medium animate-fadeIn">
-                                <Sparkles className="w-4.5 h-4.5 text-emerald-600 animate-pulse flex-shrink-0" />
-                                <span>
-                                    Listing optimized for your target countries:{" "}
-                                    <strong className="text-emerald-900">{studentProfile.goals.targetCountries.join(", ")}</strong>
-                                </span>
-                            </div>
-                        )}
                     </div>
                     {/* Decorative Elements */}
                     <div className="absolute top-0 right-[-5%] w-[45%] h-full pointer-events-none hidden lg:block opacity-10">
@@ -200,7 +191,7 @@ function MentorList() {
                         <div className="flex-1 relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-elm" />
                             <input
-                                className="w-full pl-12 pr-4 py-4 bg-transparent border-none rounded-lg focus:ring-0 outline-none text-codgray"
+                                className="w-full pl-12 pr-5 py-5 bg-transparent border-none rounded-lg focus:ring-0 outline-none text-codgray"
                                 placeholder="Search mentors by name, university, or expertise..."
                                 type="text"
                                 value={searchQuery}
@@ -225,24 +216,6 @@ function MentorList() {
                                     {countryOptions.map((country) => (
                                         <option key={country} value={country}>
                                             {country}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
-                            </div>
-                            <div className="relative group flex-1 sm:flex-initial">
-                                <select
-                                    className="appearance-none w-full sm:w-56 bg-transparent border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium outline-none cursor-pointer"
-                                    value={universityFilter}
-                                    onChange={(e) => {
-                                        setUniversityFilter(e.target.value);
-                                        setCurrentPage(1);
-                                    }}
-                                >
-                                    <option value="">All Universities</option>
-                                    {universityOptions.map((uni) => (
-                                        <option key={uni} value={uni}>
-                                            {uni}
                                         </option>
                                     ))}
                                 </select>
@@ -281,8 +254,8 @@ function MentorList() {
                                     setCurrentPage(1);
                                 }}
                                 className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center border ${expertiseFilter === tag
-                                        ? "bg-elm/10 text-elm border-elm/20 hover:bg-elm/20"
-                                        : "bg-white border-slate-200 text-codgray hover:bg-slate-50"
+                                    ? "bg-elm/10 text-elm border-elm/20 hover:bg-elm/20"
+                                    : "bg-white border-slate-200 text-codgray hover:bg-slate-50"
                                     }`}
                             >
                                 {tag}

@@ -139,49 +139,14 @@ function StudentList() {
         <div className="min-h-screen bg-slate-50 flex flex-col">
             <MainNavbar />
             <main className="flex-grow pt-16 pb-20">
-                {/* Hero Section */}
-                <section className="relative px-8 pt-6 pb-16 max-w-7xl mx-auto overflow-hidden">
-                    <div className="relative z-10 lg:w-2/3">
-                        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-codgray mb-6 leading-[1.1]">
-                            Browse <br />
-                            <span className="text-elm">Ambitious Students</span>
-                        </h1>
-                        <p className="text-lg md:text-xl text-bombay max-w-xl leading-relaxed mb-8">
-                            Explore profiles of high-achieving students seeking mentorship, application support, and test preparation guidance.
-                        </p>
-                        {mentorProfile && (
-                            <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2.5 text-sm text-emerald-800 font-medium animate-fadeIn">
-                                <Sparkles className="w-4.5 h-4.5 text-emerald-600 animate-pulse flex-shrink-0" />
-                                <span>
-                                    Listing optimized: students targeting <strong className="text-emerald-900">{mentorProfile.country}</strong> are prioritized first.
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                    {/* Decorative Elements */}
-                    <div className="absolute top-0 right-[-5%] w-[45%] h-full pointer-events-none hidden lg:block opacity-10">
-                        <div
-                            className="w-full h-full bg-[#20B2AA]"
-                            style={{
-                                maskImage: "url('/world-map.svg')",
-                                WebkitMaskImage: "url('/world-map.svg')",
-                                maskSize: "contain",
-                                WebkitMaskSize: "contain",
-                                maskRepeat: "no-repeat",
-                                WebkitMaskRepeat: "no-repeat",
-                                maskPosition: "center right",
-                            }}
-                        />
-                    </div>
-                </section>
                 {/* Filters Section */}
                 <section className="px-8 mb-12 max-w-7xl mx-auto">
                     <div className="bg-slate-50 p-2 rounded-xl flex flex-col lg:flex-row gap-2 border border-slate-100 shadow-sm bg-white">
                         {/* Search Input */}
                         <div className="flex-1 relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-elm" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-6 h-6 text-elm" />
                             <input
-                                className="w-full pl-12 pr-4 py-4 bg-transparent border-none rounded-lg focus:ring-0 outline-none text-codgray"
+                                className="w-full pl-13 pr-5 py-5 bg-transparent border-none rounded-lg focus:ring-0 outline-none text-codgray"
                                 placeholder="Search students by name, degree, or interests..."
                                 type="text"
                                 value={searchQuery}
@@ -262,8 +227,8 @@ function StudentList() {
                                     setCurrentPage(1);
                                 }}
                                 className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center border ${interestFilter === tag
-                                        ? "bg-elm/10 text-elm border-elm/20 hover:bg-elm/20"
-                                        : "bg-white border-slate-200 text-codgray hover:bg-slate-50"
+                                    ? "bg-elm/10 text-elm border-elm/20 hover:bg-elm/20"
+                                    : "bg-white border-slate-200 text-codgray hover:bg-slate-50"
                                     }`}
                             >
                                 {tag}
