@@ -1,7 +1,8 @@
-"use client";
+"use client";
 
-import React, { useState } from "react";
-import { X, Save, Loader2 } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { X, Save, Upload, Loader2 } from "lucide-react";
+import { uploadProfileImage, getProfileImageUrl } from "@/lib/api";
 
 type StudyLevel = 'bachelors' | 'masters' | 'phd' | 'diploma' | 'other';
 
@@ -9,9 +10,10 @@ interface EditProfileHeaderModalProps {
     profile: any;
     onClose: () => void;
     onSave: (data: any) => Promise<void>;
+    onProfileImageUpload: (url: string) => void;
 }
 
-export default function EditProfileHeaderModal({ profile, onClose, onSave }: EditProfileHeaderModalProps) {
+export default function EditProfileHeaderModal({ profile, onClose, onSave, onProfileImageUpload }: EditProfileHeaderModalProps) {
     const user = profile?.user;
     const [firstName, setFirstName] = useState(user?.firstName || "");
     const [lastName, setLastName] = useState(user?.lastName || "");
@@ -20,8 +22,40 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave }: Edi
     const [fieldOfInterest, setFieldOfInterest] = useState(profile?.fieldOfInterest || "");
     const [bio, setBio] = useState(profile?.bio || "");
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleSave = async () => {
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Size check (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            alert("File size must be less than 2MB");
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            const res = await uploadProfileImage(file);
+            const newImageUrl = res.data?.profileImage || res.profileImage;
+            if (newImageUrl) {
+                onProfileImageUpload(newImageUrl);
+            }
+        } catch (err) {
+            console.error("Profile image upload failed:", err);
+            alert("Failed to upload photo. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
         setIsSaving(true);
         try {
             await onSave({
@@ -48,6 +82,7 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave }: Edi
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <h2 className="text-xl font-bold text-gray-900">Edit Profile Header</h2>
                     <button 
+                        type="button"
                         onClick={onClose}
                         disabled={isSaving}
                         className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition disabled:opacity-50"
@@ -56,104 +91,154 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave }: Edi
                     </button>
                 </div>
 
-                {/* Body (Scrollable) */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">First Name</label>
-                                <input 
-                                    type="text" 
-                                    value={firstName} 
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
-                                />
+                <form onSubmit={handleSave} className="flex-1 overflow-y-auto flex flex-col">
+                    {/* Body */}
+                    <div className="p-6 space-y-6 flex-1">
+                        {/* Profile Image upload section */}
+                        <div className="flex items-center gap-5 mb-6 pb-6 border-b border-gray-100">
+                            <div className="relative w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-teal-700 font-bold text-xl uppercase shrink-0">
+                                {user?.profileImage ? (
+                                    <img 
+                                        src={getProfileImageUrl(user.profileImage)} 
+                                        alt={user.firstName} 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    user?.firstName?.substring(0, 2) || "S"
+                                )}
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Last Name</label>
+                            <div>
                                 <input 
-                                    type="text" 
-                                    value={lastName} 
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    onChange={handleFileChange} 
+                                    accept="image/*" 
+                                    className="hidden" 
                                 />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Location / Nationality</label>
-                                <input 
-                                    type="text" 
-                                    value={nationality} 
-                                    onChange={(e) => setNationality(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
-                                />
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Target Study Level</label>
-                                <select 
-                                    value={studyLevel}
-                                    onChange={(e) => setStudyLevel(e.target.value as StudyLevel)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+                                <button 
+                                    type="button" 
+                                    onClick={handleUploadClick}
+                                    disabled={isUploading || isSaving}
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg text-sm font-semibold transition disabled:opacity-50"
                                 >
-                                    <option value="bachelors">Bachelors</option>
-                                    <option value="masters">Masters</option>
-                                    <option value="phd">PhD</option>
-                                    <option value="diploma">Diploma</option>
-                                    <option value="other">Other</option>
-                                </select>
+                                    {isUploading ? (
+                                        <>
+                                            <Loader2 size={16} className="animate-spin text-teal-600" /> Uploading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload size={16} /> Upload New Photo
+                                        </>
+                                    )}
+                                </button>
+                                <p className="text-xs text-gray-500 mt-1.5">JPG, PNG or GIF. Max size 2MB.</p>
                             </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Target Destination / Field of Interest</label>
-                            <input 
-                                type="text" 
-                                value={fieldOfInterest} 
-                                onChange={(e) => setFieldOfInterest(e.target.value)}
-                                placeholder="e.g. Germany or Computer Science"
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
-                            />
-                        </div>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">First Name</label>
+                                    <input 
+                                        type="text" 
+                                        value={firstName} 
+                                        onChange={(e) => setFirstName(e.target.value)}
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Last Name</label>
+                                    <input 
+                                        type="text" 
+                                        value={lastName} 
+                                        onChange={(e) => setLastName(e.target.value)}
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
+                                    />
+                                </div>
+                            </div>
 
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">About Me</label>
-                            <textarea 
-                                rows={4}
-                                value={bio}
-                                onChange={(e) => setBio(e.target.value)}
-                                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 resize-none" 
-                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Location / Nationality</label>
+                                    <input 
+                                        type="text" 
+                                        value={nationality} 
+                                        onChange={(e) => setNationality(e.target.value)}
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Target Study Level</label>
+                                    <select 
+                                        value={studyLevel}
+                                        onChange={(e) => setStudyLevel(e.target.value as StudyLevel)}
+                                        disabled={isSaving}
+                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50"
+                                    >
+                                        <option value="bachelors">Bachelors</option>
+                                        <option value="masters">Masters</option>
+                                        <option value="phd">PhD</option>
+                                        <option value="diploma">Diploma</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Target Destination / Field of Interest</label>
+                                <input 
+                                    type="text" 
+                                    value={fieldOfInterest} 
+                                    onChange={(e) => setFieldOfInterest(e.target.value)}
+                                    disabled={isSaving}
+                                    placeholder="e.g. Germany or Computer Science"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">About Me</label>
+                                <textarea 
+                                    rows={4}
+                                    value={bio}
+                                    onChange={(e) => setBio(e.target.value)}
+                                    disabled={isSaving}
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 resize-none disabled:opacity-50" 
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Footer Actions */}
-                <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-2xl">
-                    <button 
-                        onClick={onClose}
-                        disabled={isSaving}
-                        className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
-                    >
-                        Cancel
-                    </button>
-                    <button 
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
-                    >
-                        {isSaving ? (
-                            <>
-                                <Loader2 size={16} className="animate-spin" /> Saving...
-                            </>
-                        ) : (
-                            <>
-                                <Save size={16} /> Save Changes
-                            </>
-                        )}
-                    </button>
-                </div>
+                    {/* Footer Actions */}
+                    <div className="p-6 border-t border-gray-100 flex justify-end gap-3 bg-gray-50 rounded-b-2xl">
+                        <button 
+                            type="button"
+                            onClick={onClose}
+                            disabled={isSaving}
+                            className="px-6 py-2.5 rounded-lg text-sm font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 transition-colors disabled:opacity-50"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit"
+                            disabled={isSaving}
+                            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 transition-colors disabled:opacity-50"
+                        >
+                            {isSaving ? (
+                                <>
+                                    <Loader2 size={16} className="animate-spin" /> Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <Save size={16} /> Save Changes
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );

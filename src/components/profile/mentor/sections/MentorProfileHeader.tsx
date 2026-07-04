@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3 } from "lucide-react";
+import { getProfileImageUrl } from "@/lib/api";
 
 interface MentorProfileHeaderProps {
     profile: any;
@@ -12,7 +12,6 @@ interface MentorProfileHeaderProps {
 export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHeaderProps) {
     const user = profile?.user;
     const fullName = user ? `${user.firstName} ${user.lastName}` : "Mentor Name";
-    const profileImage = user?.profileImage || "https://i.pravatar.cc/250?img=32";
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 sm:p-8 shadow-sm">
@@ -22,11 +21,10 @@ export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHe
                     {/* Avatar */}
                     <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-gray-100 shrink-0 bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-2xl uppercase">
                         {user?.profileImage ? (
-                            <Image 
-                                src={profileImage} 
+                            <img 
+                                src={getProfileImageUrl(user.profileImage)} 
                                 alt={fullName} 
-                                fill 
-                                className="object-cover"
+                                className="w-full h-full object-cover"
                             />
                         ) : (
                             user?.firstName?.substring(0, 2) || "M"

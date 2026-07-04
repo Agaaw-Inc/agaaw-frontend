@@ -718,3 +718,35 @@ export async function getMentorCount(): Promise<number> {
   }
   return json.data?.count ?? 0;
 }
+
+export async function uploadProfileImage(file: File) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_URL}/users/profile-image`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload profile image");
+  }
+  return json.data || json;
+}
+
+export function getProfileImageUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  
+  // API_URL is e.g. "http://localhost:3001/api". We replace the trailing "/api" to get host
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+  const host = apiBase.replace(/\/api$/, "");
+  return `${host}${url}`;
+}

@@ -160,6 +160,15 @@ export default function StudentProfilePage() {
                     profile={profile} 
                     onClose={closeModal} 
                     onSave={handleSaveProfile} 
+                    onProfileImageUpload={(newImageUrl) => {
+                        setProfile((prev: any) => ({
+                            ...prev,
+                            user: {
+                                ...prev.user,
+                                profileImage: newImageUrl
+                            }
+                        }));
+                    }}
                 />
             )}
             {activeModal === "personal" && (

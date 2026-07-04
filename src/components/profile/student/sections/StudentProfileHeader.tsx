@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { MapPin, Edit3, GraduationCap } from "lucide-react";
+import { getProfileImageUrl } from "@/lib/api";
 
 interface StudentProfileHeaderProps {
     profile: any;
@@ -18,11 +18,10 @@ export default function StudentProfileHeader({ profile, onEdit }: StudentProfile
                 {/* Profile Picture */}
                 <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0 border border-gray-100 bg-gray-50 flex items-center justify-center">
                     {user?.profileImage ? (
-                        <Image 
-                            src={user.profileImage} 
+                        <img 
+                            src={getProfileImageUrl(user.profileImage)} 
                             alt="Profile Picture" 
-                            fill 
-                            className="object-cover"
+                            className="w-full h-full object-cover"
                         />
                     ) : (
                         <div className="text-2xl font-bold text-teal-600">

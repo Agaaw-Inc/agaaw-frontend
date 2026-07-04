@@ -1,21 +1,54 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { X, Save, Upload, Loader2 } from "lucide-react";
+import { uploadProfileImage, getProfileImageUrl } from "@/lib/api";
 
 interface EditMentorHeaderModalProps {
     profile: any;
     onClose: () => void;
     onSave: (data: any) => Promise<void>;
+    onProfileImageUpload: (url: string) => void;
 }
 
-export default function EditMentorHeaderModal({ profile, onClose, onSave }: EditMentorHeaderModalProps) {
+export default function EditMentorHeaderModal({ profile, onClose, onSave, onProfileImageUpload }: EditMentorHeaderModalProps) {
     const user = profile?.user;
     const [firstName, setFirstName] = useState(user?.firstName || "");
     const [lastName, setLastName] = useState(user?.lastName || "");
     const [university, setUniversity] = useState(profile?.currentUniversity || "");
     const [country, setCountry] = useState(profile?.countryName || "");
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Size check (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            alert("File size must be less than 2MB");
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            const res = await uploadProfileImage(file);
+            const newImageUrl = res.data?.profileImage || res.profileImage;
+            if (newImageUrl) {
+                onProfileImageUpload(newImageUrl);
+            }
+        } catch (err) {
+            console.error("Profile image upload failed:", err);
+            alert("Failed to upload photo. Please try again.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -54,12 +87,12 @@ export default function EditMentorHeaderModal({ profile, onClose, onSave }: Edit
                 <form onSubmit={handleSave} className="flex-1 overflow-y-auto flex flex-col">
                     {/* Body */}
                     <div className="p-6 space-y-6 flex-1">
-                        {/* Profile Image upload simulator */}
+                        {/* Profile Image upload section */}
                         <div className="flex items-center gap-5">
                             <div className="relative w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-teal-700 font-bold text-xl uppercase">
                                 {user?.profileImage ? (
                                     <img 
-                                        src={user.profileImage} 
+                                        src={getProfileImageUrl(user.profileImage)} 
                                         alt={user.firstName} 
                                         className="w-full h-full object-cover"
                                     />
@@ -68,8 +101,28 @@ export default function EditMentorHeaderModal({ profile, onClose, onSave }: Edit
                                 )}
                             </div>
                             <div>
-                                <button type="button" disabled className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-400 bg-gray-50 rounded-lg text-sm font-semibold cursor-not-allowed">
-                                    <Upload size={16} /> Upload New Photo
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    onChange={handleFileChange} 
+                                    accept="image/*" 
+                                    className="hidden" 
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={handleUploadClick}
+                                    disabled={isUploading || isSaving}
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 rounded-lg text-sm font-semibold transition disabled:opacity-50"
+                                >
+                                    {isUploading ? (
+                                        <>
+                                            <Loader2 size={16} className="animate-spin text-teal-600" /> Uploading...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload size={16} /> Upload New Photo
+                                        </>
+                                    )}
                                 </button>
                                 <p className="text-xs text-gray-500 mt-1.5">JPG, PNG or GIF. Max size 2MB.</p>
                             </div>

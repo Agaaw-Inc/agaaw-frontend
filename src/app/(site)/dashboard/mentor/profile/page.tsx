@@ -164,6 +164,15 @@ export default function MentorProfilePage() {
                     profile={profile} 
                     onClose={closeModal} 
                     onSave={handleSaveProfile} 
+                    onProfileImageUpload={(newImageUrl) => {
+                        setProfile((prev: any) => ({
+                            ...prev,
+                            user: {
+                                ...prev.user,
+                                profileImage: newImageUrl
+                            }
+                        }));
+                    }}
                 />
             )}
             {activeModal === "about" && (
