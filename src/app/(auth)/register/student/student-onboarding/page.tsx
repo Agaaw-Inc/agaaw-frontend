@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { COUNTRY_LIST, PHONE_CODES } from "@/data/geo";
 import { SUBJECTS } from "@/data/subjects";
-import { updateStudentProfile, uploadStudentDocument } from "@/lib/api";
+import { completeStudentOnboarding, uploadStudentDocument, getCountriesClient } from "@/lib/api";
 
 export default function StudentOnboarding() {
   const router = useRouter();
@@ -59,6 +59,9 @@ export default function StudentOnboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  // Countries from backend (with IDs)
+  const [backendCountries, setBackendCountries] = useState<{id: string; name: string; slug: string; image: string}[]>([]);
+
   // Load from LocalStorage if exists
   useEffect(() => {
     const saved = localStorage.getItem("student_onboarding_data");
@@ -83,6 +86,13 @@ export default function StudentOnboarding() {
         console.error("Failed to parse onboarding data", e);
       }
     }
+  }, []);
+
+  // Fetch countries from backend for ID mapping
+  useEffect(() => {
+    getCountriesClient()
+      .then((countries: any[]) => setBackendCountries(countries))
+      .catch((err: any) => console.error("Failed to fetch countries:", err));
   }, []);
 
   // Save progress
@@ -120,13 +130,15 @@ export default function StudentOnboarding() {
     setIsSubmitting(true);
     setSubmitError("");
     try {
-      // Build the profile payload
-      const profilePayload: Record<string, unknown> = {
-        // Use fieldOfInterest to store target subjects (joined) + target countries context
-        fieldOfInterest: [
-          ...targetSubject,
-          ...(targetCountries.length > 0 ? [`Target: ${targetCountries.join(", ")}`] : []),
-        ].join(" | ") || undefined,
+      // Resolve target country names to IDs from backend countries
+      const preferredCountryIds = targetCountries
+        .map(name => backendCountries.find(c => c.name.toLowerCase() === name.toLowerCase())?.id)
+        .filter((id): id is string => !!id);
+
+      // Build the onboarding payload
+      const onboardingPayload: Record<string, unknown> = {
+        // Store only subjects in fieldOfInterest (clean, no country concatenation)
+        fieldOfInterest: targetSubject.length > 0 ? targetSubject.join(" | ") : undefined,
         studyLevel: mapStudyLevel(degreeLevel),
         degreeLevel: educationLevel || undefined,
         expectedGraduation: graduationYear || undefined,
@@ -136,16 +148,17 @@ export default function StudentOnboarding() {
         nationality: currentCountry || undefined,
         phone: phoneNumber ? `${phoneCode}${phoneNumber}` : undefined,
         dateOfBirth: dob || undefined,
-        // Store subjects as skills array as well for richer profile
         skills: targetSubject.length > 0 ? targetSubject : undefined,
+        preferredIntake: preferredIntake || undefined,
+        preferredCountryIds: preferredCountryIds.length > 0 ? preferredCountryIds : undefined,
       };
 
       // Remove undefined values
-      Object.keys(profilePayload).forEach((key) => {
-        if (profilePayload[key] === undefined) delete profilePayload[key];
+      Object.keys(onboardingPayload).forEach((key) => {
+        if (onboardingPayload[key] === undefined) delete onboardingPayload[key];
       });
 
-      await updateStudentProfile(profilePayload);
+      await completeStudentOnboarding(onboardingPayload);
 
       // Upload transcript if provided
       if (transcriptFile) {

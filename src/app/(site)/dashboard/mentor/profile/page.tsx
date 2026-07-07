@@ -11,6 +11,7 @@ import {
     getMentorBlogs
 } from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import { calculateMentorProfileCompletion } from "@/lib/mentorProfileUtils";
 
 // Sections
 import MentorProfileHeader from "@/components/profile/mentor/sections/MentorProfileHeader";
@@ -123,6 +124,8 @@ export default function MentorProfilePage() {
         );
     }
 
+    const { percentage, missingItems } = calculateMentorProfileCompletion(profile, documents);
+
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
@@ -131,7 +134,7 @@ export default function MentorProfilePage() {
                 <MentorProfileHeader profile={profile} onEdit={() => setActiveModal("header")} />
 
                 {/* Profile Completion */}
-                <ProfileCompletionBar percentage={85} />
+                <ProfileCompletionBar percentage={percentage} missingItems={missingItems} />
 
                 {/* Row Cards (Stacked Layout like Student Profile) */}
                 <MentorAboutCard profile={profile} onEdit={() => setActiveModal("about")} />

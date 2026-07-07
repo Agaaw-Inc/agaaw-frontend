@@ -448,6 +448,67 @@ export async function updateStudentProfile(data: any) {
   return json.data || json;
 }
 
+export async function completeStudentOnboarding(data: any) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/students/onboarding/complete`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 401) {
+      removeToken();
+      removeUserInfo();
+      if (typeof window !== "undefined") window.location.href = "/";
+    }
+    throw new Error(json.message || "Failed to complete onboarding");
+  }
+  return json.data || json;
+}
+
+export async function getOnboardingStatus() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return { completed: false };
+
+  const res = await fetch(`${API_URL}/students/onboarding/status`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    return { completed: false };
+  }
+  return json.data || json;
+}
+
+export async function getCountriesClient() {
+  const res = await fetch(`${API_URL}/countries`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch countries");
+  }
+  return json.data || [];
+}
+
 export async function getMentorProfile() {
   const token = localStorage.getItem("access_token");
   if (!token) return null;
@@ -492,6 +553,51 @@ export async function updateMentorProfile(data: any) {
       if (typeof window !== "undefined") window.location.href = "/";
     }
     throw new Error(json.message || "Failed to update mentor profile");
+  }
+  return json.data || json;
+}
+
+export async function completeMentorOnboarding(data: any) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetch(`${API_URL}/mentors/onboarding/complete`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 401) {
+      removeToken();
+      removeUserInfo();
+      if (typeof window !== "undefined") window.location.href = "/";
+    }
+    throw new Error(json.message || "Failed to complete mentor onboarding");
+  }
+  return json.data || json;
+}
+
+export async function getMentorOnboardingStatus() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return { completed: false };
+
+  const res = await fetch(`${API_URL}/mentors/onboarding/status`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    return { completed: false };
   }
   return json.data || json;
 }

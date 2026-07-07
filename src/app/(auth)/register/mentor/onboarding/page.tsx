@@ -20,7 +20,7 @@ import {
     Loader2,
 } from "lucide-react";
 import { PHONE_CODES, COUNTRY_LIST } from "@/data/geo";
-import { updateMentorProfile } from "@/lib/api";
+import { completeMentorOnboarding, getCountriesClient } from "@/lib/api";
 
 interface Service {
     id: number;
@@ -86,6 +86,15 @@ export default function MentorOnboarding() {
     const [addingService, setAddingService] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState("");
+    const [backendCountries, setBackendCountries] = useState<any[]>([]);
+
+    // Load backend countries for ID resolution
+    useEffect(() => {
+        getCountriesClient()
+            .then((countries: any[]) => setBackendCountries(countries))
+            .catch((err: any) => console.error("Failed to fetch countries:", err));
+    }, []);
+
     // Load saved progress
     useEffect(() => {
         const saved = localStorage.getItem("mentor_onboarding_data");
@@ -123,8 +132,13 @@ export default function MentorOnboarding() {
             setIsSubmitting(true);
             setSubmitError("");
             try {
+                const matchedCountry = backendCountries.find(
+                    (c: any) => c.name?.toLowerCase() === country.toLowerCase()
+                );
+
                 const payload: Record<string, unknown> = {
                     countryName: country || undefined,
+                    countryId: matchedCountry?.id || undefined,
                     cityName: city || undefined,
                     currentUniversity: university || undefined,
                     subject: subject || undefined,
@@ -132,12 +146,13 @@ export default function MentorOnboarding() {
                     semester: semester || undefined,
                     phone: phoneNumber ? `${phoneCode}${phoneNumber}` : undefined,
                     hourlyRate: hourlyRate ? Number(hourlyRate) : undefined,
+                    services: services.length > 0 ? services : undefined,
                 };
                 // Remove undefined values
                 Object.keys(payload).forEach((key) => {
                     if (payload[key] === undefined) delete payload[key];
                 });
-                await updateMentorProfile(payload);
+                await completeMentorOnboarding(payload);
                 localStorage.removeItem("mentor_onboarding_data");
                 localStorage.setItem("mentor_onboarding_completed", "true");
                 router.push("/dashboard/mentor");

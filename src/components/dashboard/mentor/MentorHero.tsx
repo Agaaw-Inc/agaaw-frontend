@@ -2,6 +2,7 @@
 
 import React from "react";
 import { CheckCircle2, GraduationCap, MapPin, BookOpen, Clock, Briefcase, AlertCircle } from "lucide-react";
+import { calculateMentorProfileCompletion } from "@/lib/mentorProfileUtils";
 
 interface MentorHeroProps {
     profile: any;
@@ -21,6 +22,7 @@ export default function MentorHero({ profile }: MentorHeroProps) {
         : "Experience not specified";
 
     const isApproved = !!profile?.isApproved;
+    const { percentage } = calculateMentorProfileCompletion(profile);
 
     return (
         <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
@@ -75,10 +77,10 @@ export default function MentorHero({ profile }: MentorHeroProps) {
                 <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-bold text-gray-900">Profile Completion</span>
-                        <span className="text-sm font-bold text-teal-600">92%</span>
+                        <span className="text-sm font-bold text-teal-600">{percentage}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div className="bg-teal-500 h-2.5 rounded-full" style={{ width: "92%" }}></div>
+                        <div className="bg-teal-500 h-2.5 rounded-full" style={{ width: `${percentage}%` }}></div>
                     </div>
                 </div>
 
