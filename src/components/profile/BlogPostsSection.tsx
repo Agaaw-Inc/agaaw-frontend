@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { BookOpen, ArrowRight, PenSquare, Calendar } from "lucide-react";
-import { getMentorBlogs } from "@/lib/mock/profileData";
 import type { Blog } from "@/lib/mock/blogData";
 
 interface BlogPostsSectionProps {

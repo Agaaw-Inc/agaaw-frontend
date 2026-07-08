@@ -6,7 +6,7 @@ export interface UserInfo {
   firstName: string;
   lastName: string;
   email: string;
-  role: "mentor" | "student";
+  role: "mentor" | "student" | "admin";
 }
 
 export function setToken(token: string) {

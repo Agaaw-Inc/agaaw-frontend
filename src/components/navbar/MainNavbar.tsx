@@ -166,7 +166,7 @@ export default function MainNavbar() {
                           <Link href='/dashboard/mentor/profile' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <User size={18} className="text-gray-400 group-hover:text-teal-600" /> My Profile
                           </Link>
-                          <Link href='/dashboard/mentor/students' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                          <Link href='/students' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Users size={18} className="text-gray-400 group-hover:text-teal-600" /> Students
                           </Link>
                           <Link href='/dashboard/mentor/requests' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">

@@ -1,5 +1,42 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
-import { removeToken, removeUserInfo } from "./auth";
+import { removeToken, removeUserInfo, setToken } from "./auth";
+
+// Auto-refreshes the access token when a 401 is returned, then retries the request once.
+async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
+  const token = localStorage.getItem("access_token");
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options.headers as Record<string, string>),
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  let res = await fetch(url, { ...options, headers, credentials: "include" });
+
+  // If 401, try to refresh the token via the HttpOnly cookie
+  if (res.status === 401) {
+    try {
+      const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        credentials: "include", // sends the refresh_token HttpOnly cookie
+      });
+      if (refreshRes.ok) {
+        const refreshJson = await refreshRes.json();
+        const newToken = refreshJson?.data?.access_token || refreshJson?.access_token;
+        if (newToken) {
+          setToken(newToken);
+          headers["Authorization"] = `Bearer ${newToken}`;
+          // Retry the original request with the new token
+          res = await fetch(url, { ...options, headers, credentials: "include" });
+        }
+      }
+    } catch {
+      // Refresh failed — let the original 401 propagate
+    }
+  }
+
+  return res;
+}
+
 
 export interface PublicScholarshipFaq {
   question: string;
@@ -128,7 +165,7 @@ export async function registerUser(data: {
   });
 
   const json = await res.json();
- 
+
   if (!res.ok) {
     throw new Error(json.message || "Failed to register");
   }
@@ -268,6 +305,25 @@ export async function getCountries() {
   }
 
   return json.data || [];
+}
+
+export async function getStudents() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return [];
+
+  const res = await fetchWithAuth(`${API_URL}/users/students`);
+  const json = await res.json();
+
+  if (!res.ok) {
+    console.error(`getStudents failed (${res.status}):`, json.message);
+    return [];
+  }
+
+  // ResponseInterceptor wraps as: { success, statusCode, data: [...], message }
+  const payload = json.data;
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  return [];
 }
 
 export async function getCountryBySlug(slug: string) {

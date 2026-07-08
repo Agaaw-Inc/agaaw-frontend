@@ -3,20 +3,18 @@ import StudentCard from "@/components/students/StudentCard";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import Pagination from "@/components/ui/Pagination";
-import { Search, ChevronDown, Loader2, X, Sparkles, UserCheck } from "lucide-react";
-import { MOCK_STUDENTS, MOCK_MENTORS } from "@/lib/mock/profileData";
+import { Search, ChevronDown, Loader2, X } from "lucide-react";
 import { getUserInfo, type UserInfo } from "@/lib/auth";
 import type { MentorProfile } from "@/data/profileTypes";
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { popularInterestTags } from "@/data/educationalData";
+import { getStudents, getMentorProfile } from "@/lib/api";
+import { COUNTRY_LIST } from "@/data/geo";
 import Link from "next/link";
-const popularInterestTags = [
-    "Artificial Intelligence",
-    "Renewable Energy",
-    "Open Source",
-    "Social Entrepreneurship",
-    "Creative Writing",
-];
+const ITEMS_PER_PAGE = 6;
+
+
 function StudentList() {
     const searchParams = useSearchParams();
     const [searchQuery, setSearchQuery] = useState("");
@@ -28,22 +26,43 @@ function StudentList() {
     const [currentPage, setCurrentPage] = useState(1);
     const [mentorProfile, setMentorProfile] = useState<MentorProfile | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-    // Load user session and mapping
+    const [students, setStudents] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [accessDenied, setAccessDenied] = useState(false);
+
+    // Load user session and students
     useEffect(() => {
-        const info = getUserInfo();
-        setUserInfo(info);
-        if (info && info.role === "mentor") {
-            const mentor = MOCK_MENTORS.find(
-                (m) =>
-                    m.name.toLowerCase().includes(info.firstName.toLowerCase()) ||
-                    m.username.toLowerCase().includes(info.firstName.toLowerCase())
-            );
-            setMentorProfile(mentor || MOCK_MENTORS[0]);
-        } else if (!info) {
-            // Fallback/simulation mode, default to mentor "arif-rahman" (country: United Kingdom)
-            const defaultMentor = MOCK_MENTORS.find((m) => m.username === "arif-rahman");
-            setMentorProfile(defaultMentor || null);
+        async function fetchData() {
+            setIsLoading(true);
+            try {
+                const info = getUserInfo();
+                setUserInfo(info);
+
+                if (!info) {
+                    setAccessDenied(true);
+                    return;
+                }
+
+                if (info.role !== "mentor" && info.role !== "admin") {
+                    setAccessDenied(true);
+                    return;
+                }
+
+                const studentsData = await getStudents();
+                setStudents(Array.isArray(studentsData) ? studentsData : []);
+
+                if (info.role === "mentor") {
+                    const profile = await getMentorProfile();
+                    setMentorProfile(profile);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setIsLoading(false);
+            }
         }
+        fetchData();
+            
     }, []);
     // Update filter from search parameters if any
     useEffect(() => {
@@ -62,23 +81,19 @@ function StudentList() {
         }, 300);
         return () => clearTimeout(timer);
     }, [searchQuery]);
-    // Unique country options from all students (origin country)
-    const currentCountryOptions = useMemo(() => {
-        return Array.from(new Set(MOCK_STUDENTS.map((s) => s.country))).sort();
-    }, []);
-    // Unique target country options from all students
-    const targetCountryOptions = useMemo(() => {
-        const allTargets = MOCK_STUDENTS.flatMap((s) => s.goals.targetCountries);
-        return Array.from(new Set(allTargets)).sort();
-    }, []);
+    // Unique country options from geo data
+    const currentCountryOptions = COUNTRY_LIST.slice().sort();
+    
+    // Unique target country options from geo data
+    const targetCountryOptions = COUNTRY_LIST.slice().sort();
     // Filter and Sort Students
     const processedStudents = useMemo(() => {
         // 1. Filter
-        let filtered = MOCK_STUDENTS.filter((student) => {
+        let filtered = students.filter((student) => {
             const nameMatch = student.name.toLowerCase().includes(searchDebounced.toLowerCase());
             const uniMatch = student.university.toLowerCase().includes(searchDebounced.toLowerCase());
             const degreeMatch = student.goals.targetDegree.toLowerCase().includes(searchDebounced.toLowerCase());
-            const interestMatch = student.interests.some((interest) =>
+            const interestMatch = student.interests.some((interest: string) =>
                 interest.toLowerCase().includes(searchDebounced.toLowerCase())
             );
             const matchesSearch = nameMatch || uniMatch || degreeMatch || interestMatch;
@@ -88,7 +103,7 @@ function StudentList() {
                 !targetCountryFilter || student.goals.targetCountries.includes(targetCountryFilter);
             const matchesInterest =
                 !interestFilter ||
-                student.interests.some((interest) =>
+                student.interests.some((interest: string) =>
                     interest.toLowerCase().includes(interestFilter.toLowerCase())
                 );
             let matchesMyCountryFilter = true;
@@ -138,6 +153,25 @@ function StudentList() {
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
             <MainNavbar />
+            {isLoading ? (
+                <main className="flex-grow flex items-center justify-center">
+                    <div className="flex flex-col items-center gap-4 text-slate-400">
+                        <Loader2 className="w-10 h-10 animate-spin text-elm" />
+                        <p className="text-sm">Loading students...</p>
+                    </div>
+                </main>
+            ) : accessDenied ? (
+                <main className="flex-grow flex items-center justify-center">
+                    <div className="text-center px-6">
+                        <div className="text-5xl mb-4">🔒</div>
+                        <h2 className="text-xl font-bold text-slate-700 mb-2">Access Restricted</h2>
+                        <p className="text-slate-500 mb-6">Only mentors can view the student list.<br />Please log in with a mentor account.</p>
+                        <Link href="/login" className="px-6 py-3 bg-elm text-white rounded-lg font-semibold hover:bg-elm/90 transition-colors">
+                            Log in as Mentor
+                        </Link>
+                    </div>
+                </main>
+            ) : (
             <main className="flex-grow pt-16 pb-20">
                 {/* Filters Section */}
                 <section className="px-8 mb-12 max-w-7xl mx-auto">
@@ -281,6 +315,7 @@ function StudentList() {
                     />
                 </section>
             </main>
+            )}
             <Footer />
         </div>
     );

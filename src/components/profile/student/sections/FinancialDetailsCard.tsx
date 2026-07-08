@@ -5,7 +5,7 @@ import { Wallet } from "lucide-react";
 
 interface FinancialDetailsCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function FinancialDetailsCard({ profile, onEdit }: FinancialDetailsCardProps) {
@@ -18,12 +18,14 @@ export default function FinancialDetailsCard({ profile, onEdit }: FinancialDetai
                     <Wallet size={20} className="text-teal-600" />
                     <h2 className="text-lg font-bold text-gray-900">Financial & Guardian Details</h2>
                 </div>
-                <button 
-                    onClick={onEdit}
-                    className="px-4 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-bold transition-colors"
-                >
-                    Update Details
-                </button>
+                {onEdit && (
+                    <button 
+                        onClick={onEdit}
+                        className="px-4 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-bold transition-colors"
+                    >
+                        Update Details
+                    </button>
+                )}
             </div>
 
             <div className="bg-gray-50/50 rounded-xl border border-gray-100 p-1">

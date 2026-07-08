@@ -6,7 +6,7 @@ import { MapPin, Edit3, GraduationCap } from "lucide-react";
 
 interface StudentProfileHeaderProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function StudentProfileHeader({ profile, onEdit }: StudentProfileHeaderProps) {
@@ -68,18 +68,20 @@ export default function StudentProfileHeader({ profile, onEdit }: StudentProfile
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center gap-3 shrink-0 self-start md:self-center mt-4 md:mt-0">
-                    <button className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors">
-                        Find a mentor
-                    </button>
-                    <button 
-                        onClick={onEdit}
-                        className="p-2 border border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                        aria-label="Edit Profile"
-                    >
-                        <Edit3 size={18} />
-                    </button>
-                </div>
+                {onEdit && (
+                    <div className="flex items-center gap-3 shrink-0 self-start md:self-center mt-4 md:mt-0">
+                        <button className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-5 rounded-lg text-sm transition-colors">
+                            Find a mentor
+                        </button>
+                        <button 
+                            onClick={onEdit}
+                            className="p-2 border border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+                            aria-label="Edit Profile"
+                        >
+                            <Edit3 size={18} />
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

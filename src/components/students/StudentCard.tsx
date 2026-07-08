@@ -15,8 +15,6 @@ export default function StudentCard({ student, isMatch, matchingCountry }: Stude
         university,
         country,
         countryFlag,
-        bio,
-        testScores,
         goals,
         interests,
     } = student;

@@ -5,7 +5,7 @@ import { Trophy, Plus } from "lucide-react";
 
 interface AchievementsCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function AchievementsCard({ profile, onEdit }: AchievementsCardProps) {
@@ -18,12 +18,14 @@ export default function AchievementsCard({ profile, onEdit }: AchievementsCardPr
                     <Trophy size={20} className="text-teal-600" />
                     <h2 className="text-lg font-bold text-gray-900">Achievements & Awards</h2>
                 </div>
-                <button 
-                    onClick={onEdit}
-                    className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                    <Plus size={20} />
-                </button>
+                {onEdit && (
+                    <button 
+                        onClick={onEdit}
+                        className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <Plus size={20} />
+                    </button>
+                )}
             </div>
 
             {achievements.length === 0 ? (

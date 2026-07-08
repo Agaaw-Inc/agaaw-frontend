@@ -129,3 +129,32 @@ export const SUBJECTS = [
     "Textile Design",
     "Culinary Arts",
 ];
+
+export const SEMESTER_OPTIONS = [
+    { label: "Sem 1", value: "semester_1" },
+    { label: "Sem 2", value: "semester_2" },
+    { label: "Sem 3", value: "semester_3" },
+    { label: "Sem 4", value: "semester_4" },
+    { label: "Sem 5+", value: "semester_5plus" },
+    { label: "Graduated", value: "graduated" },
+    { label: "Alumni", value: "alumni" },
+];
+export const EDUCATION_LEVELS = [
+    "Bachelor's Degree",
+    "Master's Degree",
+    "PhD / Doctorate",
+    "Postdoctoral",
+];
+
+export const popularInterestTags = [
+    "Artificial Intelligence",
+    "Cybersecurity",
+    "Data Science",
+    "Machine Learning",
+    "Blockchain",
+    "Robotics",
+    "Renewable Energy",
+    "Open Source",
+    "Social Entrepreneurship",
+    "Creative Writing",
+];

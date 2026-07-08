@@ -5,7 +5,7 @@ import { Zap, Plus } from "lucide-react";
 
 interface SkillsCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function SkillsCard({ profile, onEdit }: SkillsCardProps) {
@@ -18,12 +18,14 @@ export default function SkillsCard({ profile, onEdit }: SkillsCardProps) {
                     <Zap size={20} className="text-teal-600" />
                     <h2 className="text-lg font-bold text-gray-900">Top Skills</h2>
                 </div>
-                <button 
-                    onClick={onEdit}
-                    className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                    <Plus size={20} />
-                </button>
+                {onEdit && (
+                    <button 
+                        onClick={onEdit}
+                        className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <Plus size={20} />
+                    </button>
+                )}
             </div>
 
             {skills.length === 0 ? (

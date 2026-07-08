@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Star, MapPin } from "lucide-react";
 
 export default function MentorReviews() {
@@ -71,9 +72,12 @@ export default function MentorReviews() {
             </div>
 
             <div className="mt-6 text-center">
-                <button className="text-sm font-semibold text-gray-500 hover:text-teal-600">
+                <Link 
+                    href="/dashboard/mentor/reviews"
+                    className="text-sm font-semibold text-gray-500 hover:text-teal-600 transition-colors inline-block"
+                >
                     View all reviews
-                </button>
+                </Link>
             </div>
         </div>
     );

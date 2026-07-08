@@ -5,8 +5,8 @@ import { FileText, CheckCircle2, AlertCircle, UploadCloud, Trash2, ExternalLink 
 
 interface DocumentsCardProps {
     documents: any[];
-    onUploadClick: (type: string, title: string, subtitle: string) => void;
-    onDelete: (id: string) => void;
+    onUploadClick?: (type: string, title: string, subtitle: string) => void;
+    onDelete?: (id: string) => void;
 }
 
 export default function DocumentsCard({ documents, onUploadClick, onDelete }: DocumentsCardProps) {
@@ -78,19 +78,23 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
                                         >
                                             <ExternalLink size={12} /> View
                                         </a>
-                                        <button 
-                                            onClick={() => onUploadClick(docType.type, docType.title, docType.subtitle)}
-                                            className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-bold transition-colors"
-                                        >
-                                            Replace
-                                        </button>
-                                        <button 
-                                            onClick={() => onDelete(dbDoc.id)}
-                                            className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 rounded-lg transition-colors border border-red-100"
-                                            title="Delete File"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
+                                        {onUploadClick && (
+                                            <button 
+                                                onClick={() => onUploadClick(docType.type, docType.title, docType.subtitle)}
+                                                className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-bold transition-colors"
+                                            >
+                                                Replace
+                                            </button>
+                                        )}
+                                        {onDelete && (
+                                            <button 
+                                                onClick={() => onDelete(dbDoc.id)}
+                                                className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 rounded-lg transition-colors border border-red-100"
+                                                title="Delete File"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        )}
                                     </>
                                 ) : (
                                     <>
@@ -98,12 +102,14 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
                                             <AlertCircle size={16} />
                                             <span className="text-xs font-bold">Not Uploaded</span>
                                         </div>
-                                        <button 
-                                            onClick={() => onUploadClick(docType.type, docType.title, docType.subtitle)}
-                                            className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-500 text-white hover:bg-teal-600 rounded-lg text-xs font-bold transition-colors shadow-sm"
-                                        >
-                                            <UploadCloud size={14} /> Upload
-                                        </button>
+                                        {onUploadClick && (
+                                            <button 
+                                                onClick={() => onUploadClick(docType.type, docType.title, docType.subtitle)}
+                                                className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-500 text-white hover:bg-teal-600 rounded-lg text-xs font-bold transition-colors shadow-sm"
+                                            >
+                                                <UploadCloud size={14} /> Upload
+                                            </button>
+                                        )}
                                     </>
                                 )}
                             </div>

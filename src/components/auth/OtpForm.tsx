@@ -3,9 +3,10 @@
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useRef, ChangeEvent, KeyboardEvent, useEffect } from "react";
+import { useState, useRef, ChangeEvent, KeyboardEvent } from "react";
 import Link from "next/link";
-import { verifyEmail, resendVerification } from "@/lib/api";
+import { verifyEmail, resendVerification, loginUser } from "@/lib/api";
+import { setToken, setUserInfo } from "@/lib/auth";
 
 export default function OtpForm() {
   const router = useRouter();
@@ -52,15 +53,11 @@ export default function OtpForm() {
     try {
       const response = await verifyEmail(otpValue);
       
-      // Attempt auto-login if backend returns token
+      // Attempt auto-login if backend returns token directly
       if (response && response.access_token && response.user) {
-        // We need to import setToken and setUserInfo from @/lib/auth at the top!
-        // I will do a multi replace or assume we can import it.
-        // Actually, let's just do it cleanly. I'll add the import in another step.
-        const { setToken, setUserInfo } = require("@/lib/auth");
         setToken(response.access_token);
         setUserInfo(response.user);
-        
+
         if (role === "student") {
           router.push("/register/student/student-onboarding");
         } else if (role === "mentor") {
@@ -70,20 +67,18 @@ export default function OtpForm() {
         }
         return;
       } else {
-        // Fallback: try to login using password from sessionStorage
+        // Fallback: auto-login using the password saved in sessionStorage during registration
         const tempPassword = sessionStorage.getItem("temp_reg_password");
         if (email && tempPassword) {
           try {
-            const { loginUser } = require("@/lib/api");
-            const loginResponse = await loginUser({ email: email, password: tempPassword });
+            const loginResponse = await loginUser({ email, password: tempPassword });
             if (loginResponse && loginResponse.access_token && loginResponse.user) {
-              const { setToken, setUserInfo } = require("@/lib/auth");
               setToken(loginResponse.access_token);
               setUserInfo(loginResponse.user);
-              
-              // Clean up
+
+              // Clean up temporary password
               sessionStorage.removeItem("temp_reg_password");
-              
+
               if (role === "student") {
                 router.push("/register/student/student-onboarding");
               } else if (role === "mentor") {
@@ -94,8 +89,8 @@ export default function OtpForm() {
               return;
             }
           } catch (loginErr) {
-            console.error("Auto-login failed:", loginErr);
-            // Fall through to manual login page
+            console.error("Auto-login after OTP verification failed:", loginErr);
+            // Fall through to manual login redirect
           }
         }
       }
