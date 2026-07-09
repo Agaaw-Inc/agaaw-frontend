@@ -12,6 +12,7 @@ import {
 } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { calculateMentorProfileCompletion } from "@/lib/mentorProfileUtils";
+import { getUserInfo, setUserInfo } from "@/lib/auth";
 
 // Sections
 import MentorProfileHeader from "@/components/profile/mentor/sections/MentorProfileHeader";
@@ -85,6 +86,17 @@ export default function MentorProfilePage() {
         } catch (err) {
             console.error("Error updating profile:", err);
             throw err;
+        }
+    };
+
+    const handleAvatarChange = (updatedUser: { profileImage: string | null }) => {
+        setProfile((prev: any) => ({ ...prev, user: { ...prev.user, ...updatedUser } }));
+
+        // Keep the globally-cached user (navbar, dashboard hero, etc.) in sync so the
+        // new picture shows up everywhere immediately, not just on this page.
+        const currentUser = getUserInfo();
+        if (currentUser) {
+            setUserInfo({ ...currentUser, profileImage: updatedUser.profileImage });
         }
     };
 
@@ -163,10 +175,11 @@ export default function MentorProfilePage() {
 
             {/* Render Active Edit Modals */}
             {activeModal === "header" && (
-                <EditMentorHeaderModal 
-                    profile={profile} 
-                    onClose={closeModal} 
-                    onSave={handleSaveProfile} 
+                <EditMentorHeaderModal
+                    profile={profile}
+                    onClose={closeModal}
+                    onSave={handleSaveProfile}
+                    onAvatarChange={handleAvatarChange}
                 />
             )}
             {activeModal === "about" && (

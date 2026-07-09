@@ -4,23 +4,36 @@ import React from "react";
 import Link from "next/link";
 import { BookOpen, ArrowRight, PenSquare, Calendar } from "lucide-react";
 
+const DISPLAY_LIMIT = 4;
+
 interface MentorBlogPostsCardProps {
     blogs: any[];
 }
 
 export default function MentorBlogPostsCard({ blogs }: MentorBlogPostsCardProps) {
     const blogsList = Array.isArray(blogs) ? blogs : [];
+    const displayBlogs = blogsList.slice(0, DISPLAY_LIMIT);
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold text-gray-900">Blog Posts</h2>
-                <Link
-                    href="/dashboard/mentor/blogs/create"
-                    className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50"
-                >
-                    <PenSquare size={14} /> + Write Blog
-                </Link>
+                <div className="flex items-center gap-3">
+                    {blogsList.length > 0 && (
+                        <Link
+                            href="/dashboard/mentor/blogs"
+                            className="text-sm text-teal-600 font-semibold hover:text-teal-700 hover:underline"
+                        >
+                            View All
+                        </Link>
+                    )}
+                    <Link
+                        href="/dashboard/mentor/blogs/create"
+                        className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors px-3 py-1.5 rounded-lg border border-teal-200 hover:bg-teal-50"
+                    >
+                        <PenSquare size={14} /> + Write Blog
+                    </Link>
+                </div>
             </div>
 
             {blogsList.length === 0 ? (
@@ -36,15 +49,20 @@ export default function MentorBlogPostsCard({ blogs }: MentorBlogPostsCardProps)
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {blogsList.map((blog: any, index: number) => {
+                    {displayBlogs.map((blog: any, index: number) => {
                         const tagsList = Array.isArray(blog.tags)
                             ? blog.tags.map((t: any) => t.tag)
                             : [];
 
+                        // Drafts aren't published, so /blogs/[slug] 404s for them — send those to the editor instead.
+                        const href = blog.isPublished
+                            ? `/blogs/${blog.slug}`
+                            : `/dashboard/mentor/blogs/edit/${blog.id}`;
+
                         return (
                             <Link
                                 key={blog.id || index}
-                                href={`/blogs/${blog.slug}`}
+                                href={href}
                                 className="block p-4 rounded-xl border border-gray-100 hover:border-teal-100 hover:bg-teal-50/30 transition-all group bg-white"
                             >
                                 <div className="flex items-start gap-3">
@@ -52,9 +70,16 @@ export default function MentorBlogPostsCard({ blogs }: MentorBlogPostsCardProps)
                                         <BookOpen size={18} className="text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-sm font-bold text-gray-900 group-hover:text-teal-700 transition-colors line-clamp-1">
-                                            {blog.title}
-                                        </h3>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-sm font-bold text-gray-900 group-hover:text-teal-700 transition-colors line-clamp-1">
+                                                {blog.title}
+                                            </h3>
+                                            {!blog.isPublished && (
+                                                <span className="shrink-0 px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[10px] rounded-full font-semibold">
+                                                    Draft
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className="text-xs text-gray-500 mt-1 line-clamp-2">
                                             {blog.excerpt || blog.content}
                                         </p>

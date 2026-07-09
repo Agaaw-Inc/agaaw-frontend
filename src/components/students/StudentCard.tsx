@@ -1,20 +1,32 @@
 "use client";
 import Link from "next/link";
 import { GraduationCap, MapPin, Target, Award } from "lucide-react";
-import type { StudentProfile } from "@/data/profileTypes";
+
+export interface StudentListItem {
+    id: string;
+    name: string;
+    image: string | null;
+    university: string;
+    country: string;
+    goals: {
+        targetDegree: string;
+        targetCountries: string[];
+        timeline: string;
+    };
+    interests: string[];
+}
 interface StudentCardProps {
-    student: StudentProfile;
+    student: StudentListItem;
     isMatch?: boolean;
     matchingCountry?: string;
 }
 export default function StudentCard({ student, isMatch, matchingCountry }: StudentCardProps) {
     const {
+        id,
         name,
-        username,
         image,
         university,
         country,
-        countryFlag,
         goals,
         interests,
     } = student;
@@ -56,7 +68,7 @@ export default function StudentCard({ student, isMatch, matchingCountry }: Stude
                     <div className="flex items-center gap-1 text-slate-500 text-md mt-1">
                         <MapPin className="w-4 h-4 flex-shrink-0 text-slate-400" />
                         <span className="truncate">
-                            From {country} {countryFlag}
+                            From {country}
                         </span>
                     </div>
                 </div>
@@ -105,7 +117,7 @@ export default function StudentCard({ student, isMatch, matchingCountry }: Stude
                 {/* Action Button */}
                 <div className="mt-auto border-t border-slate-100 pt-4 flex items-center justify-between">
                     <Link
-                        href={`/profile/${username}`}
+                        href={`/profile/student/${id}`}
                         className="inline-flex items-center justify-center rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-md px-6 py-3 transition-colors shadow-sm shadow-teal-600/10 group-hover:scale-[1.02] active:scale-[0.98] duration-150"
                     >
                         View Profile

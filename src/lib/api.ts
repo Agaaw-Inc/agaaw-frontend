@@ -1,11 +1,21 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 import { removeToken, removeUserInfo, setToken } from "./auth";
 
+// Resolves a relative file path returned by the backend (e.g. "/api/mentors/profile/avatar/file/xyz.jpg")
+// into an absolute URL. Absolute URLs (external OAuth avatars, etc.) are passed through unchanged.
+export function resolveFileUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_URL.replace(/\/api\/?$/, "")}${url}`;
+}
+
 // Auto-refreshes the access token when a 401 is returned, then retries the request once.
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const token = localStorage.getItem("access_token");
+  const isFormData = typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    // Let the browser set the multipart boundary itself for FormData bodies.
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers as Record<string, string>),
   };
   if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -326,6 +336,64 @@ export async function getStudents() {
   return [];
 }
 
+export async function getMentorsList() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return [];
+
+  const res = await fetchWithAuth(`${API_URL}/users/mentors`);
+  const json = await res.json();
+
+  if (!res.ok) {
+    console.error(`getMentorsList failed (${res.status}):`, json.message);
+    return [];
+  }
+
+  const payload = json.data;
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  return [];
+}
+
+// Read-only view of another mentor's profile (for students/admins). Returns
+// null if the mentor doesn't exist or the viewer isn't allowed to see it.
+export async function getMentorPublicProfile(id: string) {
+  const token = localStorage.getItem("access_token");
+  if (!token) return null;
+
+  const res = await fetchWithAuth(`${API_URL}/users/mentors/${id}`, {
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403 || res.status === 404) {
+      return null;
+    }
+    throw new Error(json.message || "Failed to fetch mentor profile");
+  }
+  return json.data || null;
+}
+
+// Read-only view of another student's profile (for mentors/admins). Returns
+// null if the student doesn't exist or the viewer isn't allowed to see it.
+export async function getStudentPublicProfile(id: string) {
+  const token = localStorage.getItem("access_token");
+  if (!token) return null;
+
+  const res = await fetchWithAuth(`${API_URL}/users/students/${id}`, {
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403 || res.status === 404) {
+      return null;
+    }
+    throw new Error(json.message || "Failed to fetch student profile");
+  }
+  return json.data || null;
+}
+
 export async function getCountryBySlug(slug: string) {
   const res = await fetch(`${API_URL}/countries/${slug}`, {
     method: "GET",
@@ -569,12 +637,8 @@ export async function getMentorProfile() {
   const token = localStorage.getItem("access_token");
   if (!token) return null;
 
-  const res = await fetch(`${API_URL}/mentors/profile`, {
+  const res = await fetchWithAuth(`${API_URL}/mentors/profile`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
     cache: "no-store",
   });
 
@@ -592,12 +656,8 @@ export async function updateMentorProfile(data: any) {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No token found");
 
-  const res = await fetch(`${API_URL}/mentors/profile`, {
+  const res = await fetchWithAuth(`${API_URL}/mentors/profile`, {
     method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(data),
   });
 
@@ -725,12 +785,8 @@ export async function getMentorDocuments() {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No token found");
 
-  const res = await fetch(`${API_URL}/mentors/documents`, {
+  const res = await fetchWithAuth(`${API_URL}/mentors/documents`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
     cache: "no-store",
   });
 
@@ -749,11 +805,8 @@ export async function uploadMentorDocument(type: string, file: File) {
   formData.append("type", type);
   formData.append("file", file);
 
-  const res = await fetch(`${API_URL}/mentors/documents`, {
+  const res = await fetchWithAuth(`${API_URL}/mentors/documents`, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
     body: formData,
   });
 
@@ -768,12 +821,8 @@ export async function deleteMentorDocument(id: string) {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No token found");
 
-  const res = await fetch(`${API_URL}/mentors/documents/${id}`, {
+  const res = await fetchWithAuth(`${API_URL}/mentors/documents/${id}`, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
   });
 
   const json = await res.json();
@@ -783,16 +832,46 @@ export async function deleteMentorDocument(id: string) {
   return json.data || json;
 }
 
+export async function uploadMentorProfilePicture(file: File) {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetchWithAuth(`${API_URL}/mentors/profile/avatar`, {
+    method: "POST",
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload profile picture");
+  }
+  return json.data || json;
+}
+
+export async function deleteMentorProfilePicture() {
+  const token = localStorage.getItem("access_token");
+  if (!token) throw new Error("No token found");
+
+  const res = await fetchWithAuth(`${API_URL}/mentors/profile/avatar`, {
+    method: "DELETE",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to remove profile picture");
+  }
+  return json.data || json;
+}
+
 export async function getMentorBlogs() {
   const token = localStorage.getItem("access_token");
   if (!token) throw new Error("No token found");
 
-  const res = await fetch(`${API_URL}/mentors/blogs`, {
+  const res = await fetchWithAuth(`${API_URL}/mentors/blogs`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
     cache: "no-store",
   });
 

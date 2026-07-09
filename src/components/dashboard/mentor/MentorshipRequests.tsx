@@ -2,7 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
-import { CheckCircle2, User, MessageSquare, MapPin, GraduationCap, Clock } from "lucide-react";
+import { CheckCircle2, User, MessageSquare, MapPin, GraduationCap, Clock, Inbox } from "lucide-react";
+import SectionCard from "@/components/dashboard/common/SectionCard";
 
 export default function MentorshipRequests() {
     const requests = [
@@ -29,17 +30,23 @@ export default function MentorshipRequests() {
     ];
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Mentorship Requests</h2>
+        <SectionCard
+            title="Mentorship Requests"
+            icon={Inbox}
+            badge={
                 <span className="bg-red-100 text-red-600 text-xs font-bold px-2.5 py-1 rounded-full">
                     {requests.length} New
                 </span>
-            </div>
-
+            }
+            footer={
+                <button className="text-sm font-semibold text-gray-500 hover:text-teal-600 transition-colors">
+                    View all requests
+                </button>
+            }
+        >
             <div className="space-y-4">
                 {requests.map(request => (
-                    <div key={request.id} className="border border-gray-100 rounded-xl p-5 hover:border-teal-200 transition-colors group">
+                    <div key={request.id} className="border border-gray-100 rounded-xl p-5 hover:border-teal-200 hover:shadow-sm transition-all group">
                         <div className="flex flex-col md:flex-row gap-5 items-start">
                             {/* Avatar & Info */}
                             <div className="flex items-center gap-4 min-w-[250px]">
@@ -79,7 +86,7 @@ export default function MentorshipRequests() {
                                     </p>
                                 </div>
                             </div>
-                            
+
                             {/* Actions */}
                             <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto mt-4 md:mt-0 justify-end md:justify-start">
                                 <button className="flex-1 flex items-center justify-center gap-1 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
@@ -98,12 +105,6 @@ export default function MentorshipRequests() {
                     </div>
                 ))}
             </div>
-            
-            <div className="mt-6 text-center">
-                <button className="text-sm font-semibold text-gray-500 hover:text-teal-600">
-                    View all requests
-                </button>
-            </div>
-        </div>
+        </SectionCard>
     );
 }

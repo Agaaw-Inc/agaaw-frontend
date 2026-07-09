@@ -1,31 +1,42 @@
 "use client";
 import Link from "next/link";
-import { Star, MapPin, GraduationCap, CheckCircle2 } from "lucide-react";
-import type { MentorProfile } from "@/data/profileTypes";
+import { MapPin, GraduationCap, CheckCircle2, Briefcase, Languages } from "lucide-react";
+
+export interface MentorListItem {
+    id: string;
+    name: string;
+    image: string | null;
+    isVerified: boolean;
+    bio: string | null;
+    university: string;
+    country: string;
+    experienceYears: number | null;
+    hourlyRate: number | null;
+    languages: string[];
+    isAvailable: boolean;
+    isApproved: boolean;
+    expertise: string[];
+}
+
 interface MentorCardProps {
-    mentor: MentorProfile;
+    mentor: MentorListItem;
     isMatch?: boolean;
 }
 export default function MentorCard({ mentor, isMatch }: MentorCardProps) {
     const {
+        id,
         name,
-        username,
         image,
         university,
         country,
-        countryFlag,
         bio,
         expertise,
-        stats,
-        hourly_rate,
+        hourlyRate,
+        experienceYears,
+        languages,
         isVerified,
-        availability,
+        isAvailable,
     } = mentor;
-    const availabilityColors = {
-        Available: "bg-emerald-500",
-        Busy: "bg-amber-500",
-        Away: "bg-gray-400",
-    }[availability] || "bg-emerald-500";
     return (
         <div className="border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl hover:border-slate-200 transition-all duration-300 bg-white flex flex-col h-full group relative">
 
@@ -37,8 +48,8 @@ export default function MentorCard({ mentor, isMatch }: MentorCardProps) {
                     </span>
                 )}
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[15px] font-bold text-slate-700 uppercase tracking-wider border border-slate-100 shadow-sm backdrop-blur-sm">
-                    <span className={`w-1.5 h-1.5 rounded-full ${availabilityColors}`} />
-                    {availability}
+                    <span className={`w-1.5 h-1.5 rounded-full ${isAvailable ? "bg-emerald-500" : "bg-gray-400"}`} />
+                    {isAvailable ? "Available" : "Busy"}
                 </span>
             </div>
             {/* Mentor Info Header */}
@@ -72,41 +83,48 @@ export default function MentorCard({ mentor, isMatch }: MentorCardProps) {
                     </div>
                     <div className="flex items-center gap-1 text-slate-500 text-md mt-1">
                         <MapPin className="w-4 h-4 flex-shrink-0 text-slate-400" />
-                        <span className="truncate">
-                            {country} {countryFlag}
-                        </span>
+                        <span className="truncate">{country}</span>
                     </div>
                 </div>
             </div>
             {/* Bio & Details */}
             <div className="p-6 flex flex-col flex-1">
+                {bio && (
+                    <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-4">{bio}</p>
+                )}
+
+                {expertise.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                        {expertise.slice(0, 3).map((tag) => (
+                            <span
+                                key={tag}
+                                className="text-[12px] font-medium text-slate-600 bg-slate-100 border border-slate-150 rounded-md px-2 py-0.5"
+                            >
+                                {tag}
+                            </span>
+                        ))}
+                        {expertise.length > 3 && (
+                            <span className="text-[12px] font-semibold text-slate-400 bg-slate-50/50 border border-dashed border-slate-200 rounded-md px-1.5 py-0.5">
+                                +{expertise.length - 3} more
+                            </span>
+                        )}
+                    </div>
+                )}
+
                 {/* Divider & Stats Grid */}
                 <div className="mt-auto border-t border-slate-100 pt-4">
-                    <div className="grid grid-cols-3 gap-2 text-center pb-4">
-                        <div>
-                            <p className="text-[15px] uppercase tracking-wider font-semibold text-slate-400">
-                                Rating
-                            </p>
-                            <p className="text-md font-bold text-slate-700 flex items-center justify-center gap-0.5 mt-0.5">
-                                <Star className="4 h-4 text-amber-500 fill-amber-500" />
-                                {stats.rating.toFixed(1)}
-                            </p>
+                    <div className="grid grid-cols-2 gap-2 pb-4">
+                        <div className="flex items-center gap-1.5 text-slate-600">
+                            <Briefcase className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                            <span className="text-md font-semibold truncate">
+                                {experienceYears ? `${experienceYears} yrs exp.` : "Experience N/A"}
+                            </span>
                         </div>
-                        <div>
-                            <p className="text-[15 px] uppercase tracking-wider font-semibold text-slate-400">
-                                Helped
-                            </p>
-                            <p className="text-md font-bold text-slate-700 mt-0.5">
-                                {stats.studentsHelped}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-[15px] uppercase tracking-wider font-semibold text-slate-400">
-                                Response
-                            </p>
-                            <p className="text-md font-bold text-slate-700 mt-0.5">
-                                {stats.responseRate}%
-                            </p>
+                        <div className="flex items-center gap-1.5 text-slate-600">
+                            <Languages className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                            <span className="text-md font-semibold truncate">
+                                {languages.length > 0 ? languages.join(", ") : "N/A"}
+                            </span>
                         </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-slate-50 pt-4">
@@ -115,12 +133,12 @@ export default function MentorCard({ mentor, isMatch }: MentorCardProps) {
                                 Session Fee
                             </span>
                             <span className="text-base font-extrabold text-slate-800">
-                                ${hourly_rate}
-                                <span className="text-md font-normal text-slate-500">/hr</span>
+                                {hourlyRate ? `$${hourlyRate}` : "Not set"}
+                                {hourlyRate ? <span className="text-md font-normal text-slate-500">/hr</span> : null}
                             </span>
                         </div>
                         <Link
-                            href={`/profile/${username}`}
+                            href={`/profile/mentor/${id}`}
                             className="inline-flex items-center justify-center rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-md px-6 py-3 transition-colors shadow-sm shadow-teal-600/10 group-hover:scale-[1.02] active:scale-[0.98] duration-150"
                         >
                             View Profile

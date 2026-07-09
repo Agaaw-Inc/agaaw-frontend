@@ -5,13 +5,16 @@ import Footer from "@/components/landing/Footer";
 import Pagination from "@/components/ui/Pagination";
 import { Search, ChevronDown, Loader2, X } from "lucide-react";
 import { getUserInfo, type UserInfo } from "@/lib/auth";
-import type { MentorProfile } from "@/data/profileTypes";
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { popularInterestTags } from "@/data/educationalData";
 import { getStudents, getMentorProfile } from "@/lib/api";
 import { COUNTRY_LIST } from "@/data/geo";
 import Link from "next/link";
+
+interface OwnMentorProfile {
+    countryName: string | null;
+}
 const ITEMS_PER_PAGE = 6;
 
 
@@ -24,7 +27,7 @@ function StudentList() {
     const [interestFilter, setInterestFilter] = useState("");
     const [matchMyCountry, setMatchMyCountry] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
-    const [mentorProfile, setMentorProfile] = useState<MentorProfile | null>(null);
+    const [mentorProfile, setMentorProfile] = useState<OwnMentorProfile | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
     const [students, setStudents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -107,8 +110,8 @@ function StudentList() {
                     interest.toLowerCase().includes(interestFilter.toLowerCase())
                 );
             let matchesMyCountryFilter = true;
-            if (matchMyCountry && mentorProfile) {
-                matchesMyCountryFilter = student.goals.targetCountries.includes(mentorProfile.country);
+            if (matchMyCountry && mentorProfile?.countryName) {
+                matchesMyCountryFilter = student.goals.targetCountries.includes(mentorProfile.countryName);
             }
             return (
                 matchesSearch &&
@@ -120,9 +123,9 @@ function StudentList() {
         });
         // 2. Sort: prioritized by whether student targets the mentor's country, then name
         return [...filtered].sort((a, b) => {
-            if (mentorProfile) {
-                const aMatchesTarget = a.goals.targetCountries.includes(mentorProfile.country) ? 1 : 0;
-                const bMatchesTarget = b.goals.targetCountries.includes(mentorProfile.country) ? 1 : 0;
+            if (mentorProfile?.countryName) {
+                const aMatchesTarget = a.goals.targetCountries.includes(mentorProfile.countryName) ? 1 : 0;
+                const bMatchesTarget = b.goals.targetCountries.includes(mentorProfile.countryName) ? 1 : 0;
                 if (aMatchesTarget !== bMatchesTarget) {
                     return bMatchesTarget - aMatchesTarget; // matching country comes first
                 }
@@ -229,7 +232,7 @@ function StudentList() {
                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
                             </div>
                             {/* Personalization Toggle */}
-                            {mentorProfile && (
+                            {mentorProfile?.countryName && (
                                 <div className="flex items-center gap-3 px-6 py-3 sm:py-0 border-t sm:border-t-0 sm:border-l border-slate-100">
                                     <label className="relative inline-flex items-center cursor-pointer">
                                         <input
@@ -243,7 +246,7 @@ function StudentList() {
                                         />
                                         <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600" />
                                         <span className="ml-3 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Targeting My Country ({mentorProfile.countryFlag})
+                                            Targeting My Country ({mentorProfile.countryName})
                                         </span>
                                     </label>
                                 </div>
@@ -275,7 +278,7 @@ function StudentList() {
                 <section className="px-8 max-w-7xl mx-auto">
                     <div className="flex justify-between items-end mb-8 border-b border-slate-200 pb-4">
                         <h2 className="text-2xl font-extrabold text-slate-800">
-                            {matchMyCountry ? `Students targeting ${mentorProfile?.country}` : "All Students"}
+                            {matchMyCountry ? `Students targeting ${mentorProfile?.countryName}` : "All Students"}
                         </h2>
                         <span className="text-sm font-semibold text-slate-500">
                             Showing {processedStudents.length} student{processedStudents.length !== 1 && "s"}
@@ -284,13 +287,15 @@ function StudentList() {
                     {currentStudents.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             {currentStudents.map((student) => {
-                                const isMatch = mentorProfile ? student.goals.targetCountries.includes(mentorProfile.country) : false;
+                                const isMatch = mentorProfile?.countryName
+                                    ? student.goals.targetCountries.includes(mentorProfile.countryName)
+                                    : false;
                                 return (
                                     <StudentCard
-                                        key={student.username}
+                                        key={student.id}
                                         student={student}
                                         isMatch={isMatch}
-                                        matchingCountry={mentorProfile?.country}
+                                        matchingCountry={mentorProfile?.countryName || undefined}
                                     />
                                 );
                             })}

@@ -5,7 +5,7 @@ import { Clock, Settings } from "lucide-react";
 
 interface MentorServicesCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function MentorServicesCard({ profile, onEdit }: MentorServicesCardProps) {
@@ -15,12 +15,14 @@ export default function MentorServicesCard({ profile, onEdit }: MentorServicesCa
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold text-gray-900">Services & Pricing</h2>
-                <button 
-                    onClick={onEdit}
-                    className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors"
-                >
-                    <Settings size={14} /> Manage
-                </button>
+                {onEdit && (
+                    <button
+                        onClick={onEdit}
+                        className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors"
+                    >
+                        <Settings size={14} /> Manage
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -49,7 +51,9 @@ export default function MentorServicesCard({ profile, onEdit }: MentorServicesCa
                     </div>
                 ))}
                 {services.length === 0 && (
-                    <p className="text-sm text-gray-400 italic col-span-2">No services added yet. Click manage to list your mentoring services!</p>
+                    <p className="text-sm text-gray-400 italic col-span-2">
+                        {onEdit ? "No services added yet. Click manage to list your mentoring services!" : "This mentor hasn't listed any services yet."}
+                    </p>
                 )}
             </div>
         </div>

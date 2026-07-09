@@ -10,27 +10,19 @@ interface MentorReviewsCardProps {
 }
 
 export default function MentorReviewsCard({ profile }: MentorReviewsCardProps) {
-    const rawReviews = profile?.reviews || [
-        {
-            id: 1,
-            authorName: "Sarah Johnson",
-            authorImage: "https://i.pravatar.cc/100?img=47",
-            rating: 5,
-            date: "2026-03-15",
-            text: "Arif helped me secure a full scholarship to Oxford. His guidance on the personal statement was invaluable. I couldn't have done it without him!",
-        },
-        {
-            id: 2,
-            authorName: "James Lee",
-            authorImage: "https://i.pravatar.cc/100?img=12",
-            rating: 5,
-            date: "2026-02-28",
-            text: "Extremely knowledgeable about UK universities. The mock interview session was incredibly helpful. Arif pointed out areas I never would have thought to improve.",
-        },
-    ];
+    const rawReviews = profile?.reviews || [];
 
-    const averageRating = profile?.stats?.rating || 4.9;
-    const totalReviews = profile?.stats?.totalReviews || rawReviews.length;
+    if (rawReviews.length === 0) {
+        return (
+            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                <h2 className="text-lg font-bold text-gray-900 mb-2">Reviews & Ratings</h2>
+                <p className="text-sm text-gray-400 italic py-6 text-center">No reviews yet.</p>
+            </div>
+        );
+    }
+
+    const averageRating = profile?.stats?.rating ?? 0;
+    const totalReviews = profile?.stats?.totalReviews ?? rawReviews.length;
 
     // Calculate dynamic distribution from reviews if available
     const distribution = [5, 4, 3, 2, 1].map((stars) => {
