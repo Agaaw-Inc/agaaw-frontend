@@ -1,5 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
-import { removeToken, removeUserInfo } from "./auth";
+import { authFetch } from "./authFetch";
 
 export interface PublicScholarshipFaq {
   question: string;
@@ -111,6 +111,8 @@ function toQueryString(params: Record<string, unknown>) {
   return entries.length > 0 ? `?${entries.join("&")}` : "";
 }
 
+// ── Auth endpoints (no auto-refresh needed — these handle tokens directly) ──
+
 export async function registerUser(data: {
   firstName: string;
   lastName: string;
@@ -156,13 +158,9 @@ export async function loginUser(data: { email: string; password: string }) {
 }
 
 export async function getMe() {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/auth/me`, {
+  const res = await authFetch("/auth/me", {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
   });
@@ -251,6 +249,8 @@ export async function resetPassword(data: { token: string; password: string }) {
 
   return json.data || json;
 }
+
+// ── Public endpoints (no auth needed) ───────────────────────────────────────
 
 export async function getCountries() {
   const res = await fetch(`${API_URL}/countries`, {
@@ -400,99 +400,6 @@ export async function getBlogBySlug(slug: string): Promise<PublicBlog | null> {
   return json.data || null;
 }
 
-export async function getStudentProfile() {
-  const token = localStorage.getItem("access_token");
-  if (!token) return null;
-
-  const res = await fetch(`${API_URL}/students/profile`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    if (res.status === 401 || res.status === 404) {
-      return null;
-    }
-    throw new Error(json.message || "Failed to fetch student profile");
-  }
-  return json.data || json;
-}
-
-export async function updateStudentProfile(data: any) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/students/profile`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    if (res.status === 401) {
-      removeToken();
-      removeUserInfo();
-      if (typeof window !== "undefined") window.location.href = "/";
-    }
-    throw new Error(json.message || "Failed to update student profile");
-  }
-  return json.data || json;
-}
-
-export async function completeStudentOnboarding(data: any) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/students/onboarding/complete`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    if (res.status === 401) {
-      removeToken();
-      removeUserInfo();
-      if (typeof window !== "undefined") window.location.href = "/";
-    }
-    throw new Error(json.message || "Failed to complete onboarding");
-  }
-  return json.data || json;
-}
-
-export async function getOnboardingStatus() {
-  const token = localStorage.getItem("access_token");
-  if (!token) return { completed: false };
-
-  const res = await fetch(`${API_URL}/students/onboarding/status`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    return { completed: false };
-  }
-  return json.data || json;
-}
-
 export async function getCountriesClient() {
   const res = await fetch(`${API_URL}/countries`, {
     method: "GET",
@@ -509,323 +416,6 @@ export async function getCountriesClient() {
   return json.data || [];
 }
 
-export async function getMentorProfile() {
-  const token = localStorage.getItem("access_token");
-  if (!token) return null;
-
-  const res = await fetch(`${API_URL}/mentors/profile`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    if (res.status === 401 || res.status === 404) {
-      return null;
-    }
-    throw new Error(json.message || "Failed to fetch mentor profile");
-  }
-  return json.data || json;
-}
-
-export async function updateMentorProfile(data: any) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/profile`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    if (res.status === 401) {
-      removeToken();
-      removeUserInfo();
-      if (typeof window !== "undefined") window.location.href = "/";
-    }
-    throw new Error(json.message || "Failed to update mentor profile");
-  }
-  return json.data || json;
-}
-
-export async function completeMentorOnboarding(data: any) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/onboarding/complete`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    if (res.status === 401) {
-      removeToken();
-      removeUserInfo();
-      if (typeof window !== "undefined") window.location.href = "/";
-    }
-    throw new Error(json.message || "Failed to complete mentor onboarding");
-  }
-  return json.data || json;
-}
-
-export async function getMentorOnboardingStatus() {
-  const token = localStorage.getItem("access_token");
-  if (!token) return { completed: false };
-
-  const res = await fetch(`${API_URL}/mentors/onboarding/status`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    return { completed: false };
-  }
-  return json.data || json;
-}
-
-
-export async function getStudentDocuments() {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/students/documents`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to fetch student documents");
-  }
-  return json.data || json;
-}
-
-export async function uploadStudentDocument(type: string, file: File) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const formData = new FormData();
-  formData.append("type", type);
-  formData.append("file", file);
-
-  const res = await fetch(`${API_URL}/students/documents`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to upload student document");
-  }
-  return json.data || json;
-}
-
-export async function deleteStudentDocument(id: string) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/students/documents/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to delete student document");
-  }
-  return json.data || json;
-}
-
-export async function getMentorDocuments() {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/documents`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to fetch mentor documents");
-  }
-  return json.data || json;
-}
-
-export async function uploadMentorDocument(type: string, file: File) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const formData = new FormData();
-  formData.append("type", type);
-  formData.append("file", file);
-
-  const res = await fetch(`${API_URL}/mentors/documents`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to upload mentor document");
-  }
-  return json.data || json;
-}
-
-export async function deleteMentorDocument(id: string) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/documents/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to delete mentor document");
-  }
-  return json.data || json;
-}
-
-export async function getMentorBlogs() {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/blogs`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to fetch mentor blogs");
-  }
-  return json.data || json;
-}
-
-export async function getMentorBlogById(id: string) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/blogs/${id}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to fetch mentor blog details");
-  }
-  return json.data || json;
-}
-
-export async function createMentorBlog(data: any) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/blogs`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to create mentor blog");
-  }
-  return json.data || json;
-}
-
-export async function updateMentorBlog(id: string, data: any) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/blogs/${id}`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to update mentor blog");
-  }
-  return json.data || json;
-}
-
-export async function deleteMentorBlog(id: string) {
-  const token = localStorage.getItem("access_token");
-  if (!token) throw new Error("No token found");
-
-  const res = await fetch(`${API_URL}/mentors/blogs/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  const json = await res.json();
-  if (!res.ok) {
-    throw new Error(json.message || "Failed to delete mentor blog");
-  }
-  return json.data || json;
-}
-
 export async function getMentorCount(): Promise<number> {
   const res = await fetch(`${API_URL}/users/stats/mentor-count`, {
     method: "GET",
@@ -840,4 +430,308 @@ export async function getMentorCount(): Promise<number> {
     return 0;
   }
   return json.data?.count ?? 0;
+}
+
+// ── Authenticated endpoints (use authFetch for automatic token refresh) ─────
+
+export async function getStudentProfile() {
+  const res = await authFetch("/students/profile", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 404) {
+      return null;
+    }
+    throw new Error(json.message || "Failed to fetch student profile");
+  }
+  return json.data || json;
+}
+
+export async function updateStudentProfile(data: any) {
+  const res = await authFetch("/students/profile", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to update student profile");
+  }
+  return json.data || json;
+}
+
+export async function completeStudentOnboarding(data: any) {
+  const res = await authFetch("/students/onboarding/complete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to complete onboarding");
+  }
+  return json.data || json;
+}
+
+export async function getOnboardingStatus() {
+  const res = await authFetch("/students/onboarding/status", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    return { completed: false };
+  }
+  return json.data || json;
+}
+
+export async function getMentorProfile() {
+  const res = await authFetch("/mentors/profile", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 404) {
+      return null;
+    }
+    throw new Error(json.message || "Failed to fetch mentor profile");
+  }
+  return json.data || json;
+}
+
+export async function updateMentorProfile(data: any) {
+  const res = await authFetch("/mentors/profile", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to update mentor profile");
+  }
+  return json.data || json;
+}
+
+export async function completeMentorOnboarding(data: any) {
+  const res = await authFetch("/mentors/onboarding/complete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to complete mentor onboarding");
+  }
+  return json.data || json;
+}
+
+export async function getMentorOnboardingStatus() {
+  const res = await authFetch("/mentors/onboarding/status", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    return { completed: false };
+  }
+  return json.data || json;
+}
+
+export async function getStudentDocuments() {
+  const res = await authFetch("/students/documents", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch student documents");
+  }
+  return json.data || json;
+}
+
+export async function uploadStudentDocument(type: string, file: File) {
+  const formData = new FormData();
+  formData.append("type", type);
+  formData.append("file", file);
+
+  const res = await authFetch("/students/documents", {
+    method: "POST",
+    // Note: no Content-Type header — browser sets it with boundary for FormData
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload student document");
+  }
+  return json.data || json;
+}
+
+export async function deleteStudentDocument(id: string) {
+  const res = await authFetch(`/students/documents/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to delete student document");
+  }
+  return json.data || json;
+}
+
+export async function getMentorDocuments() {
+  const res = await authFetch("/mentors/documents", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch mentor documents");
+  }
+  return json.data || json;
+}
+
+export async function uploadMentorDocument(type: string, file: File) {
+  const formData = new FormData();
+  formData.append("type", type);
+  formData.append("file", file);
+
+  const res = await authFetch("/mentors/documents", {
+    method: "POST",
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload mentor document");
+  }
+  return json.data || json;
+}
+
+export async function deleteMentorDocument(id: string) {
+  const res = await authFetch(`/mentors/documents/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to delete mentor document");
+  }
+  return json.data || json;
+}
+
+export async function getMentorBlogs() {
+  const res = await authFetch("/mentors/blogs", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch mentor blogs");
+  }
+  return json.data || json;
+}
+
+export async function getMentorBlogById(id: string) {
+  const res = await authFetch(`/mentors/blogs/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to fetch mentor blog details");
+  }
+  return json.data || json;
+}
+
+export async function createMentorBlog(data: any) {
+  const res = await authFetch("/mentors/blogs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to create mentor blog");
+  }
+  return json.data || json;
+}
+
+export async function updateMentorBlog(id: string, data: any) {
+  const res = await authFetch(`/mentors/blogs/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to update mentor blog");
+  }
+  return json.data || json;
+}
+
+export async function deleteMentorBlog(id: string) {
+  const res = await authFetch(`/mentors/blogs/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to delete mentor blog");
+  }
+  return json.data || json;
 }
