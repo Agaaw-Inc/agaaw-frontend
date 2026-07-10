@@ -1,18 +1,27 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-import { MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3 } from "lucide-react";
+import { Camera, MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3 } from "lucide-react";
+import { resolveFileUrl } from "@/lib/api";
 
 interface MentorProfileHeaderProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHeaderProps) {
     const user = profile?.user;
     const fullName = user ? `${user.firstName} ${user.lastName}` : "Mentor Name";
-    const profileImage = user?.profileImage || "https://i.pravatar.cc/250?img=32";
+
+    const avatar = user?.profileImage ? (
+        <img
+            src={resolveFileUrl(user.profileImage)}
+            alt={fullName}
+            className="w-full h-full object-cover"
+        />
+    ) : (
+        user?.firstName?.substring(0, 2) || "M"
+    );
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 sm:p-8 shadow-sm">
@@ -20,18 +29,23 @@ export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHe
                 {/* Left: Avatar + Info */}
                 <div className="flex items-start gap-5">
                     {/* Avatar */}
-                    <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-gray-100 shrink-0 bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-2xl uppercase">
-                        {user?.profileImage ? (
-                            <Image 
-                                src={profileImage} 
-                                alt={fullName} 
-                                fill 
-                                className="object-cover"
-                            />
-                        ) : (
-                            user?.firstName?.substring(0, 2) || "M"
-                        )}
-                    </div>
+                    {onEdit ? (
+                        <button
+                            type="button"
+                            onClick={onEdit}
+                            title="Change profile picture"
+                            className="group relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-gray-100 shrink-0 bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-2xl uppercase"
+                        >
+                            {avatar}
+                            <span className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <Camera size={20} className="text-white" />
+                            </span>
+                        </button>
+                    ) : (
+                        <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-gray-100 shrink-0 bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-2xl uppercase">
+                            {avatar}
+                        </div>
+                    )}
 
                     {/* Info */}
                     <div className="space-y-2">
@@ -69,12 +83,14 @@ export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHe
                 </div>
 
                 {/* Right: Edit Button */}
-                <button 
-                    onClick={onEdit}
-                    className="flex items-center gap-2 px-5 py-2.5 border border-teal-200 text-teal-700 hover:bg-teal-50 rounded-lg text-sm font-semibold transition-colors shrink-0 self-start"
-                >
-                    <Edit3 size={15} /> Edit Profile
-                </button>
+                {onEdit && (
+                    <button
+                        onClick={onEdit}
+                        className="flex items-center gap-2 px-5 py-2.5 border border-teal-200 text-teal-700 hover:bg-teal-50 rounded-lg text-sm font-semibold transition-colors shrink-0 self-start"
+                    >
+                        <Edit3 size={15} /> Edit Profile
+                    </button>
+                )}
             </div>
         </div>
     );

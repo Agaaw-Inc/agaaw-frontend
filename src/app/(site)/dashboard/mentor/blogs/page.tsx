@@ -2,20 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Pencil, Trash2, Eye, EyeOff, BookOpen, Calendar, Tag, Loader2 } from "lucide-react";
+import { Plus, Trash2, BookOpen, Loader2 } from "lucide-react";
 import { getMentorBlogs, updateMentorBlog, deleteMentorBlog } from "@/lib/api";
-
-function StatusBadge({ published }: { published: boolean }) {
-  return published ? (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700">
-      <Eye size={11} /> Published
-    </span>
-  ) : (
-    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700">
-      <EyeOff size={11} /> Draft
-    </span>
-  );
-}
+import MentorBlogCard from "@/components/dashboard/mentor/MentorBlogCard";
 
 function Toast({ message, onHide }: { message: string; onHide: () => void }) {
   useEffect(() => {
@@ -121,68 +110,14 @@ export default function MentorBlogsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {blogs.map((blog) => {
-              const tagsList = Array.isArray(blog.tags)
-                ? blog.tags.map((t: any) => t.tag)
-                : [];
-
-              return (
-                <div key={blog.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-4 hover:shadow-md transition-shadow group">
-                  {/* Status & actions */}
-                  <div className="flex items-start justify-between gap-3">
-                    <button onClick={() => togglePublish(blog.id, blog.isPublished)} className="focus:outline-none">
-                      <StatusBadge published={blog.isPublished} />
-                    </button>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link
-                        href={`/dashboard/mentor/blogs/edit/${blog.id}`}
-                        className="p-2 rounded-lg hover:bg-teal-50 text-gray-400 hover:text-teal-700 transition-colors"
-                        title="Edit"
-                      >
-                        <Pencil size={15} />
-                      </Link>
-                      <button
-                        onClick={() => setDeleteTarget(blog)}
-                        className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-650 transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Title */}
-                  <Link href={`/blogs/${blog.slug}`} className="hover:text-teal-700 transition-colors">
-                    <h3 className="font-semibold text-gray-900 text-base leading-snug line-clamp-2">{blog.title}</h3>
-                  </Link>
-
-                  {/* Excerpt / Content */}
-                  <p className="text-sm text-gray-500 line-clamp-3 leading-relaxed">
-                    {blog.excerpt || blog.content}
-                  </p>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-50 mt-auto">
-                    {/* Tags */}
-                    <div className="flex items-center gap-1 text-xs text-gray-400">
-                      <Tag size={12} />
-                      {tagsList.length > 0 ? (
-                        <>
-                          {tagsList.slice(0, 2).join(", ")}
-                          {tagsList.length > 2 && ` +${tagsList.length - 2}`}
-                        </>
-                      ) : (
-                        "No tags"
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-400">
-                      <Calendar size={12} />
-                      {new Date(blog.createdAt).toLocaleDateString()}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {blogs.map((blog) => (
+              <MentorBlogCard
+                key={blog.id}
+                blog={blog}
+                onTogglePublish={togglePublish}
+                onDelete={setDeleteTarget}
+              />
+            ))}
           </div>
         )}
 

@@ -5,7 +5,6 @@ import {
     GraduationCap,
     MapPin,
     Phone,
-    BookOpen,
     ChevronDown,
     ArrowRight,
     ArrowLeft,
@@ -21,6 +20,8 @@ import {
 } from "lucide-react";
 import { PHONE_CODES, COUNTRY_LIST } from "@/data/geo";
 import { completeMentorOnboarding, getCountriesClient } from "@/lib/api";
+import { EDUCATION_LEVELS, SEMESTER_OPTIONS } from "@/data/educationalData";
+
 
 interface Service {
     id: number;
@@ -31,21 +32,6 @@ interface Service {
     duration: string;
 }
 
-const SEMESTER_OPTIONS = [
-    { label: "Sem 1", value: "semester_1" },
-    { label: "Sem 2", value: "semester_2" },
-    { label: "Sem 3", value: "semester_3" },
-    { label: "Sem 4", value: "semester_4" },
-    { label: "Sem 5+", value: "semester_5plus" },
-    { label: "Graduated", value: "graduated" },
-    { label: "Alumni", value: "alumni" },
-];
-const EDUCATION_LEVELS = [
-    "Bachelor's Degree",
-    "Master's Degree",
-    "PhD / Doctorate",
-    "Postdoctoral",
-];
 const DEFAULT_SERVICES: Service[] = [
     {
         id: 1,
@@ -129,6 +115,20 @@ export default function MentorOnboarding() {
         if (step < 2) {
             saveProgress(step + 1);
         } else {
+            // Verify the user has a valid auth token before making the API call
+            const token = localStorage.getItem("access_token");
+            if (!token) {
+                setSubmitError(
+                    "Your session has expired. Please log in again to continue."
+                );
+                setTimeout(() => {
+                    router.push(
+                        `/login?redirect=${encodeURIComponent("/register/mentor/onboarding")}`
+                    );
+                }, 2000);
+                return;
+            }
+
             setIsSubmitting(true);
             setSubmitError("");
             try {
@@ -157,7 +157,10 @@ export default function MentorOnboarding() {
                 localStorage.setItem("mentor_onboarding_completed", "true");
                 router.push("/dashboard/mentor");
             } catch (err: unknown) {
-                const message = err instanceof Error ? err.message : "Failed to save profile. Please try again.";
+                const message =
+                    err instanceof Error
+                        ? err.message
+                        : "Failed to save profile. Please try again.";
                 setSubmitError(message);
             } finally {
                 setIsSubmitting(false);
@@ -187,7 +190,10 @@ export default function MentorOnboarding() {
         setServices(services.filter((s) => s.id !== id));
     };
     const step1Valid = country && university && educationLevel && semester;
-    const step2Valid = hourlyRate && services.length > 0;
+    // NOTE: Services (step 2 local state) cannot be saved to the database yet.
+    // The backend is missing a POST /mentors/services endpoint (MentorService model exists in schema
+    // but has no controller/service methods). Hourly rate is the only step-2 data that can be saved.
+    const step2Valid = !!hourlyRate;
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
             {/* Header */}
@@ -553,22 +559,38 @@ export default function MentorOnboarding() {
                                 )}
                             </div>
                         </div>
+                        {/* Error Message */}
+                        {submitError && (
+                            <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm font-semibold">
+                                <span className="shrink-0">⚠️</span>
+                                <span>{submitError}</span>
+                            </div>
+                        )}
                         {/* Footer */}
                         <div className="flex items-center justify-between pt-4">
                             <button
                                 type="button"
                                 onClick={handleBack}
-                                className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors"
+                                disabled={isSubmitting}
+                                className="flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors disabled:opacity-40"
                             >
                                 <ArrowLeft className="h-4 w-4" /> Back
                             </button>
                             <button
                                 type="button"
                                 onClick={handleNext}
-                                disabled={!step2Valid}
+                                disabled={!step2Valid || isSubmitting}
                                 className="flex items-center gap-2 bg-[#005F59] hover:bg-teal-800 active:scale-[0.98] text-white px-8 py-3 rounded-xl text-sm font-bold shadow-md shadow-teal-900/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
                             >
-                                Finish & Go to Dashboard <ArrowRight className="h-4 w-4" />
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" /> Saving...
+                                    </>
+                                ) : (
+                                    <>
+                                        Finish & Go to Dashboard <ArrowRight className="h-4 w-4" />
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>

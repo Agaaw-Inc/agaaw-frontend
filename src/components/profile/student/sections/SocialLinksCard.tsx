@@ -5,7 +5,7 @@ import { Link2, Github, Linkedin, Plus, Globe } from "lucide-react";
  
 interface SocialLinksCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
  
 export default function SocialLinksCard({ profile, onEdit }: SocialLinksCardProps) {
@@ -36,12 +36,14 @@ export default function SocialLinksCard({ profile, onEdit }: SocialLinksCardProp
                     <Link2 size={20} className="text-teal-600" />
                     <h2 className="text-lg font-bold text-gray-900">Social Links</h2>
                 </div>
-                <button 
-                    onClick={onEdit}
-                    className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                    <Plus size={20} />
-                </button>
+                {onEdit && (
+                    <button 
+                        onClick={onEdit}
+                        className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <Plus size={20} />
+                    </button>
+                )}
             </div>
  
             {links.length === 0 ? (

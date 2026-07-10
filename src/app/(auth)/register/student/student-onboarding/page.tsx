@@ -23,9 +23,11 @@ import {
   X,
   Loader2
 } from "lucide-react";
-import { COUNTRY_LIST, PHONE_CODES } from "@/data/geo";
-import { SUBJECTS } from "@/data/subjects";
 import { completeStudentOnboarding, uploadStudentDocument, getCountriesClient } from "@/lib/api";
+import { COUNTRY_LIST, PHONE_CODES } from "@/data/geo";
+import { SUBJECTS } from "@/data/educationalData";
+
+
 
 export default function StudentOnboarding() {
   const router = useRouter();
@@ -60,7 +62,7 @@ export default function StudentOnboarding() {
   const [submitError, setSubmitError] = useState("");
 
   // Countries from backend (with IDs)
-  const [backendCountries, setBackendCountries] = useState<{id: string; name: string; slug: string; image: string}[]>([]);
+  const [backendCountries, setBackendCountries] = useState<{ id: string; name: string; slug: string; image: string }[]>([]);
 
   // Load from LocalStorage if exists
   useEffect(() => {
@@ -394,8 +396,8 @@ export default function StudentOnboarding() {
                           }
                           {COUNTRY_LIST.filter(c => c.toLowerCase().includes(countryInput.toLowerCase()) && !targetCountries.includes(c)).length === 0 && (
                             <button type="button" onClick={() => addCountry(countryInput)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-teal-600 transition-colors">
-                              Add "{countryInput}"
-                            </button>
+                                Add &quot;{countryInput}&quot;
+                              </button>
                           )}
                         </div>
                       )}
@@ -431,7 +433,7 @@ export default function StudentOnboarding() {
                         }
                         {SUBJECTS.filter(s => s.toLowerCase().includes(subjectInput.toLowerCase()) && !targetSubject.includes(s)).length === 0 && (
                           <button type="button" onClick={() => addSubject(subjectInput)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-teal-600 transition-colors">
-                            Add "{subjectInput}"
+                            Add &quot;{subjectInput}&quot;
                           </button>
                         )}
                       </div>
@@ -484,7 +486,7 @@ export default function StudentOnboarding() {
                         }`}
                     >
                       <Award className={`h-6 w-6 ${degreeLevel === "Bachelor's" ? "text-[#005F59]" : "text-slate-400"}`} />
-                      <span className="text-xs font-semibold">Bachelor's</span>
+                      <span className="text-xs font-semibold">Bachelor&apos;s</span>
                     </button>
                     <button
                       type="button"
@@ -495,7 +497,7 @@ export default function StudentOnboarding() {
                         }`}
                     >
                       <GraduationCap className={`h-6 w-6 ${degreeLevel === "Master's" ? "text-[#005F59]" : "text-slate-400"}`} />
-                      <span className="text-xs font-semibold">Master's</span>
+                      <span className="text-xs font-semibold">Master&apos;s</span>
                     </button>
                     <button
                       type="button"
@@ -605,8 +607,8 @@ export default function StudentOnboarding() {
                       >
                         <option value="">Select level</option>
                         <option value="High School">High School</option>
-                        <option value="Bachelor's Degree">Bachelor's Degree</option>
-                        <option value="Master's Degree">Master's Degree</option>
+                        <option value="Bachelor's Degree">Bachelor&apos;s Degree</option>
+                        <option value="Master's Degree">Master&apos;s Degree</option>
                         <option value="PhD / Doctorate">PhD / Doctorate</option>
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
@@ -735,7 +737,7 @@ export default function StudentOnboarding() {
               <div className="space-y-1 text-center sm:text-left">
                 <h3 className="text-sm font-bold text-slate-900">Transcripts (Optional)</h3>
                 <p className="text-xs text-slate-500">
-                  Upload your latest academic transcript to get a 'Verified' badge early.
+                  Upload your latest academic transcript to get a &apos;Verified&apos; badge early.
                 </p>
               </div>
 

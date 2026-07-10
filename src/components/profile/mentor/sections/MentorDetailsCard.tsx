@@ -5,10 +5,13 @@ import { GraduationCap, MapPin, Briefcase, DollarSign, Languages, CheckCircle2, 
 
 interface MentorDetailsCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
+    // Hide the phone number row — used when a non-owner, non-admin viewer
+    // (e.g. a student) is looking at this profile.
+    hidePhone?: boolean;
 }
 
-export default function MentorDetailsCard({ profile, onEdit }: MentorDetailsCardProps) {
+export default function MentorDetailsCard({ profile, onEdit, hidePhone }: MentorDetailsCardProps) {
     const formatLanguages = (langs: string[]) => {
         if (!langs || langs.length === 0) return "Not Specified";
         return langs.join(", ");
@@ -18,12 +21,14 @@ export default function MentorDetailsCard({ profile, onEdit }: MentorDetailsCard
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-gray-900">Mentor Details</h2>
-                <button
-                    onClick={onEdit}
-                    className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors"
-                >
-                    <Edit3 size={14} /> Edit
-                </button>
+                {onEdit && (
+                    <button
+                        onClick={onEdit}
+                        className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors"
+                    >
+                        <Edit3 size={14} /> Edit
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -72,11 +77,13 @@ export default function MentorDetailsCard({ profile, onEdit }: MentorDetailsCard
                     label="Visa Status"
                     value={profile?.visaStatus || "Not Specified"}
                 />
-                <DetailRow
-                    icon={<Phone size={18} className="text-teal-600" />}
-                    label="Phone Number"
-                    value={profile?.phone || "Not Specified"}
-                />
+                {!hidePhone && (
+                    <DetailRow
+                        icon={<Phone size={18} className="text-teal-600" />}
+                        label="Phone Number"
+                        value={profile?.phone || "Not Specified"}
+                    />
+                )}
                 <DetailRow
                     icon={<MapPin size={18} className="text-teal-600" />}
                     label="City Name"

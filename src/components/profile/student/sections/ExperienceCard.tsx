@@ -5,7 +5,7 @@ import { Briefcase, Plus } from "lucide-react";
  
 interface ExperienceCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
  
 export default function ExperienceCard({ profile, onEdit }: ExperienceCardProps) {
@@ -22,12 +22,14 @@ export default function ExperienceCard({ profile, onEdit }: ExperienceCardProps)
                     <Briefcase size={20} className="text-teal-600" />
                     <h2 className="text-lg font-bold text-gray-900">Experience</h2>
                 </div>
-                <button 
-                    onClick={onEdit}
-                    className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                    <Plus size={20} />
-                </button>
+                {onEdit && (
+                    <button 
+                        onClick={onEdit}
+                        className="p-1.5 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                        <Plus size={20} />
+                    </button>
+                )}
             </div>
  
             {experiences.length === 0 ? (

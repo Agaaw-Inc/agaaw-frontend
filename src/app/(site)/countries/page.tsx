@@ -8,7 +8,7 @@ import { getCountries } from "@/lib/api";
 import { useState, useMemo, useEffect } from "react";
 import Pagination from "@/components/ui/Pagination";
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 12;
 
 interface CountryListItem {
     slug: string;
@@ -168,8 +168,8 @@ export default function CountriesPage() {
                                 key={region}
                                 onClick={() => { setRegionFilter(regionFilter === region ? "" : region); setCurrentPage(1); }}
                                 className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${regionFilter === region
-                                        ? "bg-elm/10 text-elm hover:bg-elm/20"
-                                        : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
+                                    ? "bg-elm/10 text-elm hover:bg-elm/20"
+                                    : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
                                     }`}
                             >
                                 {region}
@@ -181,8 +181,8 @@ export default function CountriesPage() {
                                 key={language}
                                 onClick={() => { setLanguageFilter(languageFilter === language ? "" : language); setCurrentPage(1); }}
                                 className={`px-4 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center ${languageFilter === language
-                                        ? "bg-elm/10 text-elm hover:bg-elm/20"
-                                        : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
+                                    ? "bg-elm/10 text-elm hover:bg-elm/20"
+                                    : "bg-white border border-slate-200 text-codgray hover:bg-slate-50"
                                     }`}
                             >
                                 Study in {language}

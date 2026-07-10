@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Star } from "lucide-react";
 
 interface MentorReviewsCardProps {
@@ -9,35 +10,28 @@ interface MentorReviewsCardProps {
 }
 
 export default function MentorReviewsCard({ profile }: MentorReviewsCardProps) {
-    const averageRating = 4.9;
-    const totalReviews = 38;
+    const rawReviews = profile?.reviews || [];
 
-    const distribution = [
-        { stars: 5, count: 34, percentage: 89 },
-        { stars: 4, count: 3, percentage: 8 },
-        { stars: 3, count: 1, percentage: 3 },
-        { stars: 2, count: 0, percentage: 0 },
-        { stars: 1, count: 0, percentage: 0 },
-    ];
+    if (rawReviews.length === 0) {
+        return (
+            <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                <h2 className="text-lg font-bold text-gray-900 mb-2">Reviews & Ratings</h2>
+                <p className="text-sm text-gray-400 italic py-6 text-center">No reviews yet.</p>
+            </div>
+        );
+    }
 
-    const reviews = [
-        {
-            id: 1,
-            authorName: "Sarah Johnson",
-            authorImage: "https://i.pravatar.cc/100?img=47",
-            rating: 5,
-            date: "2026-03-15",
-            text: "Arif helped me secure a full scholarship to Oxford. His guidance on the personal statement was invaluable. I couldn't have done it without him!",
-        },
-        {
-            id: 2,
-            authorName: "James Lee",
-            authorImage: "https://i.pravatar.cc/100?img=12",
-            rating: 5,
-            date: "2026-02-28",
-            text: "Extremely knowledgeable about UK universities. The mock interview session was incredibly helpful. Arif pointed out areas I never would have thought to improve.",
-        },
-    ];
+    const averageRating = profile?.stats?.rating ?? 0;
+    const totalReviews = profile?.stats?.totalReviews ?? rawReviews.length;
+
+    // Calculate dynamic distribution from reviews if available
+    const distribution = [5, 4, 3, 2, 1].map((stars) => {
+        const count = rawReviews.filter((r: any) => Math.round(r.rating) === stars).length;
+        const percentage = rawReviews.length > 0 ? Math.round((count / rawReviews.length) * 100) : 0;
+        return { stars, count, percentage };
+    });
+
+    const displayedReviews = rawReviews.slice(0, 4);
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
@@ -83,12 +77,12 @@ export default function MentorReviewsCard({ profile }: MentorReviewsCardProps) {
 
             {/* Individual Reviews */}
             <div className="space-y-5">
-                {reviews.map((review) => (
+                {displayedReviews.map((review: any) => (
                     <div key={review.id} className="pb-5 border-b border-gray-50 last:border-0 last:pb-0">
                         <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                            <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-gray-100">
                                 <Image
-                                    src={review.authorImage}
+                                    src={review.authorImage || "https://i.pravatar.cc/100?img=33"}
                                     alt={review.authorName}
                                     width={40}
                                     height={40}
@@ -119,6 +113,17 @@ export default function MentorReviewsCard({ profile }: MentorReviewsCardProps) {
                     </div>
                 ))}
             </div>
+
+            {rawReviews.length > 4 && (
+                <div className="mt-6 text-center border-t border-gray-50 pt-4">
+                    <Link 
+                        href="/dashboard/mentor/reviews"
+                        className="text-sm font-bold text-teal-600 hover:text-teal-700 transition-colors"
+                    >
+                        See all {rawReviews.length} reviews →
+                    </Link>
+                </div>
+            )}
         </div>
     );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Video, Calendar as CalendarIcon, Clock, MoreHorizontal } from "lucide-react";
+import { Video, Calendar as CalendarIcon, Clock, CalendarClock, MoreHorizontal } from "lucide-react";
+import SectionCard from "@/components/dashboard/common/SectionCard";
 
 export default function MentorUpcomingSessions() {
     const sessions = [
@@ -24,27 +25,33 @@ export default function MentorUpcomingSessions() {
     ];
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Upcoming Sessions</h2>
+        <SectionCard
+            title="Upcoming Sessions"
+            icon={CalendarClock}
+            actions={
                 <button className="text-gray-400 hover:text-gray-600">
                     <MoreHorizontal size={20} />
                 </button>
-            </div>
-
+            }
+            footer={
+                <button className="text-sm font-semibold text-gray-500 hover:text-teal-600 transition-colors">
+                    View full calendar
+                </button>
+            }
+        >
             <div className="space-y-4">
                 {sessions.map(session => (
-                    <div key={session.id} className={`flex gap-4 p-4 rounded-xl border ${session.isToday ? 'border-teal-200 bg-teal-50/30' : 'border-gray-100 bg-gray-50/50'}`}>
+                    <div key={session.id} className={`flex gap-4 p-4 rounded-xl border ${session.isToday ? 'border-teal-200 bg-teal-50/40' : 'border-gray-100 bg-gray-50/50'}`}>
                         {/* Calendar Icon Date */}
                         <div className={`flex flex-col items-center justify-center min-w-[60px] h-[60px] rounded-lg ${session.isToday ? 'bg-teal-100 text-teal-700' : 'bg-white border border-gray-200 text-gray-700'} shrink-0`}>
                             <span className="text-[10px] font-bold uppercase tracking-wider">{session.date.split(' ')[0]}</span>
                             <span className="text-xl font-black leading-none mt-0.5">{session.date.split(' ')[1]}</span>
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                             <h4 className="font-bold text-gray-900 text-base truncate">{session.studentName}</h4>
                             <p className="text-xs text-gray-500 font-semibold truncate mb-2">{session.topic}</p>
-                            
+
                             <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-3">
                                 <Clock size={12} />
                                 <span>{session.time}</span>
@@ -62,12 +69,6 @@ export default function MentorUpcomingSessions() {
                     </div>
                 ))}
             </div>
-
-            <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-                <button className="text-sm font-semibold text-gray-500 hover:text-teal-600">
-                    View full calendar
-                </button>
-            </div>
-        </div>
+        </SectionCard>
     );
 }

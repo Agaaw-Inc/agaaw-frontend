@@ -5,7 +5,7 @@ import { User, CheckCircle2, Edit3 } from "lucide-react";
 
 interface PersonalInfoCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardProps) {
@@ -43,12 +43,14 @@ export default function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardPr
                         <User size={20} className="text-teal-600" />
                         <h2 className="text-lg font-bold text-gray-900">Personal Information</h2>
                     </div>
-                    <button
-                        onClick={onEdit}
-                        className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors"
-                    >
-                        Edit Info
-                    </button>
+                    {onEdit && (
+                        <button
+                            onClick={onEdit}
+                            className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors"
+                        >
+                            Edit Info
+                        </button>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
@@ -90,13 +92,15 @@ export default function PersonalInfoCard({ profile, onEdit }: PersonalInfoCardPr
 
             {/* Right Side: IELTS Score */}
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm flex-1 flex flex-col items-center justify-center text-center relative group">
-                <button 
-                    onClick={onEdit}
-                    className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-teal-600 rounded-lg hover:bg-gray-50 transition-colors"
-                    title="Edit Language Test Score"
-                >
-                    <Edit3 size={16} />
-                </button>
+                {onEdit && (
+                    <button 
+                        onClick={onEdit}
+                        className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-teal-600 rounded-lg hover:bg-gray-50 transition-colors"
+                        title="Edit Language Test Score"
+                    >
+                        <Edit3 size={16} />
+                    </button>
+                )}
                 <p className="text-sm font-semibold text-gray-600 mb-2">IELTS Score</p>
                 <h3 className="text-5xl font-extrabold text-teal-600">{ieltsData.overall || "—"}</h3>
                 <p className="text-xs font-semibold text-gray-500 mt-2">Overall Band Score</p>

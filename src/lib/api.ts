@@ -1,6 +1,14 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 import { authFetch } from "./authFetch";
 
+// Resolves a relative file path returned by the backend (e.g. "/api/mentors/profile/avatar/file/xyz.jpg")
+// into an absolute URL. Absolute URLs (external OAuth avatars, etc.) are passed through unchanged.
+export function resolveFileUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `${API_URL.replace(/\/api\/?$/, "")}${url}`;
+}
+
 export interface PublicScholarshipFaq {
   question: string;
   answer: string;
@@ -250,7 +258,7 @@ export async function resetPassword(data: { token: string; password: string }) {
   return json.data || json;
 }
 
-// ── Public endpoints (no auth needed) ───────────────────────────────────────
+// ── Public & Directory endpoints ──────────────────────────────────────────
 
 export async function getCountries() {
   const res = await fetch(`${API_URL}/countries`, {
@@ -268,6 +276,66 @@ export async function getCountries() {
   }
 
   return json.data || [];
+}
+
+export async function getStudents() {
+  const res = await authFetch("/users/students");
+  const json = await res.json();
+
+  if (!res.ok) {
+    console.error(`getStudents failed (${res.status}):`, json.message);
+    return [];
+  }
+
+  const payload = json.data;
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  return [];
+}
+
+export async function getMentorsList() {
+  const res = await authFetch("/users/mentors");
+  const json = await res.json();
+
+  if (!res.ok) {
+    console.error(`getMentorsList failed (${res.status}):`, json.message);
+    return [];
+  }
+
+  const payload = json.data;
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  return [];
+}
+
+export async function getMentorPublicProfile(id: string) {
+  const res = await authFetch(`/users/mentors/${id}`, {
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403 || res.status === 404) {
+      return null;
+    }
+    throw new Error(json.message || "Failed to fetch mentor profile");
+  }
+  return json.data || null;
+}
+
+export async function getStudentPublicProfile(id: string) {
+  const res = await authFetch(`/users/students/${id}`, {
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 401 || res.status === 403 || res.status === 404) {
+      return null;
+    }
+    throw new Error(json.message || "Failed to fetch student profile");
+  }
+  return json.data || null;
 }
 
 export async function getCountryBySlug(slug: string) {
@@ -655,6 +723,34 @@ export async function deleteMentorDocument(id: string) {
   const json = await res.json();
   if (!res.ok) {
     throw new Error(json.message || "Failed to delete mentor document");
+  }
+  return json.data || json;
+}
+
+export async function uploadMentorProfilePicture(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await authFetch("/mentors/profile/avatar", {
+    method: "POST",
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload profile picture");
+  }
+  return json.data || json;
+}
+
+export async function deleteMentorProfilePicture() {
+  const res = await authFetch("/mentors/profile/avatar", {
+    method: "DELETE",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to remove profile picture");
   }
   return json.data || json;
 }

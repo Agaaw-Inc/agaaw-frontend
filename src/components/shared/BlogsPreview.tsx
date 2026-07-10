@@ -29,7 +29,7 @@ export default function BlogsPreview() {
   }, []);
 
   return (
-    <section className="py-24 bg-white px-6 w-full relative overflow-hidden">
+    <section className="py-10 bg-white px-6 w-full relative overflow-hidden">
       {/* Decorative Blur */}
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-teal-50 rounded-full blur-[100px] opacity-50" />
       <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-teal-50 rounded-full blur-[100px] opacity-50" />
@@ -37,9 +37,6 @@ export default function BlogsPreview() {
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-2xl">
-            <span className="inline-block px-3 py-1 mb-6 text-[10px] font-bold tracking-[0.2em] uppercase rounded-full bg-teal-100 text-teal-700">
-              Community Insights
-            </span>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
               Latest from our <span className="text-teal-600">Community</span>
             </h2>

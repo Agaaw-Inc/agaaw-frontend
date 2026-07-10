@@ -5,7 +5,7 @@ import { Edit3 } from "lucide-react";
 
 interface MentorAboutCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function MentorAboutCard({ profile, onEdit }: MentorAboutCardProps) {
@@ -19,12 +19,14 @@ export default function MentorAboutCard({ profile, onEdit }: MentorAboutCardProp
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-gray-900">About</h2>
-                <button 
-                    onClick={onEdit}
-                    className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors"
-                >
-                    <Edit3 size={14} /> Edit
-                </button>
+                {onEdit && (
+                    <button
+                        onClick={onEdit}
+                        className="flex items-center gap-1.5 text-sm text-teal-600 font-semibold hover:text-teal-700 transition-colors"
+                    >
+                        <Edit3 size={14} /> Edit
+                    </button>
+                )}
             </div>
 
             {bio ? (
@@ -42,7 +44,9 @@ export default function MentorAboutCard({ profile, onEdit }: MentorAboutCardProp
                     )}
                 </>
             ) : (
-                <p className="text-sm text-gray-400 italic">No details provided yet. Click edit to tell students about yourself!</p>
+                <p className="text-sm text-gray-400 italic">
+                    {onEdit ? "No details provided yet. Click edit to tell students about yourself!" : "This mentor hasn't added a bio yet."}
+                </p>
             )}
         </div>
     );

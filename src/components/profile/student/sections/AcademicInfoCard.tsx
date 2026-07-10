@@ -5,7 +5,7 @@ import { BookOpen } from "lucide-react";
 
 interface AcademicInfoCardProps {
     profile: any;
-    onEdit: () => void;
+    onEdit?: () => void;
 }
 
 export default function AcademicInfoCard({ profile, onEdit }: AcademicInfoCardProps) {
@@ -16,12 +16,14 @@ export default function AcademicInfoCard({ profile, onEdit }: AcademicInfoCardPr
                     <BookOpen size={20} className="text-teal-600" />
                     <h2 className="text-lg font-bold text-gray-900">Academic Information</h2>
                 </div>
-                <button 
-                    onClick={onEdit}
-                    className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors"
-                >
-                    Edit Info
-                </button>
+                {onEdit && (
+                    <button 
+                        onClick={onEdit}
+                        className="text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors"
+                    >
+                        Edit Info
+                    </button>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
