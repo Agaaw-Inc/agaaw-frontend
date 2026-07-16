@@ -831,3 +831,196 @@ export async function deleteMentorBlog(id: string) {
   }
   return json.data || json;
 }
+
+// ── Mentorship requests & connections ────────────────────────────────────
+
+function extractErrorMessage(json: any, fallback: string): string {
+  const msg = json?.message;
+  if (Array.isArray(msg)) return msg.join(", ");
+  return msg || fallback;
+}
+
+export interface MentorServiceItem {
+  id: string;
+  mentorId: string;
+  title: string;
+  description: string | null;
+  price: string;
+  durationMinutes: number | null;
+  duration: string | null;
+  currency: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type MentorshipRequestStatus = "pending" | "accepted" | "declined" | "withdrawn";
+
+export interface MentorshipRequestServiceItem {
+  id: string;
+  title: string;
+  priceSnapshot: string;
+  currency: string | null;
+}
+
+export interface MentorshipRequestUserSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profileImage: string | null;
+}
+
+export interface MentorshipRequestItem {
+  id: string;
+  studentId: string;
+  mentorId: string;
+  message: string;
+  status: MentorshipRequestStatus;
+  viewedAt: string | null;
+  respondedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  totalPrice: string;
+  requestedServices: MentorshipRequestServiceItem[];
+  student: MentorshipRequestUserSummary & {
+    studentProfile?: {
+      institution: string | null;
+      degreeLevel: string | null;
+      fieldOfInterest: string | null;
+    } | null;
+  };
+  mentor: MentorshipRequestUserSummary;
+}
+
+export interface PaginatedMentorshipRequests {
+  data: MentorshipRequestItem[];
+  meta: { page: number; limit: number; total: number };
+}
+
+export interface ConnectionCounterpart {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profileImage: string | null;
+  role: "student" | "mentor" | "admin";
+}
+
+export interface ConnectionItem {
+  id: string;
+  status: "active" | "ended";
+  startedAt: string;
+  endedAt: string | null;
+  conversationId: string | null;
+  counterpart: ConnectionCounterpart;
+}
+
+export async function getMentorServices(mentorId: string): Promise<MentorServiceItem[]> {
+  const res = await authFetch(`/mentors/${mentorId}/services`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to fetch mentor services"));
+  }
+  return json.data || [];
+}
+
+export async function sendMentorshipRequest(data: {
+  mentorId: string;
+  message: string;
+  serviceIds?: string[];
+}) {
+  const res = await authFetch("/mentorship-requests", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to send mentorship request"));
+  }
+  return json.data;
+}
+
+export async function getMentorshipRequests(
+  params: { status?: MentorshipRequestStatus; page?: number; limit?: number } = {}
+): Promise<PaginatedMentorshipRequests> {
+  const qs = toQueryString(params as Record<string, unknown>);
+  const res = await authFetch(`/mentorship-requests${qs}`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to fetch mentorship requests"));
+  }
+  return json.data || { data: [], meta: { page: 1, limit: params.limit || 10, total: 0 } };
+}
+
+export async function getMentorshipRequestDetail(id: string): Promise<MentorshipRequestItem | null> {
+  const res = await authFetch(`/mentorship-requests/${id}`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error(extractErrorMessage(json, "Failed to fetch request detail"));
+  }
+  return json.data || null;
+}
+
+export async function acceptMentorshipRequest(id: string) {
+  const res = await authFetch(`/mentorship-requests/${id}/accept`, { method: "PATCH" });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to accept request"));
+  }
+  return json.data;
+}
+
+export async function declineMentorshipRequest(id: string, reason?: string) {
+  const res = await authFetch(`/mentorship-requests/${id}/decline`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(reason ? { reason } : {}),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to decline request"));
+  }
+  return json.data;
+}
+
+export async function withdrawMentorshipRequest(id: string) {
+  const res = await authFetch(`/mentorship-requests/${id}/withdraw`, { method: "PATCH" });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to withdraw request"));
+  }
+  return json.data;
+}
+
+export async function getConnections(status?: "active" | "ended"): Promise<ConnectionItem[]> {
+  const qs = toQueryString(status ? { status } : {});
+  const res = await authFetch(`/connections${qs}`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    console.error(`getConnections failed (${res.status}):`, json.message);
+    return [];
+  }
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+export async function getStudentProfileForMentor(userId: string) {
+  const res = await authFetch(`/students/${userId}/profile`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 403 || res.status === 404) return null;
+    throw new Error(extractErrorMessage(json, "Failed to fetch student profile"));
+  }
+  return json.data || null;
+}
+
+export async function getStudentDocumentsForMentor(userId: string) {
+  const res = await authFetch(`/students/${userId}/documents`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 403 || res.status === 404) return [];
+    throw new Error(extractErrorMessage(json, "Failed to fetch student documents"));
+  }
+  return Array.isArray(json.data) ? json.data : [];
+}

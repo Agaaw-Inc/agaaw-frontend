@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import Footer from "@/components/landing/Footer";
-import { 
-    getMentorProfile, 
-    updateMentorProfile, 
-    getMentorDocuments, 
-    uploadMentorDocument, 
+import {
+    getMentorProfile,
+    updateMentorProfile,
+    getMentorDocuments,
+    uploadMentorDocument,
     deleteMentorDocument,
-    getMentorBlogs
+    getMentorBlogs,
+    getConnections
 } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { calculateMentorProfileCompletion } from "@/lib/mentorProfileUtils";
@@ -52,17 +53,20 @@ export default function MentorProfilePage() {
     const [blogs, setBlogs] = useState<any[]>([]);
     const [selectedDoc, setSelectedDoc] = useState<{ type: string; title: string; subtitle: string } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [studentsCount, setStudentsCount] = useState<number | undefined>(undefined);
 
     const fetchProfileAndDocs = async () => {
         try {
-            const [profileData, docsData, blogsData] = await Promise.all([
+            const [profileData, docsData, blogsData, connections] = await Promise.all([
                 getMentorProfile(),
                 getMentorDocuments(),
-                getMentorBlogs()
+                getMentorBlogs(),
+                getConnections("active"),
             ]);
             setProfile(profileData);
             setDocuments(docsData);
             setBlogs(blogsData);
+            setStudentsCount(connections.length);
         } catch (err) {
             console.error("Error loading mentor profile or documents:", err);
         } finally {
@@ -143,7 +147,7 @@ export default function MentorProfilePage() {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
                 
                 {/* Header Section */}
-                <MentorProfileHeader profile={profile} onEdit={() => setActiveModal("header")} />
+                <MentorProfileHeader profile={profile} onEdit={() => setActiveModal("header")} studentsCount={studentsCount} />
 
                 {/* Profile Completion */}
                 <ProfileCompletionBar percentage={percentage} missingItems={missingItems} />

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { MapPin, GraduationCap, CheckCircle2, Briefcase, Languages } from "lucide-react";
+import { MapPin, GraduationCap, CheckCircle2, Briefcase, Languages, Send, Clock, Users } from "lucide-react";
 
 export interface MentorListItem {
     id: string;
@@ -18,11 +18,16 @@ export interface MentorListItem {
     expertise: string[];
 }
 
+export type MentorRequestStatus = "none" | "pending" | "connected";
+
 interface MentorCardProps {
     mentor: MentorListItem;
     isMatch?: boolean;
+    /** Omit to hide the request CTA entirely (e.g. viewer isn't a student). */
+    requestStatus?: MentorRequestStatus;
+    onRequestMentorship?: () => void;
 }
-export default function MentorCard({ mentor, isMatch }: MentorCardProps) {
+export default function MentorCard({ mentor, isMatch, requestStatus, onRequestMentorship }: MentorCardProps) {
     const {
         id,
         name,
@@ -89,9 +94,6 @@ export default function MentorCard({ mentor, isMatch }: MentorCardProps) {
             </div>
             {/* Bio & Details */}
             <div className="p-6 flex flex-col flex-1">
-                {bio && (
-                    <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-4">{bio}</p>
-                )}
 
                 {expertise.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-4">
@@ -144,6 +146,28 @@ export default function MentorCard({ mentor, isMatch }: MentorCardProps) {
                             View Profile
                         </Link>
                     </div>
+
+                    {requestStatus && (
+                        <div className="mt-3">
+                            {requestStatus === "connected" ? (
+                                <div className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 text-emerald-700 font-semibold text-sm px-4 py-2.5 border border-emerald-100">
+                                    <Users className="w-4 h-4" /> Connected
+                                </div>
+                            ) : requestStatus === "pending" ? (
+                                <div className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-gray-100 text-gray-500 font-semibold text-sm px-4 py-2.5 cursor-not-allowed">
+                                    <Clock className="w-4 h-4" /> Request Sent
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={onRequestMentorship}
+                                    className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-teal-600 text-teal-700 hover:bg-teal-50 font-semibold text-sm px-4 py-2.5 transition-colors"
+                                >
+                                    <Send className="w-4 h-4" /> Request Mentorship
+                                </button>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

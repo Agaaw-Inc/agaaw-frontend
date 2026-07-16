@@ -11,18 +11,13 @@ import MentorBlogs from "@/components/dashboard/mentor/MentorBlogs";
 import Footer from "@/components/landing/Footer";
 import StatCard from "@/components/ui/StatCard";
 import { Users, UserCheck, Eye, Star } from "lucide-react";
-import { getMentorProfile } from "@/lib/api";
-
-const STATS = [
-    { icon: Users, label: "Total Students Mentored", value: "125", sub: "+12 this month", color: "bg-teal-600" },
-    { icon: UserCheck, label: "Active Students", value: "18", sub: "Currently mentoring", color: "bg-blue-600" },
-    { icon: Eye, label: "Profile Views", value: "4,850", sub: "+15% from last month", color: "bg-purple-600" },
-    { icon: Star, label: "Average Rating", value: "4.9 ★", sub: "Based on 120 reviews", color: "bg-amber-500" },
-];
+import { getMentorProfile, getConnections } from "@/lib/api";
 
 export default function MentorDashboardPage() {
     const [profile, setProfile] = useState<any>(null);
     const [isProfileLoading, setIsProfileLoading] = useState(true);
+    const [totalStudents, setTotalStudents] = useState<number | null>(null);
+    const [activeStudents, setActiveStudents] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -36,7 +31,37 @@ export default function MentorDashboardPage() {
             }
         };
         fetchProfile();
+
+        const fetchConnectionCounts = async () => {
+            try {
+                const [active, all] = await Promise.all([getConnections("active"), getConnections()]);
+                setActiveStudents(active.length);
+                setTotalStudents(all.length);
+            } catch (err) {
+                console.error("Failed to load connection counts:", err);
+            }
+        };
+        fetchConnectionCounts();
     }, []);
+
+    const stats = [
+        {
+            icon: Users,
+            label: "Total Students Mentored",
+            value: totalStudents === null ? "—" : String(totalStudents),
+            sub: "All-time connections",
+            color: "bg-teal-600",
+        },
+        {
+            icon: UserCheck,
+            label: "Active Students",
+            value: activeStudents === null ? "—" : String(activeStudents),
+            sub: "Currently mentoring",
+            color: "bg-blue-600",
+        },
+        { icon: Eye, label: "Profile Views", value: "—", sub: "Coming soon", color: "bg-purple-600" },
+        { icon: Star, label: "Average Rating", value: "—", sub: "Coming soon", color: "bg-amber-500" },
+    ];
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
@@ -47,7 +72,7 @@ export default function MentorDashboardPage() {
 
                 {/* Profile Performance Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {STATS.map((stat) => (
+                    {stats.map((stat) => (
                         <StatCard key={stat.label} {...stat} />
                     ))}
                 </div>

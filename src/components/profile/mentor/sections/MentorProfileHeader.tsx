@@ -1,15 +1,18 @@
 "use client";
 
 import React from "react";
-import { Camera, MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3 } from "lucide-react";
+import { Camera, MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3, Send, CheckCircle2 } from "lucide-react";
 import { resolveFileUrl } from "@/lib/api";
 
 interface MentorProfileHeaderProps {
     profile: any;
     onEdit?: () => void;
+    relationshipStatus?: "none" | "pending" | "connected";
+    onRequestMentorship?: () => void;
+    studentsCount?: number;
 }
 
-export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHeaderProps) {
+export default function MentorProfileHeader({ profile, onEdit, relationshipStatus, onRequestMentorship, studentsCount }: MentorProfileHeaderProps) {
     const user = profile?.user;
     const fullName = user ? `${user.firstName} ${user.lastName}` : "Mentor Name";
 
@@ -74,7 +77,7 @@ export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHe
 
                         {/* Stats Row */}
                         <div className="flex flex-wrap items-center gap-5 pt-1">
-                            <StatItem icon={Users} value="0" label="Students" />
+                            <StatItem icon={Users} value={studentsCount !== undefined ? String(studentsCount) : "0"} label="Students" />
                             <StatItem icon={Star} value="0 ★" label="0 reviews" />
                             <StatItem icon={CalendarCheck} value="0" label="Sessions" />
                             <StatItem icon={Clock} value="100%" label="Response" />
@@ -82,7 +85,7 @@ export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHe
                     </div>
                 </div>
 
-                {/* Right: Edit Button */}
+                {/* Right: Edit Button (own profile) or Request Mentorship (viewer) */}
                 {onEdit && (
                     <button
                         onClick={onEdit}
@@ -90,6 +93,25 @@ export default function MentorProfileHeader({ profile, onEdit }: MentorProfileHe
                     >
                         <Edit3 size={15} /> Edit Profile
                     </button>
+                )}
+
+                {relationshipStatus && (
+                    relationshipStatus === "connected" ? (
+                        <div className="flex items-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-sm font-semibold shrink-0 self-start">
+                            <CheckCircle2 size={15} /> Connected
+                        </div>
+                    ) : relationshipStatus === "pending" ? (
+                        <div className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm font-semibold shrink-0 self-start">
+                            <Clock size={15} /> Request Sent
+                        </div>
+                    ) : (
+                        <button
+                            onClick={onRequestMentorship}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-semibold transition-colors shrink-0 self-start shadow-sm shadow-teal-600/10"
+                        >
+                            <Send size={15} /> Request Mentorship
+                        </button>
+                    )
                 )}
             </div>
         </div>

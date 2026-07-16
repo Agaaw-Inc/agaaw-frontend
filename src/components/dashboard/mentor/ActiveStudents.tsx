@@ -1,100 +1,94 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import { MessageSquare, Calendar, Activity, MapPin, ChevronRight, Users } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { ChevronRight, Users, Loader2, Calendar } from "lucide-react";
 import SectionCard from "@/components/dashboard/common/SectionCard";
+import { getConnections, resolveFileUrl, type ConnectionItem } from "@/lib/api";
+
+const PREVIEW_COUNT = 6;
 
 export default function ActiveStudents() {
-    const students = [
-        {
-            id: "1",
-            name: "Fahim Rahman",
-            image: "https://i.pravatar.cc/150?img=33",
-            countryGoal: "Germany",
-            progress: 80,
-            nextMeeting: "Oct 12, 10:00 AM"
-        },
-        {
-            id: "2",
-            name: "Sadia Islam",
-            image: "https://i.pravatar.cc/150?img=5",
-            countryGoal: "Germany",
-            progress: 45,
-            nextMeeting: "Oct 15, 3:00 PM"
-        },
-        {
-            id: "3",
-            name: "Rifat Hossain",
-            image: "https://i.pravatar.cc/150?img=11",
-            countryGoal: "Germany",
-            progress: 15,
-            nextMeeting: "Not scheduled"
-        }
-    ];
+    const [connections, setConnections] = useState<ConnectionItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const data = await getConnections("active");
+                if (!cancelled) setConnections(data);
+            } finally {
+                if (!cancelled) setIsLoading(false);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const preview = connections.slice(0, PREVIEW_COUNT);
 
     return (
         <SectionCard
             title="Active Students"
             icon={Users}
             actions={
-                <button className="text-sm font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
-                    View All <ChevronRight size={14} />
-                </button>
+                connections.length > PREVIEW_COUNT ? (
+                    <Link
+                        href="/dashboard/mentor/students"
+                        className="text-sm font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                    >
+                        View All <ChevronRight size={14} />
+                    </Link>
+                ) : undefined
             }
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {students.map(student => (
-                    <div key={student.id} className="border border-gray-100 rounded-xl p-5 hover:border-teal-200 hover:shadow-sm transition-all flex flex-col">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-100">
-                                <Image src={student.image} alt={student.name} fill className="object-cover" />
-                            </div>
-                            <div>
-                                <h3 className="font-bold text-gray-900 text-sm">{student.name}</h3>
-                                <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
-                                    <MapPin size={12} className="text-gray-400" /> Goal: {student.countryGoal}
+            {isLoading ? (
+                <div className="flex items-center justify-center py-12 text-gray-400">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+            ) : preview.length === 0 ? (
+                <div className="text-center py-10 text-gray-500 text-sm">
+                    No active students yet. Accept a mentorship request to get started.
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {preview.map((conn) => {
+                        const student = conn.counterpart;
+                        const name = `${student.firstName} ${student.lastName}`;
+                        return (
+                            <Link
+                                key={conn.id}
+                                href={`/profile/student/${student.id}`}
+                                className="border border-gray-100 rounded-xl p-5 hover:border-teal-200 hover:shadow-sm transition-all flex flex-col"
+                            >
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase shrink-0">
+                                        {student.profileImage ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src={resolveFileUrl(student.profileImage)}
+                                                alt={name}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            student.firstName?.substring(0, 2)
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-gray-900 text-sm">{name}</h3>
+                                        <div className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+                                            <Calendar size={12} className="text-gray-400" /> Connected {new Date(conn.startedAt).toLocaleDateString()}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className="mb-4">
-                            <div className="flex justify-between items-center mb-1.5">
-                                <span className="text-xs font-semibold text-gray-600">Application Progress</span>
-                                <span className="text-xs font-bold text-teal-600">{student.progress}%</span>
-                            </div>
-                            <div className="w-full bg-gray-100 rounded-full h-1.5">
-                                <div className="bg-gradient-to-r from-teal-500 to-emerald-500 h-1.5 rounded-full" style={{ width: `${student.progress}%` }}></div>
-                            </div>
-                        </div>
-
-                        <div className="mb-5 flex-1 flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-                                <Calendar size={14} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Next Meeting</p>
-                                <p className="text-xs font-semibold text-gray-800">{student.nextMeeting}</p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-2 mt-auto">
-                            <button className="flex flex-col items-center justify-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 rounded-lg transition-colors group">
-                                <MessageSquare size={16} className="text-gray-400 group-hover:text-teal-600" />
-                                <span className="text-[10px] font-semibold">Chat</span>
-                            </button>
-                            <button className="flex flex-col items-center justify-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 rounded-lg transition-colors group">
-                                <Activity size={16} className="text-gray-400 group-hover:text-teal-600" />
-                                <span className="text-[10px] font-semibold">Progress</span>
-                            </button>
-                            <button className="flex flex-col items-center justify-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 rounded-lg transition-colors group">
-                                <Calendar size={16} className="text-gray-400 group-hover:text-teal-600" />
-                                <span className="text-[10px] font-semibold">Schedule</span>
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+                                <span className="mt-auto text-xs font-semibold text-teal-600">View Profile &rarr;</span>
+                            </Link>
+                        );
+                    })}
+                </div>
+            )}
         </SectionCard>
     );
 }

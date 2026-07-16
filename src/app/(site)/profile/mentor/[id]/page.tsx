@@ -7,7 +7,7 @@ import { Loader2, ShieldAlert } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import { getUserInfo } from "@/lib/auth";
-import { getMentorPublicProfile } from "@/lib/api";
+import { getMentorPublicProfile, getMentorshipRequests, getConnections } from "@/lib/api";
 
 import MentorProfileHeader from "@/components/profile/mentor/sections/MentorProfileHeader";
 import MentorAboutCard from "@/components/profile/mentor/sections/MentorAboutCard";
@@ -16,6 +16,9 @@ import MentorExpertiseCard from "@/components/profile/mentor/sections/MentorExpe
 import MentorAchievementsCard from "@/components/profile/mentor/sections/MentorAchievementsCard";
 import MentorServicesCard from "@/components/profile/mentor/sections/MentorServicesCard";
 import MentorReviewsCard from "@/components/profile/mentor/sections/MentorReviewsCard";
+import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 
 type Status = "loading" | "ready" | "denied" | "not-found";
 
@@ -26,9 +29,12 @@ export default function MentorPublicProfilePage() {
 
     const [status, setStatus] = useState<Status>("loading");
     const [profile, setProfile] = useState<any>(null);
+    const [relationshipStatus, setRelationshipStatus] = useState<"none" | "pending" | "connected">("none");
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const { toast, showToast, hideToast } = useToast();
+    const viewer = getUserInfo();
 
     useEffect(() => {
-        const viewer = getUserInfo();
 
         if (!viewer) {
             router.replace("/login");
@@ -55,6 +61,26 @@ export default function MentorPublicProfilePage() {
                 return;
             }
             setProfile(data);
+
+            if (viewer.role === "student") {
+                try {
+                    const [pendingRequests, activeConnections] = await Promise.all([
+                        getMentorshipRequests({ status: "pending", limit: 50 }),
+                        getConnections("active"),
+                    ]);
+                    if (cancelled) return;
+                    if (activeConnections.some((c) => c.counterpart.id === id)) {
+                        setRelationshipStatus("connected");
+                    } else if (pendingRequests.data.some((r) => r.mentorId === id)) {
+                        setRelationshipStatus("pending");
+                    } else {
+                        setRelationshipStatus("none");
+                    }
+                } catch (err) {
+                    console.error("Failed to load relationship status:", err);
+                }
+            }
+
             setStatus("ready");
         })();
 
@@ -117,7 +143,11 @@ export default function MentorPublicProfilePage() {
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
             <MainNavbar />
             <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6 w-full">
-                <MentorProfileHeader profile={profile} />
+                <MentorProfileHeader
+                    profile={profile}
+                    relationshipStatus={viewer?.role === "student" ? relationshipStatus : undefined}
+                    onRequestMentorship={() => setShowRequestModal(true)}
+                />
                 {/* Phone number is only shared with admins — never with students. */}
                 {/* Every card below is only shown if the mentor actually added that information. */}
                 {hasAbout && <MentorAboutCard profile={profile} />}
@@ -128,6 +158,20 @@ export default function MentorPublicProfilePage() {
                 {hasReviews && <MentorReviewsCard profile={profile} />}
             </main>
             <Footer />
+
+            {showRequestModal && (
+                <RequestMentorshipModal
+                    mentorId={id}
+                    mentorName={`${profile.user?.firstName || ""} ${profile.user?.lastName || ""}`.trim()}
+                    onClose={() => setShowRequestModal(false)}
+                    onSuccess={() => {
+                        setRelationshipStatus("pending");
+                        setShowRequestModal(false);
+                        showToast("Mentorship request sent!");
+                    }}
+                />
+            )}
+            <Toast toast={toast} onHide={hideToast} />
         </div>
     );
 }

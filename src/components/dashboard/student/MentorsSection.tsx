@@ -1,26 +1,64 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Loader2 } from "lucide-react";
-import { getMentorsList } from "@/lib/api";
-import type { MentorListItem } from "@/components/mentors/MentorCard";
+import MentorCard, { type MentorListItem, type MentorRequestStatus } from "@/components/mentors/MentorCard";
+import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
+import { getMentorsList, getMentorshipRequests, getConnections, getStudentProfile } from "@/lib/api";
+
+const PREVIEW_COUNT = 8;
 
 export default function MentorsSection() {
     const [mentors, setMentors] = useState<MentorListItem[]>([]);
+    const [targetCountries, setTargetCountries] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [requestStatusMap, setRequestStatusMap] = useState<Record<string, MentorRequestStatus>>({});
+    const [requestModalMentor, setRequestModalMentor] = useState<{ id: string; name: string } | null>(null);
+    const { toast, showToast, hideToast } = useToast();
 
     useEffect(() => {
         async function fetchMentors() {
             try {
-                const data = await getMentorsList();
-                setMentors(Array.isArray(data) ? data : []);
+                const [mentorsData, pendingRequests, activeConnections, studentProfile] = await Promise.all([
+                    getMentorsList(),
+                    getMentorshipRequests({ status: "pending", limit: 50 }),
+                    getConnections("active"),
+                    getStudentProfile(),
+                ]);
+                setMentors(Array.isArray(mentorsData) ? mentorsData : []);
+
+                const countries = (studentProfile?.preferredCountries || [])
+                    .map((pc: any) => pc.country?.name)
+                    .filter(Boolean);
+                setTargetCountries(countries);
+
+                const statusMap: Record<string, MentorRequestStatus> = {};
+                pendingRequests.data.forEach((req) => {
+                    statusMap[req.mentorId] = "pending";
+                });
+                activeConnections.forEach((conn) => {
+                    statusMap[conn.counterpart.id] = "connected";
+                });
+                setRequestStatusMap(statusMap);
             } finally {
                 setIsLoading(false);
             }
         }
         fetchMentors();
     }, []);
+
+    const previewMentors = useMemo(() => {
+        const sorted = [...mentors].sort((a, b) => {
+            const aMatches = targetCountries.includes(a.country) ? 1 : 0;
+            const bMatches = targetCountries.includes(b.country) ? 1 : 0;
+            if (aMatches !== bMatches) return bMatches - aMatches;
+            return (b.experienceYears || 0) - (a.experienceYears || 0);
+        });
+        return sorted.slice(0, PREVIEW_COUNT);
+    }, [mentors, targetCountries]);
 
     if (!isLoading && mentors.length === 0) {
         return null;
@@ -47,43 +85,34 @@ export default function MentorsSection() {
                 </div>
             ) : (
                 <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    {mentors.map((mentor) => (
-                        <Link
-                            key={mentor.id}
-                            href={`/profile/mentor/${mentor.id}`}
-                            className="flex-shrink-0 w-[240px] flex flex-col items-center bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-md transition-shadow group cursor-pointer"
-                        >
-                            <div className="relative w-24 h-24 rounded-2xl overflow-hidden mb-4 group-hover:scale-105 transition-transform duration-300">
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                    src={mentor.image || `https://i.pravatar.cc/150?u=${mentor.id}`}
-                                    alt={mentor.name}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            <h3 className="text-base font-bold text-gray-900 text-center w-full truncate">
-                                {mentor.name}
-                            </h3>
-                            <p className="text-xs font-semibold text-teal-600 text-center w-full truncate mb-4">
-                                {mentor.university || "Mentor"}
-                            </p>
-
-                            {mentor.expertise.length > 0 && (
-                                <div className="flex gap-2">
-                                    {mentor.expertise.slice(0, 2).map((tag) => (
-                                        <span
-                                            key={tag}
-                                            className="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wider rounded-md truncate max-w-[100px]"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </Link>
+                    {previewMentors.map((mentor) => (
+                        <div key={mentor.id} className="flex-shrink-0 w-[320px]">
+                            <MentorCard
+                                mentor={mentor}
+                                isMatch={targetCountries.includes(mentor.country)}
+                                requestStatus={requestStatusMap[mentor.id] || "none"}
+                                onRequestMentorship={() =>
+                                    setRequestModalMentor({ id: mentor.id, name: mentor.name })
+                                }
+                            />
+                        </div>
                     ))}
                 </div>
             )}
+
+            {requestModalMentor && (
+                <RequestMentorshipModal
+                    mentorId={requestModalMentor.id}
+                    mentorName={requestModalMentor.name}
+                    onClose={() => setRequestModalMentor(null)}
+                    onSuccess={() => {
+                        setRequestStatusMap((prev) => ({ ...prev, [requestModalMentor.id]: "pending" }));
+                        setRequestModalMentor(null);
+                        showToast("Mentorship request sent!");
+                    }}
+                />
+            )}
+            <Toast toast={toast} onHide={hideToast} />
         </section>
     );
 }

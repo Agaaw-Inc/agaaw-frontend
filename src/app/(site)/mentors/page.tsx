@@ -1,11 +1,14 @@
 "use client";
-import MentorCard, { type MentorListItem } from "@/components/mentors/MentorCard";
+import MentorCard, { type MentorListItem, type MentorRequestStatus } from "@/components/mentors/MentorCard";
+import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import Pagination from "@/components/ui/Pagination";
+import Toast from "@/components/ui/Toast";
+import { useToast } from "@/hooks/useToast";
 import { Search, ChevronDown, Loader2, X, ArrowRight } from "lucide-react";
 import { getUserInfo, type UserInfo } from "@/lib/auth";
-import { getMentorsList, getStudentProfile } from "@/lib/api";
+import { getMentorsList, getStudentProfile, getMentorshipRequests, getConnections } from "@/lib/api";
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -31,6 +34,9 @@ function MentorList() {
     const [mentors, setMentors] = useState<MentorListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [accessDenied, setAccessDenied] = useState(false);
+    const [requestStatusMap, setRequestStatusMap] = useState<Record<string, MentorRequestStatus>>({});
+    const [requestModalMentor, setRequestModalMentor] = useState<{ id: string; name: string } | null>(null);
+    const { toast, showToast, hideToast } = useToast();
 
     // Load user session and mentors
     useEffect(() => {
@@ -55,11 +61,25 @@ function MentorList() {
                 setMentors(Array.isArray(mentorsData) ? mentorsData : []);
 
                 if (info.role === "student") {
-                    const profile = await getStudentProfile();
+                    const [profile, pendingRequests, activeConnections] = await Promise.all([
+                        getStudentProfile(),
+                        getMentorshipRequests({ status: "pending", limit: 50 }),
+                        getConnections("active"),
+                    ]);
+
                     const countries = (profile?.preferredCountries || [])
                         .map((pc: any) => pc.country?.name)
                         .filter(Boolean);
                     setTargetCountries(countries);
+
+                    const statusMap: Record<string, MentorRequestStatus> = {};
+                    pendingRequests.data.forEach((req) => {
+                        statusMap[req.mentorId] = "pending";
+                    });
+                    activeConnections.forEach((conn) => {
+                        statusMap[conn.counterpart.id] = "connected";
+                    });
+                    setRequestStatusMap(statusMap);
                 }
             } catch (error) {
                 console.error("Error fetching mentors:", error);
@@ -133,7 +153,7 @@ function MentorList() {
         });
     }, [mentors, searchDebounced, countryFilter, expertiseFilter, matchTargets, targetCountries]);
 
-    const itemsPerPage = 6;
+    const itemsPerPage = 16;
     const totalPages = Math.ceil(processedMentors.length / itemsPerPage);
     const currentMentors = processedMentors.slice(
         (currentPage - 1) * itemsPerPage,
@@ -312,6 +332,14 @@ function MentorList() {
                                         key={mentor.id}
                                         mentor={mentor}
                                         isMatch={isMatch}
+                                        requestStatus={
+                                            userInfo?.role === "student"
+                                                ? requestStatusMap[mentor.id] || "none"
+                                                : undefined
+                                        }
+                                        onRequestMentorship={() =>
+                                            setRequestModalMentor({ id: mentor.id, name: mentor.name })
+                                        }
                                     />
                                 );
                             })}
@@ -338,6 +366,20 @@ function MentorList() {
             </main>
             )}
             <Footer />
+
+            {requestModalMentor && (
+                <RequestMentorshipModal
+                    mentorId={requestModalMentor.id}
+                    mentorName={requestModalMentor.name}
+                    onClose={() => setRequestModalMentor(null)}
+                    onSuccess={() => {
+                        setRequestStatusMap((prev) => ({ ...prev, [requestModalMentor.id]: "pending" }));
+                        setRequestModalMentor(null);
+                        showToast("Mentorship request sent!");
+                    }}
+                />
+            )}
+            <Toast toast={toast} onHide={hideToast} />
         </div>
     );
 }
