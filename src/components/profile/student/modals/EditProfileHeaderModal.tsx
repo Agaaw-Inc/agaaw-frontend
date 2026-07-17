@@ -1,17 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Save, Loader2 } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { X, Save, Upload, Loader2, Trash2 } from "lucide-react";
+import { resolveFileUrl, uploadStudentProfilePicture, deleteStudentProfilePicture } from "@/lib/api";
 
 type StudyLevel = 'bachelors' | 'masters' | 'phd' | 'diploma' | 'other';
+
+const MAX_AVATAR_SIZE = 1 * 1024 * 1024; // 1MB
+const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 interface EditProfileHeaderModalProps {
     profile: any;
     onClose: () => void;
     onSave: (data: any) => Promise<void>;
+    onAvatarChange?: (user: { profileImage: string | null }) => void;
 }
 
-export default function EditProfileHeaderModal({ profile, onClose, onSave }: EditProfileHeaderModalProps) {
+export default function EditProfileHeaderModal({ profile, onClose, onSave, onAvatarChange }: EditProfileHeaderModalProps) {
     const user = profile?.user;
     const [firstName, setFirstName] = useState(user?.firstName || "");
     const [lastName, setLastName] = useState(user?.lastName || "");
@@ -20,6 +25,59 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave }: Edi
     const [fieldOfInterest, setFieldOfInterest] = useState(profile?.fieldOfInterest || "");
     const [bio, setBio] = useState(profile?.bio || "");
     const [isSaving, setIsSaving] = useState(false);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.profileImage || null);
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [avatarError, setAvatarError] = useState<string | null>(null);
+
+    const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = "";
+        if (!file) return;
+
+        setAvatarError(null);
+
+        if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
+            setAvatarError("Please choose a JPG, PNG, WEBP or GIF image.");
+            return;
+        }
+        if (file.size > MAX_AVATAR_SIZE) {
+            setAvatarError("Image must be smaller than 5MB.");
+            return;
+        }
+
+        const localPreviewUrl = URL.createObjectURL(file);
+        setAvatarPreview(localPreviewUrl);
+        setIsUploadingAvatar(true);
+        try {
+            const updated = await uploadStudentProfilePicture(file);
+            setAvatarPreview(updated.profileImage);
+            onAvatarChange?.(updated);
+        } catch (err: any) {
+            console.error("Failed to upload profile picture:", err);
+            setAvatarError(err.message || "Failed to upload profile picture. Please try again.");
+            setAvatarPreview(user?.profileImage || null);
+        } finally {
+            URL.revokeObjectURL(localPreviewUrl);
+            setIsUploadingAvatar(false);
+        }
+    };
+
+    const handleAvatarRemove = async () => {
+        setAvatarError(null);
+        setIsUploadingAvatar(true);
+        try {
+            const updated = await deleteStudentProfilePicture();
+            setAvatarPreview(null);
+            onAvatarChange?.(updated);
+        } catch (err: any) {
+            console.error("Failed to remove profile picture:", err);
+            setAvatarError(err.message || "Failed to remove profile picture. Please try again.");
+        } finally {
+            setIsUploadingAvatar(false);
+        }
+    };
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -58,6 +116,57 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave }: Edi
 
                 {/* Body (Scrollable) */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {/* Profile Picture */}
+                    <div className="flex items-center gap-5">
+                        <div className="relative w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-teal-700 font-bold text-xl uppercase">
+                            {avatarPreview ? (
+                                <img
+                                    src={avatarPreview.startsWith("blob:") ? avatarPreview : resolveFileUrl(avatarPreview)}
+                                    alt={user?.firstName}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                user?.firstName?.substring(0, 2) || "S"
+                            )}
+                            {isUploadingAvatar && (
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <Loader2 size={20} className="text-white animate-spin" />
+                                </div>
+                            )}
+                        </div>
+                        <div>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                onChange={handleAvatarSelect}
+                                className="hidden"
+                            />
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploadingAvatar}
+                                    className="flex items-center gap-2 px-4 py-2 border border-teal-200 text-teal-700 hover:bg-teal-50 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                                >
+                                    <Upload size={16} /> Upload New Photo
+                                </button>
+                                {avatarPreview && (
+                                    <button
+                                        type="button"
+                                        onClick={handleAvatarRemove}
+                                        disabled={isUploadingAvatar}
+                                        className="flex items-center gap-2 px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                                    >
+                                        <Trash2 size={15} /> Remove
+                                    </button>
+                                )}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1.5">JPG, PNG, WEBP or GIF. Max size 5MB.</p>
+                            {avatarError && <p className="text-xs text-red-500 mt-1">{avatarError}</p>}
+                        </div>
+                    </div>
+
                     <div className="space-y-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">

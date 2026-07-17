@@ -16,6 +16,7 @@ export interface PublicScholarshipFaq {
 }
 
 export interface PublicScholarship {
+  id: string;
   slug: string;
   name: string;
   provider: string;
@@ -425,6 +426,63 @@ export async function getScholarshipBySlug(
   return json.data || null;
 }
 
+export interface SavedScholarship extends PublicScholarship {
+  savedAt: string;
+}
+
+export async function getSavedScholarships(): Promise<SavedScholarship[]> {
+  const res = await authFetch("/students/saved-scholarships", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    console.error(`getSavedScholarships failed (${res.status}):`, json.message);
+    return [];
+  }
+  return Array.isArray(json.data) ? json.data : [];
+}
+
+export async function checkScholarshipSaved(scholarshipId: string): Promise<boolean> {
+  const res = await authFetch(`/students/saved-scholarships/${scholarshipId}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await res.json();
+  if (!res.ok) return false;
+  return !!(json.data || json).saved;
+}
+
+export async function saveScholarship(scholarshipId: string) {
+  const res = await authFetch(`/students/saved-scholarships/${scholarshipId}`, {
+    method: "POST",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to save scholarship");
+  }
+  return json.data || json;
+}
+
+export async function unsaveScholarship(scholarshipId: string) {
+  const res = await authFetch(`/students/saved-scholarships/${scholarshipId}`, {
+    method: "DELETE",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to remove saved scholarship");
+  }
+  return json.data || json;
+}
+
 export async function getBlogs(
   params: PublicBlogQueryParams = {}
 ): Promise<PaginatedPublicBlogs> {
@@ -745,6 +803,34 @@ export async function uploadMentorProfilePicture(file: File) {
 
 export async function deleteMentorProfilePicture() {
   const res = await authFetch("/mentors/profile/avatar", {
+    method: "DELETE",
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to remove profile picture");
+  }
+  return json.data || json;
+}
+
+export async function uploadStudentProfilePicture(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await authFetch("/students/profile/avatar", {
+    method: "POST",
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || "Failed to upload profile picture");
+  }
+  return json.data || json;
+}
+
+export async function deleteStudentProfilePicture() {
+  const res = await authFetch("/students/profile/avatar", {
     method: "DELETE",
   });
 

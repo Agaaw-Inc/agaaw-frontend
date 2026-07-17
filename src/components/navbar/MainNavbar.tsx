@@ -9,13 +9,6 @@ import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } fro
 import { resolveFileUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
-const NAV_LINKS = [
-  { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
-  { href: "/countries", label: "Countries", icon: Globe },
-  { href: "/blogs", label: "Blogs", icon: BookOpen },
-  { href: "/about-us", label: "About", icon: Info },
-];
-
 function getStoredUser(): UserInfo | null {
   const token = getToken();
   const userInfo = getUserInfo();
@@ -58,6 +51,15 @@ export default function MainNavbar() {
   const dashboardRole = user?.role === "mentor" ? "mentor" : "student";
   const messagesHref = `/dashboard/${dashboardRole}/messages`;
   const messagesActive = pathname.startsWith(messagesHref);
+
+  const navLinks = [
+    { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
+    { href: "/countries", label: "Countries", icon: Globe },
+    ...(user?.role === "mentor" ? [{ href: "/students", label: "Students", icon: Users }] : []),
+    ...(user?.role === "student" ? [{ href: "/mentors", label: "Mentors", icon: Users }] : []),
+    { href: "/blogs", label: "Blogs", icon: BookOpen },
+    { href: "/about-us", label: "About", icon: Info },
+  ];
 
   // Close menus on outside click
   useEffect(() => {
@@ -105,7 +107,7 @@ export default function MainNavbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map(({ href, label }) => {
+            {navLinks.map(({ href, label }) => {
               const isActive = pathname === href || pathname.startsWith(href + "/");
               return (
                 <Link
@@ -171,8 +173,8 @@ export default function MainNavbar() {
                           <Link href='/dashboard/mentor/profile' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <User size={18} className="text-gray-400 group-hover:text-teal-600" /> My Profile
                           </Link>
-                          <Link href='/students' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
-                            <Users size={18} className="text-gray-400 group-hover:text-teal-600" /> Students
+                          <Link href='/dashboard/mentor/students' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Users size={18} className="text-gray-400 group-hover:text-teal-600" /> Your Students
                           </Link>
                           <Link href='/dashboard/mentor/requests' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Inbox size={18} className="text-gray-400 group-hover:text-teal-600" /> Mentorship Requests
@@ -198,8 +200,8 @@ export default function MainNavbar() {
                           <Link href='/dashboard/student/profile' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <User size={18} className="text-gray-400 group-hover:text-teal-600" /> My Profile
                           </Link>
-                          <Link href='/mentors' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
-                            <Users size={18} className="text-gray-400 group-hover:text-teal-600" /> Mentors
+                          <Link href='/dashboard/student/mentors' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Users size={18} className="text-gray-400 group-hover:text-teal-600" /> Your Mentors
                           </Link>
                           <Link href='/dashboard/student/documents' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <FileText size={18} className="text-gray-400 group-hover:text-teal-600" /> Documents
@@ -262,7 +264,7 @@ export default function MainNavbar() {
             className="md:hidden border-t border-gray-100 bg-white shadow-lg"
           >
             <div className="px-4 py-3 space-y-1">
-              {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+              {navLinks.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href || pathname.startsWith(href + "/");
                 return (
                   <Link
@@ -302,7 +304,7 @@ export default function MainNavbar() {
                         <User size={18} className="text-gray-400" /> My Profile
                       </Link>
                       <Link href='/dashboard/mentor/students' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                        <Users size={18} className="text-gray-400" /> Students
+                        <Users size={18} className="text-gray-400" /> Your Students
                       </Link>
                       <Link href='/dashboard/mentor/requests' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Inbox size={18} className="text-gray-400" /> Mentorship Requests
@@ -334,8 +336,8 @@ export default function MainNavbar() {
                       <Link href='/dashboard/student/profile' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <User size={18} className="text-gray-400" /> My Profile
                       </Link>
-                      <Link href='/mentors' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                        <Users size={18} className="text-gray-400" /> Mentors
+                      <Link href='/dashboard/student/mentors' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Users size={18} className="text-gray-400" /> Your Mentors
                       </Link>
                       <Link href='/dashboard/student/documents' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <FileText size={18} className="text-gray-400" /> Documents

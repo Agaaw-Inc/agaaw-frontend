@@ -137,7 +137,6 @@ export default function MentorPublicProfilePage() {
     const hasExpertise = hasItems(profile.expertiseTags?.map((et: any) => et.tag));
     const hasAchievements = hasItems(profile.achievements);
     const hasServices = hasItems(profile.services);
-    const hasReviews = hasItems(profile.reviews);
 
     return (
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
@@ -155,7 +154,7 @@ export default function MentorPublicProfilePage() {
                 {hasExpertise && <MentorExpertiseCard profile={profile} />}
                 {hasAchievements && <MentorAchievementsCard profile={profile} />}
                 {hasServices && <MentorServicesCard profile={profile} />}
-                {hasReviews && <MentorReviewsCard profile={profile} />}
+                <MentorReviewsCard profile={profile} emptyMessage="This mentor has no review at this moment." />
             </main>
             <Footer />
 

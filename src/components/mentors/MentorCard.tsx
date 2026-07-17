@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { MapPin, GraduationCap, CheckCircle2, Briefcase, Languages, Send, Clock, Users } from "lucide-react";
+import { resolveFileUrl } from "@/lib/api";
 
 export interface MentorListItem {
     id: string;
@@ -42,6 +43,13 @@ export default function MentorCard({ mentor, isMatch, requestStatus, onRequestMe
         isVerified,
         isAvailable,
     } = mentor;
+    const initials = name
+        .split(" ")
+        .map((part) => part[0])
+        .filter(Boolean)
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
     return (
         <div className="border border-slate-100 rounded-2xl overflow-hidden hover:shadow-xl hover:border-slate-200 transition-all duration-300 bg-white flex flex-col h-full group relative">
 
@@ -60,13 +68,17 @@ export default function MentorCard({ mentor, isMatch, requestStatus, onRequestMe
             {/* Mentor Info Header */}
             <div className="relative pt-14 px-6 pb-4 border-b border-slate-50 flex items-start gap-4">
                 {/* Avatar */}
-                <div className="relative w-20 h-20 rounded-full overflow-hidden border border-slate-100 flex-shrink-0 group-hover:border-teal-500/40 transition-colors">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={image || "https://i.pravatar.cc/300?u=placeholder"}
-                        alt={name}
-                        className="w-full h-full object-cover"
-                    />
+                <div className="relative w-20 h-20 rounded-full overflow-hidden border border-slate-100 flex-shrink-0 group-hover:border-teal-500/40 transition-colors bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-xl">
+                    {image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={resolveFileUrl(image)}
+                            alt={name}
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        initials || "?"
+                    )}
                 </div>
                 {/* Name and Title */}
                 <div className="flex-1 min-w-0">

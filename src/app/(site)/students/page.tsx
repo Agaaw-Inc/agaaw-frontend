@@ -8,7 +8,7 @@ import { getUserInfo, type UserInfo } from "@/lib/auth";
 import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { popularInterestTags } from "@/data/educationalData";
-import { getStudents, getMentorProfile } from "@/lib/api";
+import { getStudents, getMentorProfile, getConnections } from "@/lib/api";
 import { COUNTRY_LIST } from "@/data/geo";
 import Link from "next/link";
 
@@ -26,6 +26,8 @@ function StudentList() {
     const [targetCountryFilter, setTargetCountryFilter] = useState("");
     const [interestFilter, setInterestFilter] = useState("");
     const [matchMyCountry, setMatchMyCountry] = useState(false);
+    const [hideConnected, setHideConnected] = useState(false);
+    const [connectedStudentIds, setConnectedStudentIds] = useState<Set<string>>(new Set());
     const [currentPage, setCurrentPage] = useState(1);
     const [mentorProfile, setMentorProfile] = useState<OwnMentorProfile | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -55,8 +57,12 @@ function StudentList() {
                 setStudents(Array.isArray(studentsData) ? studentsData : []);
 
                 if (info.role === "mentor") {
-                    const profile = await getMentorProfile();
+                    const [profile, activeConnections] = await Promise.all([
+                        getMentorProfile(),
+                        getConnections("active"),
+                    ]);
                     setMentorProfile(profile);
+                    setConnectedStudentIds(new Set(activeConnections.map((conn) => conn.counterpart.id)));
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -109,16 +115,17 @@ function StudentList() {
                 student.interests.some((interest: string) =>
                     interest.toLowerCase().includes(interestFilter.toLowerCase())
                 );
-            let matchesMyCountryFilter = true;
-            if (matchMyCountry && mentorProfile?.countryName) {
-                matchesMyCountryFilter = student.goals.targetCountries.includes(mentorProfile.countryName);
+            
+            let matchesConnectionFilter = true;
+            if (hideConnected) {
+                matchesConnectionFilter = !connectedStudentIds.has(student.id);
             }
             return (
                 matchesSearch &&
                 matchesCurrentCountry &&
                 matchesTargetCountry &&
                 matchesInterest &&
-                matchesMyCountryFilter
+                matchesConnectionFilter
             );
         });
         // 2. Sort: prioritized by whether student targets the mentor's country, then name
@@ -133,7 +140,7 @@ function StudentList() {
             // Default sorting: name ascending
             return a.name.localeCompare(b.name);
         });
-    }, [searchDebounced, currentCountryFilter, targetCountryFilter, interestFilter, matchMyCountry, mentorProfile]);
+    }, [searchDebounced, currentCountryFilter, targetCountryFilter, interestFilter, mentorProfile, hideConnected, connectedStudentIds]);
     const itemsPerPage = 6;
     const totalPages = Math.ceil(processedStudents.length / itemsPerPage);
     const currentStudents = processedStudents.slice(
@@ -150,7 +157,7 @@ function StudentList() {
         setCurrentCountryFilter("");
         setTargetCountryFilter("");
         setInterestFilter("");
-        setMatchMyCountry(false);
+        setHideConnected(false);
         setCurrentPage(1);
     };
     return (
@@ -231,22 +238,22 @@ function StudentList() {
                                 </select>
                                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
                             </div>
-                            {/* Personalization Toggle */}
-                            {mentorProfile?.countryName && (
+                            {/* Exclude already-connected students */}
+                            {connectedStudentIds.size > 0 && (
                                 <div className="flex items-center gap-3 px-6 py-3 sm:py-0 border-t sm:border-t-0 sm:border-l border-slate-100">
                                     <label className="relative inline-flex items-center cursor-pointer">
                                         <input
                                             type="checkbox"
                                             className="sr-only peer"
-                                            checked={matchMyCountry}
+                                            checked={hideConnected}
                                             onChange={(e) => {
-                                                setMatchMyCountry(e.target.checked);
+                                                setHideConnected(e.target.checked);
                                                 setCurrentPage(1);
                                             }}
                                         />
                                         <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600" />
                                         <span className="ml-3 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Targeting My Country ({mentorProfile.countryName})
+                                            Hide My Students
                                         </span>
                                     </label>
                                 </div>

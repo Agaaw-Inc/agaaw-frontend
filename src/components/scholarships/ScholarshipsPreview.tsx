@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import ScholarshipCard from "@/components/scholarships/ScholarshipCard";
-import { getScholarships, type PublicScholarship } from "@/lib/api";
+import { getScholarships, getSavedScholarships, type PublicScholarship } from "@/lib/api";
+import { getUserInfo } from "@/lib/auth";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
@@ -28,6 +29,7 @@ function formatCoverage(coverage: PublicScholarship["coverage"]) {
 
 export default function ScholarshipsPreview() {
   const [scholarships, setScholarships] = useState<PublicScholarship[]>([]);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +47,12 @@ export default function ScholarshipsPreview() {
       }
     }
     fetchScholarships();
+
+    if (getUserInfo()?.role === "student") {
+      getSavedScholarships().then((saved) => {
+        setSavedIds(new Set(saved.map((s) => s.id)));
+      });
+    }
   }, []);
 
   return (
@@ -64,7 +72,8 @@ export default function ScholarshipsPreview() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {scholarships.map((sch) => (
               <ScholarshipCard
-                key={sch.slug}
+                key={sch.id}
+                id={sch.id}
                 title={sch.name}
                 university={sch.provider}
                 deadline={formatDeadline(sch.deadline)}
@@ -72,6 +81,7 @@ export default function ScholarshipsPreview() {
                 funding={formatCoverage(sch.coverage)}
                 amount={sch.amount || undefined}
                 slug={sch.slug}
+                isSavedInitially={savedIds.has(sch.id)}
               />
             ))}
           </div>

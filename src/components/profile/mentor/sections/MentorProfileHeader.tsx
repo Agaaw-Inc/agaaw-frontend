@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Camera, MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3, Send, CheckCircle2 } from "lucide-react";
+import { Camera, MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3, Send, MessageSquare } from "lucide-react";
 import { resolveFileUrl } from "@/lib/api";
 
 interface MentorProfileHeaderProps {
@@ -9,10 +9,12 @@ interface MentorProfileHeaderProps {
     onEdit?: () => void;
     relationshipStatus?: "none" | "pending" | "connected";
     onRequestMentorship?: () => void;
+    onMessage?: () => void;
+    onWriteReview?: () => void;
     studentsCount?: number;
 }
 
-export default function MentorProfileHeader({ profile, onEdit, relationshipStatus, onRequestMentorship, studentsCount }: MentorProfileHeaderProps) {
+export default function MentorProfileHeader({ profile, onEdit, relationshipStatus, onRequestMentorship, onMessage, onWriteReview, studentsCount }: MentorProfileHeaderProps) {
     const user = profile?.user;
     const fullName = user ? `${user.firstName} ${user.lastName}` : "Mentor Name";
 
@@ -97,8 +99,19 @@ export default function MentorProfileHeader({ profile, onEdit, relationshipStatu
 
                 {relationshipStatus && (
                     relationshipStatus === "connected" ? (
-                        <div className="flex items-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg text-sm font-semibold shrink-0 self-start">
-                            <CheckCircle2 size={15} /> Connected
+                        <div className="flex items-center gap-2 shrink-0 self-start">
+                            <button
+                                onClick={onMessage}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-semibold transition-colors shadow-sm shadow-teal-600/10"
+                            >
+                                <MessageSquare size={15} /> Message
+                            </button>
+                            <button
+                                onClick={onWriteReview}
+                                className="flex items-center gap-2 px-5 py-2.5 border border-teal-200 text-teal-700 hover:bg-teal-50 rounded-lg text-sm font-semibold transition-colors"
+                            >
+                                <Star size={15} /> Write a Review
+                            </button>
                         </div>
                     ) : relationshipStatus === "pending" ? (
                         <div className="flex items-center gap-2 px-5 py-2.5 bg-gray-100 text-gray-500 rounded-lg text-sm font-semibold shrink-0 self-start">

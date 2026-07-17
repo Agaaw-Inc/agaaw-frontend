@@ -219,7 +219,10 @@ export default function StudentPublicProfilePage() {
         <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
             <MainNavbar />
             <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6 w-full">
-                <StudentProfileHeader profile={profile} />
+                <StudentProfileHeader
+                    profile={profile}
+                    showConnectedActions={viewer?.role === "mentor" && isConnected}
+                />
 
                 {viewer?.role === "mentor" && (pendingRequest || isConnected) && (
                     <div className={`rounded-xl border p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${isConnected ? "bg-emerald-50 border-emerald-100" : "bg-amber-50 border-amber-100"

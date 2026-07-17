@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Footer from "@/components/landing/Footer";
 import { getStudentProfile, updateStudentProfile, getStudentDocuments, uploadStudentDocument, deleteStudentDocument } from "@/lib/api";
 import { Loader2 } from "lucide-react";
+import { getUserInfo, setUserInfo } from "@/lib/auth";
 
 // Sections
 import StudentProfileHeader from "@/components/profile/student/sections/StudentProfileHeader";
@@ -87,6 +88,17 @@ export default function StudentProfilePage() {
         setProfile(updated);
     };
 
+    const handleAvatarChange = (updatedUser: { profileImage: string | null }) => {
+        setProfile((prev: any) => ({ ...prev, user: { ...prev.user, ...updatedUser } }));
+
+        // Keep the globally-cached user (navbar, dashboard hero, etc.) in sync so the
+        // new picture shows up everywhere immediately, not just on this page.
+        const currentUser = getUserInfo();
+        if (currentUser) {
+            setUserInfo({ ...currentUser, profileImage: updatedUser.profileImage });
+        }
+    };
+
     const handleUploadClick = (type: string, title: string, subtitle: string) => {
         setSelectedDoc({ type, title, subtitle });
         setActiveModal("documents");
@@ -156,10 +168,11 @@ export default function StudentProfilePage() {
 
             {/* Render Active Modal */}
             {activeModal === "header" && (
-                <EditProfileHeaderModal 
-                    profile={profile} 
-                    onClose={closeModal} 
-                    onSave={handleSaveProfile} 
+                <EditProfileHeaderModal
+                    profile={profile}
+                    onClose={closeModal}
+                    onSave={handleSaveProfile}
+                    onAvatarChange={handleAvatarChange}
                 />
             )}
             {activeModal === "personal" && (

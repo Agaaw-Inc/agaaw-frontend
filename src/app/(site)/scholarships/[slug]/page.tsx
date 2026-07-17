@@ -1,6 +1,7 @@
 import { getScholarshipBySlug, type PublicScholarship } from "@/lib/api";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
+import SaveScholarshipButton from "@/components/scholarships/SaveScholarshipButton";
 import {
     MapPin,
     GraduationCap,
@@ -303,6 +304,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                     Official application link will be added soon.
                                 </p>
                             )}
+                            <SaveScholarshipButton scholarshipId={scholarship.id} />
                         </div>
                     </div>
 

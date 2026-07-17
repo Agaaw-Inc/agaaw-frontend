@@ -12,10 +12,12 @@ import Pagination from "@/components/ui/Pagination";
 import {
   getScholarshipFilters,
   getScholarships,
+  getSavedScholarships,
   type PublicScholarship,
   type PublicScholarshipFilters,
   type PublicScholarshipQueryParams,
 } from "@/lib/api";
+import { getUserInfo } from "@/lib/auth";
 
 const ITEMS_PER_PAGE = 4;
 const FALLBACK_IMAGE = "/images/scholarship-agaaw.png";
@@ -56,6 +58,7 @@ function ScholarshipList() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [scholarships, setScholarships] = useState<PublicScholarship[]>([]);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<PublicScholarshipFilters>({
     countries: [],
     levels: [],
@@ -97,6 +100,12 @@ function ScholarshipList() {
     }
 
     loadFilters();
+
+    if (getUserInfo()?.role === "student") {
+      getSavedScholarships().then((saved) => {
+        setSavedIds(new Set(saved.map((s) => s.id)));
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -350,7 +359,8 @@ function ScholarshipList() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {scholarships.map((sch) => (
                 <ScholarshipCard
-                  key={sch.slug}
+                  key={sch.id}
+                  id={sch.id}
                   slug={sch.slug}
                   title={sch.name}
                   university={sch.provider}
@@ -358,6 +368,7 @@ function ScholarshipList() {
                   image={sch.bannerImage || FALLBACK_IMAGE}
                   funding={formatCoverage(sch.coverage)}
                   amount={sch.amount || undefined}
+                  isSavedInitially={savedIds.has(sch.id)}
                 />
               ))}
             </div>

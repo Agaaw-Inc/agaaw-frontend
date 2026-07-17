@@ -7,16 +7,17 @@ import { Star } from "lucide-react";
 
 interface MentorReviewsCardProps {
     profile?: any;
+    emptyMessage?: string;
 }
 
-export default function MentorReviewsCard({ profile }: MentorReviewsCardProps) {
+export default function MentorReviewsCard({ profile, emptyMessage = "No reviews yet." }: MentorReviewsCardProps) {
     const rawReviews = profile?.reviews || [];
 
     if (rawReviews.length === 0) {
         return (
             <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
                 <h2 className="text-lg font-bold text-gray-900 mb-2">Reviews & Ratings</h2>
-                <p className="text-sm text-gray-400 italic py-6 text-center">No reviews yet.</p>
+                <p className="text-sm text-gray-400 italic py-6 text-center">{emptyMessage}</p>
             </div>
         );
     }

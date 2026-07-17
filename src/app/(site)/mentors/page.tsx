@@ -28,6 +28,7 @@ function MentorList() {
     const [countryFilter, setCountryFilter] = useState("");
     const [expertiseFilter, setExpertiseFilter] = useState("");
     const [matchTargets, setMatchTargets] = useState(false);
+    const [hideConnected, setHideConnected] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [targetCountries, setTargetCountries] = useState<string[]>([]);
     const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
@@ -132,7 +133,11 @@ function MentorList() {
             if (matchTargets && targetCountries.length > 0) {
                 matchesTargetsFilter = targetCountries.includes(mentor.country);
             }
-            return matchesSearch && matchesCountry && matchesExpertise && matchesTargetsFilter;
+            let matchesConnectionFilter = true;
+            if (hideConnected) {
+                matchesConnectionFilter = requestStatusMap[mentor.id] !== "connected";
+            }
+            return matchesSearch && matchesCountry && matchesExpertise && matchesTargetsFilter && matchesConnectionFilter;
         });
 
         // Sort: prioritized by student's target countries, then verified, then experience
@@ -151,7 +156,7 @@ function MentorList() {
             }
             return (b.experienceYears || 0) - (a.experienceYears || 0);
         });
-    }, [mentors, searchDebounced, countryFilter, expertiseFilter, matchTargets, targetCountries]);
+    }, [mentors, searchDebounced, countryFilter, expertiseFilter, matchTargets, targetCountries, hideConnected, requestStatusMap]);
 
     const itemsPerPage = 16;
     const totalPages = Math.ceil(processedMentors.length / itemsPerPage);
@@ -171,6 +176,7 @@ function MentorList() {
         setCountryFilter("");
         setExpertiseFilter("");
         setMatchTargets(false);
+        setHideConnected(false);
         setCurrentPage(1);
     };
 
@@ -286,6 +292,26 @@ function MentorList() {
                                         <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600" />
                                         <span className="ml-3 text-sm font-semibold text-slate-700 whitespace-nowrap">
                                             Match My Targets
+                                        </span>
+                                    </label>
+                                </div>
+                            )}
+                            {/* Exclude already-connected mentors */}
+                            {Object.values(requestStatusMap).includes("connected") && (
+                                <div className="flex items-center gap-3 px-6 py-3 sm:py-0 border-t sm:border-t-0 sm:border-l border-slate-100">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only peer"
+                                            checked={hideConnected}
+                                            onChange={(e) => {
+                                                setHideConnected(e.target.checked);
+                                                setCurrentPage(1);
+                                            }}
+                                        />
+                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600" />
+                                        <span className="ml-3 text-sm font-semibold text-slate-700 whitespace-nowrap">
+                                            Hide My Mentors
                                         </span>
                                     </label>
                                 </div>
