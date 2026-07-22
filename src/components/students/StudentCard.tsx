@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { GraduationCap, MapPin, Target, Award } from "lucide-react";
 import { resolveFileUrl } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 
 export interface StudentListItem {
     id: string;
@@ -53,16 +54,7 @@ export default function StudentCard({ student, isMatch, matchingCountry }: Stude
             <div className="relative pt-14 px-6 pb-4 border-b border-slate-50 flex items-start gap-4">
                 {/* Avatar */}
                 <div className="relative w-20 h-20 rounded-full overflow-hidden border border-slate-100 flex-shrink-0 group-hover:border-teal-500/40 transition-colors bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-xl">
-                    {image ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                            src={resolveFileUrl(image)}
-                            alt={name}
-                            className="w-full h-full object-cover"
-                        />
-                    ) : (
-                        initials || "?"
-                    )}
+                    <Avatar src={resolveFileUrl(image)} name={initials || "?"} alt={name} />
                 </div>
                 {/* Name and Title */}
                 <div className="flex-1 min-w-0">

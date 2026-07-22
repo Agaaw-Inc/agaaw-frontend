@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Users, Loader2, Calendar } from "lucide-react";
 import Footer from "@/components/landing/Footer";
+import Avatar from "@/components/ui/Avatar";
 import { getConnections, resolveFileUrl, type ConnectionItem } from "@/lib/api";
 
 export default function StudentMentorsPage() {
@@ -66,15 +67,7 @@ export default function StudentMentorsPage() {
                                 >
                                     <div className="flex items-center gap-3 mb-3">
                                         <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase shrink-0">
-                                            {mentor.profileImage ? (
-                                                <img
-                                                    src={resolveFileUrl(mentor.profileImage)}
-                                                    alt={name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                mentor.firstName?.substring(0, 2)
-                                            )}
+                                            <Avatar src={resolveFileUrl(mentor.profileImage)} name={name} />
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-gray-900 text-sm">{name}</h3>

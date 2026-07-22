@@ -15,12 +15,18 @@ import {
     getStudentDocumentsForMentor,
     getMentorshipRequests,
     getConnections,
+    getSessions,
     acceptMentorshipRequest,
     declineMentorshipRequest,
     type MentorshipRequestItem,
+    type ConnectionItem,
+    type SessionListItem,
 } from "@/lib/api";
 
 import StudentProfileHeader from "@/components/profile/student/sections/StudentProfileHeader";
+import ScheduleSessionModal from "@/components/sessions/ScheduleSessionModal";
+import RescheduleSessionModal from "@/components/sessions/RescheduleSessionModal";
+import CancelSessionModal from "@/components/sessions/CancelSessionModal";
 import PersonalInfoCard from "@/components/profile/student/sections/PersonalInfoCard";
 import AcademicInfoCard from "@/components/profile/student/sections/AcademicInfoCard";
 import ExperienceCard from "@/components/profile/student/sections/ExperienceCard";
@@ -47,8 +53,18 @@ export default function StudentPublicProfilePage() {
     const [hasFullAccess, setHasFullAccess] = useState(false);
     const [pendingRequest, setPendingRequest] = useState<MentorshipRequestItem | null>(null);
     const [isConnected, setIsConnected] = useState(false);
+    const [connection, setConnection] = useState<ConnectionItem | null>(null);
     const [isActioning, setIsActioning] = useState(false);
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [upcomingSession, setUpcomingSession] = useState<SessionListItem | null>(null);
+    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+    const [showCancelModal, setShowCancelModal] = useState(false);
     const { toast, showToast, hideToast } = useToast();
+
+    const refreshUpcomingSession = async () => {
+        const { data } = await getSessions({ scope: "upcoming", limit: 50 });
+        setUpcomingSession(data.find((s) => s.counterpart.id === id && s.status === "scheduled") || null);
+    };
 
     useEffect(() => {
         if (!viewer) {
@@ -71,18 +87,23 @@ export default function StudentPublicProfilePage() {
         (async () => {
             try {
                 if (viewer.role === "mentor") {
-                    const [pendingRes, activeConnections] = await Promise.all([
+                    const [pendingRes, activeConnections, sessionsRes] = await Promise.all([
                         getMentorshipRequests({ status: "pending", limit: 50 }),
                         getConnections("active"),
+                        getSessions({ scope: "upcoming", limit: 50 }),
                     ]);
                     if (cancelled) return;
 
                     const match = pendingRes.data.find((r) => r.studentId === id) || null;
-                    const connected = activeConnections.some((c) => c.counterpart.id === id);
+                    const matchedConnection = activeConnections.find((c) => c.counterpart.id === id) || null;
                     setPendingRequest(match);
-                    setIsConnected(connected);
+                    setIsConnected(!!matchedConnection);
+                    setConnection(matchedConnection);
+                    setUpcomingSession(
+                        sessionsRes.data.find((s) => s.counterpart.id === id && s.status === "scheduled") || null,
+                    );
 
-                    if (match || connected) {
+                    if (match || matchedConnection) {
                         const [fullProfile, docs] = await Promise.all([
                             getStudentProfileForMentor(id),
                             getStudentDocumentsForMentor(id),
@@ -133,8 +154,22 @@ export default function StudentPublicProfilePage() {
         if (!pendingRequest) return;
         setIsActioning(true);
         try {
-            await acceptMentorshipRequest(pendingRequest.id);
+            const result = await acceptMentorshipRequest(pendingRequest.id);
             setIsConnected(true);
+            setConnection({
+                id: result.connection.id,
+                status: result.connection.status,
+                startedAt: result.connection.startedAt,
+                endedAt: null,
+                conversationId: result.conversationId,
+                counterpart: {
+                    id: profile.user.id,
+                    firstName: profile.user.firstName,
+                    lastName: profile.user.lastName,
+                    profileImage: profile.user.profileImage,
+                    role: "student",
+                },
+            });
             setPendingRequest(null);
             showToast(`You're now connected with ${pendingRequest.student.firstName}!`);
         } catch (err) {
@@ -222,6 +257,10 @@ export default function StudentPublicProfilePage() {
                 <StudentProfileHeader
                     profile={profile}
                     showConnectedActions={viewer?.role === "mentor" && isConnected}
+                    onScheduleMeeting={() => setShowScheduleModal(true)}
+                    upcomingSession={upcomingSession}
+                    onRescheduleMeeting={() => setShowRescheduleModal(true)}
+                    onCancelMeeting={() => setShowCancelModal(true)}
                 />
 
                 {viewer?.role === "mentor" && (pendingRequest || isConnected) && (
@@ -274,6 +313,44 @@ export default function StudentPublicProfilePage() {
                 {hasSocialLinks && <SocialLinksCard profile={profile} />}
             </main>
             <Footer />
+
+            {showScheduleModal && connection && (
+                <ScheduleSessionModal
+                    connectionId={connection.id}
+                    studentName={`${connection.counterpart.firstName} ${connection.counterpart.lastName}`}
+                    onClose={() => setShowScheduleModal(false)}
+                    onSuccess={() => {
+                        setShowScheduleModal(false);
+                        showToast("Session scheduled!");
+                        refreshUpcomingSession();
+                    }}
+                />
+            )}
+
+            {showRescheduleModal && upcomingSession && (
+                <RescheduleSessionModal
+                    session={upcomingSession}
+                    onClose={() => setShowRescheduleModal(false)}
+                    onSuccess={() => {
+                        setShowRescheduleModal(false);
+                        showToast("Session rescheduled");
+                        refreshUpcomingSession();
+                    }}
+                />
+            )}
+
+            {showCancelModal && upcomingSession && (
+                <CancelSessionModal
+                    session={upcomingSession}
+                    onClose={() => setShowCancelModal(false)}
+                    onSuccess={() => {
+                        setShowCancelModal(false);
+                        showToast("Session cancelled");
+                        refreshUpcomingSession();
+                    }}
+                />
+            )}
+
             <Toast toast={toast} onHide={hideToast} />
         </div>
     );

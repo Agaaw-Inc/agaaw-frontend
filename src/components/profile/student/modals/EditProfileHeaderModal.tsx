@@ -3,6 +3,7 @@
 import React, { useRef, useState } from "react";
 import { X, Save, Upload, Loader2, Trash2 } from "lucide-react";
 import { resolveFileUrl, uploadStudentProfilePicture, deleteStudentProfilePicture } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 
 type StudyLevel = 'bachelors' | 'masters' | 'phd' | 'diploma' | 'other';
 
@@ -119,15 +120,10 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave, onAva
                     {/* Profile Picture */}
                     <div className="flex items-center gap-5">
                         <div className="relative w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-teal-700 font-bold text-xl uppercase">
-                            {avatarPreview ? (
-                                <img
-                                    src={avatarPreview.startsWith("blob:") ? avatarPreview : resolveFileUrl(avatarPreview)}
-                                    alt={user?.firstName}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                user?.firstName?.substring(0, 2) || "S"
-                            )}
+                            <Avatar
+                                src={avatarPreview?.startsWith("blob:") ? avatarPreview : resolveFileUrl(avatarPreview)}
+                                name={user?.firstName || "S"}
+                            />
                             {isUploadingAvatar && (
                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                     <Loader2 size={20} className="text-white animate-spin" />

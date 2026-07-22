@@ -1,29 +1,54 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Loader2, Calendar } from "lucide-react";
+import { Users, Loader2, Calendar, Video, CalendarClock, Ban } from "lucide-react";
 import Footer from "@/components/landing/Footer";
-import { getConnections, resolveFileUrl, type ConnectionItem } from "@/lib/api";
+import Toast from "@/components/ui/Toast";
+import Avatar from "@/components/ui/Avatar";
+import { useToast } from "@/hooks/useToast";
+import ScheduleSessionModal from "@/components/sessions/ScheduleSessionModal";
+import RescheduleSessionModal from "@/components/sessions/RescheduleSessionModal";
+import CancelSessionModal from "@/components/sessions/CancelSessionModal";
+import {
+    getConnections,
+    getSessions,
+    resolveFileUrl,
+    type ConnectionItem,
+    type SessionListItem,
+} from "@/lib/api";
+import { formatSessionWhen } from "@/lib/sessionFormat";
 
 export default function MentorStudentsPage() {
     const [connections, setConnections] = useState<ConnectionItem[]>([]);
+    const [sessionByStudentId, setSessionByStudentId] = useState<Map<string, SessionListItem>>(new Map());
     const [isLoading, setIsLoading] = useState(true);
+    const [schedulingConnection, setSchedulingConnection] = useState<ConnectionItem | null>(null);
+    const [reschedulingSession, setReschedulingSession] = useState<SessionListItem | null>(null);
+    const [cancellingSession, setCancellingSession] = useState<SessionListItem | null>(null);
+    const { toast, showToast, hideToast } = useToast();
+
+    const fetchData = useCallback(async () => {
+        try {
+            const [connectionsData, sessionsResult] = await Promise.all([
+                getConnections("active"),
+                getSessions({ scope: "upcoming", limit: 50 }),
+            ]);
+            setConnections(connectionsData);
+            // Only "scheduled" sessions are reschedulable/cancellable — an
+            // in_progress one (rare: the call is happening right now) falls
+            // through to showing nothing extra rather than a button that's
+            // guaranteed to error.
+            const reschedulable = sessionsResult.data.filter((s) => s.status === "scheduled");
+            setSessionByStudentId(new Map(reschedulable.map((s) => [s.counterpart.id, s])));
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const data = await getConnections("active");
-                if (!cancelled) setConnections(data);
-            } finally {
-                if (!cancelled) setIsLoading(false);
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+        fetchData();
+    }, [fetchData]);
 
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
@@ -52,24 +77,15 @@ export default function MentorStudentsPage() {
                         {connections.map((conn) => {
                             const student = conn.counterpart;
                             const name = `${student.firstName} ${student.lastName}`;
+                            const upcomingSession = sessionByStudentId.get(student.id) || null;
                             return (
-                                <Link
+                                <div
                                     key={conn.id}
-                                    href={`/profile/student/${student.id}`}
                                     className="bg-white border border-gray-100 rounded-xl p-5 hover:border-teal-200 hover:shadow-sm transition-all flex flex-col"
                                 >
-                                    <div className="flex items-center gap-3 mb-3">
+                                    <Link href={`/profile/student/${student.id}`} className="flex items-center gap-3 mb-3">
                                         <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase shrink-0">
-                                            {student.profileImage ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
-                                                    src={resolveFileUrl(student.profileImage)}
-                                                    alt={name}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                student.firstName?.substring(0, 2)
-                                            )}
+                                            <Avatar src={resolveFileUrl(student.profileImage)} name={name} />
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-gray-900 text-sm">{name}</h3>
@@ -77,15 +93,93 @@ export default function MentorStudentsPage() {
                                                 <Calendar size={12} className="text-gray-400" /> Connected {new Date(conn.startedAt).toLocaleDateString()}
                                             </div>
                                         </div>
+                                    </Link>
+
+                                    {upcomingSession && (
+                                        <p className="text-xs text-teal-700 bg-teal-50 rounded-lg px-2.5 py-1.5 mb-3 font-semibold truncate">
+                                            {formatSessionWhen(upcomingSession.scheduledAt)} &middot; {upcomingSession.title}
+                                        </p>
+                                    )}
+
+                                    <div className="mt-auto flex items-center justify-between gap-2">
+                                        <Link href={`/profile/student/${student.id}`} className="text-xs font-semibold text-teal-600 hover:text-teal-700 shrink-0">
+                                            View Profile &rarr;
+                                        </Link>
+                                        {upcomingSession ? (
+                                            <div className="flex items-center gap-1.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setReschedulingSession(upcomingSession)}
+                                                    title="Reschedule session"
+                                                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 transition-colors"
+                                                >
+                                                    <CalendarClock size={13} /> Reschedule
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCancellingSession(upcomingSession)}
+                                                    title="Cancel session"
+                                                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-white border border-gray-200 hover:bg-red-50 hover:border-red-200 text-gray-700 hover:text-red-600 transition-colors"
+                                                >
+                                                    <Ban size={13} /> Cancel
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                type="button"
+                                                onClick={() => setSchedulingConnection(conn)}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white transition-colors"
+                                            >
+                                                <Video size={13} /> Schedule Session
+                                            </button>
+                                        )}
                                     </div>
-                                    <span className="mt-auto text-xs font-semibold text-teal-600">View Profile &rarr;</span>
-                                </Link>
+                                </div>
                             );
                         })}
                     </div>
                 )}
             </div>
             <Footer />
+
+            {schedulingConnection && (
+                <ScheduleSessionModal
+                    connectionId={schedulingConnection.id}
+                    studentName={`${schedulingConnection.counterpart.firstName} ${schedulingConnection.counterpart.lastName}`}
+                    onClose={() => setSchedulingConnection(null)}
+                    onSuccess={() => {
+                        setSchedulingConnection(null);
+                        showToast("Session scheduled!");
+                        fetchData();
+                    }}
+                />
+            )}
+
+            {reschedulingSession && (
+                <RescheduleSessionModal
+                    session={reschedulingSession}
+                    onClose={() => setReschedulingSession(null)}
+                    onSuccess={() => {
+                        setReschedulingSession(null);
+                        showToast("Session rescheduled");
+                        fetchData();
+                    }}
+                />
+            )}
+
+            {cancellingSession && (
+                <CancelSessionModal
+                    session={cancellingSession}
+                    onClose={() => setCancellingSession(null)}
+                    onSuccess={() => {
+                        setCancellingSession(null);
+                        showToast("Session cancelled");
+                        fetchData();
+                    }}
+                />
+            )}
+
+            <Toast toast={toast} onHide={hideToast} />
         </div>
     );
 }

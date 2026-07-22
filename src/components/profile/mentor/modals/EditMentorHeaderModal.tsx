@@ -3,6 +3,7 @@
 import React, { useRef, useState } from "react";
 import { X, Save, Upload, Loader2, Trash2 } from "lucide-react";
 import { resolveFileUrl, uploadMentorProfilePicture, deleteMentorProfilePicture } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 
 const MAX_AVATAR_SIZE = 1 * 1024 * 1024; // 1MB
 const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -115,15 +116,10 @@ export default function EditMentorHeaderModal({ profile, onClose, onSave, onAvat
                         {/* Profile Picture */}
                         <div className="flex items-center gap-5">
                             <div className="relative w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-teal-700 font-bold text-xl uppercase">
-                                {avatarPreview ? (
-                                    <img
-                                        src={avatarPreview.startsWith("blob:") ? avatarPreview : resolveFileUrl(avatarPreview)}
-                                        alt={user?.firstName}
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    user?.firstName?.substring(0, 2) || "M"
-                                )}
+                                <Avatar
+                                    src={avatarPreview?.startsWith("blob:") ? avatarPreview : resolveFileUrl(avatarPreview)}
+                                    name={user?.firstName || "M"}
+                                />
                                 {isUploadingAvatar && (
                                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                         <Loader2 size={20} className="text-white animate-spin" />

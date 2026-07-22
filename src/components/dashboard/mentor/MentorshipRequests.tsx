@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, XCircle, User, GraduationCap, BookOpen, Clock, Inbox, Loader2 } from "lucide-react";
 import SectionCard from "@/components/dashboard/common/SectionCard";
 import Toast from "@/components/ui/Toast";
+import Avatar from "@/components/ui/Avatar";
 import { useToast } from "@/hooks/useToast";
 import {
     getMentorshipRequests,
@@ -102,16 +103,7 @@ export default function MentorshipRequests() {
                                     {/* Avatar & Info */}
                                     <div className="flex items-center gap-4 min-w-[250px]">
                                         <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase">
-                                            {request.student.profileImage ? (
-                                                // eslint-disable-next-line @next/next/no-img-element
-                                                <img
-                                                    src={resolveFileUrl(request.student.profileImage)}
-                                                    alt={studentName}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            ) : (
-                                                request.student.firstName?.substring(0, 2)
-                                            )}
+                                            <Avatar src={resolveFileUrl(request.student.profileImage)} name={studentName} />
                                         </div>
                                         <div>
                                             <h3 className="font-bold text-gray-900 text-base">{studentName}</h3>

@@ -4,6 +4,7 @@ import React from "react";
 import { CheckCircle2, GraduationCap, MapPin, BookOpen, Clock, Briefcase, AlertCircle, Sparkles } from "lucide-react";
 import { calculateMentorProfileCompletion } from "@/lib/mentorProfileUtils";
 import { resolveFileUrl } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 
 interface MentorHeroProps {
     profile: any;
@@ -46,11 +47,7 @@ export default function MentorHero({ profile, isLoading }: MentorHeroProps) {
                     <div>
                         <div className="flex items-center gap-4 mb-3 flex-wrap">
                             <div className="relative w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-xl font-bold text-white shrink-0 overflow-hidden">
-                                {profileImage ? (
-                                    <img src={resolveFileUrl(profileImage)} alt={firstName} className="w-full h-full object-cover" />
-                                ) : (
-                                    initials
-                                )}
+                                <Avatar src={resolveFileUrl(profileImage)} name={initials} alt={firstName} />
                             </div>
                             <div>
                                 <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">

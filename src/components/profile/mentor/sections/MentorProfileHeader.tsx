@@ -3,6 +3,7 @@
 import React from "react";
 import { Camera, MapPin, GraduationCap, Star, Users, CalendarCheck, Clock, CheckCircle, Edit3, Send, MessageSquare } from "lucide-react";
 import { resolveFileUrl } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 
 interface MentorProfileHeaderProps {
     profile: any;
@@ -18,15 +19,7 @@ export default function MentorProfileHeader({ profile, onEdit, relationshipStatu
     const user = profile?.user;
     const fullName = user ? `${user.firstName} ${user.lastName}` : "Mentor Name";
 
-    const avatar = user?.profileImage ? (
-        <img
-            src={resolveFileUrl(user.profileImage)}
-            alt={fullName}
-            className="w-full h-full object-cover"
-        />
-    ) : (
-        user?.firstName?.substring(0, 2) || "M"
-    );
+    const avatar = <Avatar src={resolveFileUrl(user?.profileImage)} name={user?.firstName || "M"} alt={fullName} />;
 
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-6 sm:p-8 shadow-sm">

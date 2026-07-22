@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { resolveFileUrl } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 import { useRouter } from "next/navigation";
 
 function getStoredUser(): UserInfo | null {
@@ -150,11 +151,7 @@ export default function MainNavbar() {
                     className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors"
                   >
                     <div className="relative w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700 font-bold border-2 border-teal-50 shadow-sm uppercase tracking-wide text-sm overflow-hidden">
-                      {user.profileImage ? (
-                        <img src={resolveFileUrl(user.profileImage)} alt={user.firstName} className="w-full h-full object-cover" />
-                      ) : (
-                        user.firstName?.substring(0, 2) || "U"
-                      )}
+                      <Avatar src={resolveFileUrl(user.profileImage)} name={user.firstName || "U"} />
                     </div>
                     <ChevronDown size={16} className={`text-gray-500 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -284,11 +281,7 @@ export default function MainNavbar() {
                 <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-teal-50/50 border border-teal-100/50">
                     <div className="relative w-10 h-10 rounded-full bg-teal-200 flex items-center justify-center text-teal-800 font-bold border-2 border-white shadow-sm uppercase tracking-wide text-sm overflow-hidden">
-                      {user.profileImage ? (
-                        <img src={resolveFileUrl(user.profileImage)} alt={user.firstName} className="w-full h-full object-cover" />
-                      ) : (
-                        user.firstName?.substring(0, 2) || "U"
-                      )}
+                      <Avatar src={resolveFileUrl(user.profileImage)} name={user.firstName || "U"} />
                     </div>
                     <div className="flex flex-col">
                       <p className="text-sm font-bold text-gray-900">{user.firstName} {user.lastName}</p>

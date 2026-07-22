@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Users, Loader2, Calendar } from "lucide-react";
 import SectionCard from "@/components/dashboard/common/SectionCard";
+import Avatar from "@/components/ui/Avatar";
 import { getConnections, resolveFileUrl, type ConnectionItem } from "@/lib/api";
 
 const PREVIEW_COUNT = 6;
@@ -65,16 +66,7 @@ export default function ActiveStudents() {
                             >
                                 <div className="flex items-center gap-3 mb-3">
                                     <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase shrink-0">
-                                        {student.profileImage ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={resolveFileUrl(student.profileImage)}
-                                                alt={name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            student.firstName?.substring(0, 2)
-                                        )}
+                                        <Avatar src={resolveFileUrl(student.profileImage)} name={name} />
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-gray-900 text-sm">{name}</h3>

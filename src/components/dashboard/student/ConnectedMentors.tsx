@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { MessageCircle, Users, Loader2 } from "lucide-react";
 import SectionCard from "@/components/dashboard/common/SectionCard";
+import Avatar from "@/components/ui/Avatar";
 import { getConnections, resolveFileUrl, type ConnectionItem } from "@/lib/api";
 
 const MAX_MENTORS = 3;
@@ -60,16 +61,7 @@ export default function ConnectedMentors() {
                             >
                                 <div className="flex items-center gap-4 min-w-0">
                                     <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 shrink-0 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase">
-                                        {mentor.profileImage ? (
-                                            // eslint-disable-next-line @next/next/no-img-element
-                                            <img
-                                                src={resolveFileUrl(mentor.profileImage)}
-                                                alt={name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            mentor.firstName?.substring(0, 2)
-                                        )}
+                                        <Avatar src={resolveFileUrl(mentor.profileImage)} name={name} />
                                     </div>
                                     <p className="font-bold text-gray-900 text-sm truncate">{name}</p>
                                 </div>

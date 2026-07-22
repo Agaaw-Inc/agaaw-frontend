@@ -1110,3 +1110,127 @@ export async function getStudentDocumentsForMentor(userId: string) {
   }
   return Array.isArray(json.data) ? json.data : [];
 }
+
+// ── Mentorship sessions (video calls) ────────────────────────────────────
+
+export type SessionStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "no_show";
+export type SessionListScope = "upcoming" | "past" | "cancelled";
+
+export interface SessionCounterpart {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profileImage: string | null;
+  role: "student" | "mentor" | "admin";
+}
+
+export interface SessionListItem {
+  id: string;
+  title: string;
+  scheduledAt: string;
+  durationMinutes: number;
+  status: SessionStatus;
+  isToday: boolean;
+  counterpart: SessionCounterpart;
+  canJoin: boolean;
+}
+
+export interface SessionDetail extends SessionListItem {
+  description: string | null;
+  roomUrl: string | null;
+  cancelledById: string | null;
+  cancelReason: string | null;
+  rescheduledFrom: string | null;
+}
+
+export interface PaginatedSessions {
+  data: SessionListItem[];
+  meta: { page: number; limit: number; total: number };
+}
+
+export interface JoinSessionResult {
+  roomUrl: string;
+  token: string;
+  provider: "daily";
+  expiresAt: string;
+}
+
+export async function createSession(data: {
+  connectionId: string;
+  title: string;
+  description?: string;
+  scheduledAt: string;
+  durationMinutes?: number;
+}) {
+  const res = await authFetch("/sessions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to schedule session"));
+  }
+  return json.data;
+}
+
+export async function getSessions(
+  params: { scope?: SessionListScope; page?: number; limit?: number } = {}
+): Promise<PaginatedSessions> {
+  const qs = toQueryString(params as Record<string, unknown>);
+  const res = await authFetch(`/sessions${qs}`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    console.error(`getSessions failed (${res.status}):`, json.message);
+    return { data: [], meta: { page: 1, limit: params.limit || 5, total: 0 } };
+  }
+  return json.data || { data: [], meta: { page: 1, limit: params.limit || 5, total: 0 } };
+}
+
+export async function getSessionDetail(id: string): Promise<SessionDetail | null> {
+  const res = await authFetch(`/sessions/${id}`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    if (res.status === 403 || res.status === 404) return null;
+    throw new Error(extractErrorMessage(json, "Failed to fetch session detail"));
+  }
+  return json.data || null;
+}
+
+export async function joinSession(id: string): Promise<JoinSessionResult> {
+  const res = await authFetch(`/sessions/${id}/join`, { method: "POST" });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to join session"));
+  }
+  return json.data;
+}
+
+export async function rescheduleSession(
+  id: string,
+  data: { scheduledAt: string; durationMinutes?: number }
+) {
+  const res = await authFetch(`/sessions/${id}/reschedule`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to reschedule session"));
+  }
+  return json.data;
+}
+
+export async function cancelSession(id: string, reason?: string) {
+  const res = await authFetch(`/sessions/${id}/cancel`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(reason ? { reason } : {}),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to cancel session"));
+  }
+  return json.data;
+}

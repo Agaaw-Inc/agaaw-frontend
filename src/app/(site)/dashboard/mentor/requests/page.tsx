@@ -6,6 +6,7 @@ import { CheckCircle2, XCircle, User, Clock, Loader2, Inbox } from "lucide-react
 import Footer from "@/components/landing/Footer";
 import Pagination from "@/components/ui/Pagination";
 import Toast from "@/components/ui/Toast";
+import Avatar from "@/components/ui/Avatar";
 import { useToast } from "@/hooks/useToast";
 import {
     getMentorshipRequests,
@@ -138,16 +139,7 @@ export default function MentorRequestsInboxPage() {
                                     <div className="flex flex-col md:flex-row gap-5 items-start">
                                         <div className="flex items-center gap-4 min-w-[220px]">
                                             <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase shrink-0">
-                                                {request.student.profileImage ? (
-                                                    // eslint-disable-next-line @next/next/no-img-element
-                                                    <img
-                                                        src={resolveFileUrl(request.student.profileImage)}
-                                                        alt={studentName}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    request.student.firstName?.substring(0, 2)
-                                                )}
+                                                <Avatar src={resolveFileUrl(request.student.profileImage)} name={studentName} />
                                             </div>
                                             <div>
                                                 <h3 className="font-bold text-gray-900">{studentName}</h3>
