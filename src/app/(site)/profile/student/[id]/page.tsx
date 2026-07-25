@@ -257,6 +257,13 @@ export default function StudentPublicProfilePage() {
                 <StudentProfileHeader
                     profile={profile}
                     showConnectedActions={viewer?.role === "mentor" && isConnected}
+                    onMessage={() =>
+                        router.push(
+                            connection?.conversationId
+                                ? `/dashboard/mentor/messages?conversation=${connection.conversationId}`
+                                : "/dashboard/mentor/messages"
+                        )
+                    }
                     onScheduleMeeting={() => setShowScheduleModal(true)}
                     upcomingSession={upcomingSession}
                     onRescheduleMeeting={() => setShowRescheduleModal(true)}

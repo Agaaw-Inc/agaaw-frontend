@@ -13,9 +13,10 @@ interface MentorProfileHeaderProps {
     onMessage?: () => void;
     onWriteReview?: () => void;
     studentsCount?: number;
+    reviewStats?: { averageRating: number; totalReviews: number };
 }
 
-export default function MentorProfileHeader({ profile, onEdit, relationshipStatus, onRequestMentorship, onMessage, onWriteReview, studentsCount }: MentorProfileHeaderProps) {
+export default function MentorProfileHeader({ profile, onEdit, relationshipStatus, onRequestMentorship, onMessage, onWriteReview, studentsCount, reviewStats }: MentorProfileHeaderProps) {
     const user = profile?.user;
     const fullName = user ? `${user.firstName} ${user.lastName}` : "Mentor Name";
 
@@ -73,7 +74,11 @@ export default function MentorProfileHeader({ profile, onEdit, relationshipStatu
                         {/* Stats Row */}
                         <div className="flex flex-wrap items-center gap-5 pt-1">
                             <StatItem icon={Users} value={studentsCount !== undefined ? String(studentsCount) : "0"} label="Students" />
-                            <StatItem icon={Star} value="0 ★" label="0 reviews" />
+                            <StatItem
+                                icon={Star}
+                                value={`${reviewStats?.averageRating ?? 0} ★`}
+                                label={`${reviewStats?.totalReviews ?? 0} review${(reviewStats?.totalReviews ?? 0) === 1 ? "" : "s"}`}
+                            />
                             <StatItem icon={CalendarCheck} value="0" label="Sessions" />
                             <StatItem icon={Clock} value="100%" label="Response" />
                         </div>

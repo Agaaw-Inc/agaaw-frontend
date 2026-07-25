@@ -7,7 +7,13 @@ import { Loader2, ShieldAlert } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import { getUserInfo } from "@/lib/auth";
-import { getMentorPublicProfile, getMentorshipRequests, getConnections } from "@/lib/api";
+import {
+    getMentorPublicProfile,
+    getMentorshipRequests,
+    getConnections,
+    getMentorReviews,
+    type MentorReviewsResult,
+} from "@/lib/api";
 
 import MentorProfileHeader from "@/components/profile/mentor/sections/MentorProfileHeader";
 import MentorAboutCard from "@/components/profile/mentor/sections/MentorAboutCard";
@@ -17,6 +23,7 @@ import MentorAchievementsCard from "@/components/profile/mentor/sections/MentorA
 import MentorServicesCard from "@/components/profile/mentor/sections/MentorServicesCard";
 import MentorReviewsCard from "@/components/profile/mentor/sections/MentorReviewsCard";
 import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
+import WriteReviewModal from "@/components/reviews/WriteReviewModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -30,7 +37,10 @@ export default function MentorPublicProfilePage() {
     const [status, setStatus] = useState<Status>("loading");
     const [profile, setProfile] = useState<any>(null);
     const [relationshipStatus, setRelationshipStatus] = useState<"none" | "pending" | "connected">("none");
+    const [conversationId, setConversationId] = useState<string | null>(null);
     const [showRequestModal, setShowRequestModal] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [reviews, setReviews] = useState<MentorReviewsResult | null>(null);
     const { toast, showToast, hideToast } = useToast();
     const viewer = getUserInfo();
 
@@ -62,6 +72,12 @@ export default function MentorPublicProfilePage() {
             }
             setProfile(data);
 
+            getMentorReviews(id)
+                .then((result) => {
+                    if (!cancelled) setReviews(result);
+                })
+                .catch((err) => console.error("Failed to load mentor reviews:", err));
+
             if (viewer.role === "student") {
                 try {
                     const [pendingRequests, activeConnections] = await Promise.all([
@@ -69,8 +85,10 @@ export default function MentorPublicProfilePage() {
                         getConnections("active"),
                     ]);
                     if (cancelled) return;
-                    if (activeConnections.some((c) => c.counterpart.id === id)) {
+                    const matchedConnection = activeConnections.find((c) => c.counterpart.id === id);
+                    if (matchedConnection) {
                         setRelationshipStatus("connected");
+                        setConversationId(matchedConnection.conversationId);
                     } else if (pendingRequests.data.some((r) => r.mentorId === id)) {
                         setRelationshipStatus("pending");
                     } else {
@@ -146,6 +164,15 @@ export default function MentorPublicProfilePage() {
                     profile={profile}
                     relationshipStatus={viewer?.role === "student" ? relationshipStatus : undefined}
                     onRequestMentorship={() => setShowRequestModal(true)}
+                    onMessage={() =>
+                        router.push(
+                            conversationId
+                                ? `/dashboard/student/messages?conversation=${conversationId}`
+                                : "/dashboard/student/messages"
+                        )
+                    }
+                    onWriteReview={() => setShowReviewModal(true)}
+                    reviewStats={reviews?.stats}
                 />
                 {/* Phone number is only shared with admins — never with students. */}
                 {/* Every card below is only shown if the mentor actually added that information. */}
@@ -154,7 +181,11 @@ export default function MentorPublicProfilePage() {
                 {hasExpertise && <MentorExpertiseCard profile={profile} />}
                 {hasAchievements && <MentorAchievementsCard profile={profile} />}
                 {hasServices && <MentorServicesCard profile={profile} />}
-                <MentorReviewsCard profile={profile} emptyMessage="This mentor has no review at this moment." />
+                <MentorReviewsCard
+                    reviews={reviews?.data ?? []}
+                    stats={reviews?.stats ?? { averageRating: 0, totalReviews: 0, distribution: [] }}
+                    emptyMessage="This mentor has no review at this moment."
+                />
             </main>
             <Footer />
 
@@ -167,6 +198,21 @@ export default function MentorPublicProfilePage() {
                         setRelationshipStatus("pending");
                         setShowRequestModal(false);
                         showToast("Mentorship request sent!");
+                    }}
+                />
+            )}
+
+            {showReviewModal && (
+                <WriteReviewModal
+                    mentorId={id}
+                    mentorName={`${profile.user?.firstName || ""} ${profile.user?.lastName || ""}`.trim()}
+                    onClose={() => setShowReviewModal(false)}
+                    onSuccess={(isUpdate) => {
+                        setShowReviewModal(false);
+                        showToast(isUpdate ? "Your review has been updated!" : "Thanks for your review!");
+                        getMentorReviews(id)
+                            .then(setReviews)
+                            .catch((err) => console.error("Failed to refresh reviews:", err));
                     }}
                 />
             )}

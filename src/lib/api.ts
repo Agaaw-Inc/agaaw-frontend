@@ -1091,6 +1091,81 @@ export async function getConnections(status?: "active" | "ended"): Promise<Conne
   return Array.isArray(json.data) ? json.data : [];
 }
 
+// ── Mentor reviews ───────────────────────────────────────────────────────
+
+export interface MentorReviewItem {
+  id: string;
+  rating: number;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+  student: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    profileImage: string | null;
+    nationality: string | null;
+  };
+}
+
+export interface MentorReviewStats {
+  averageRating: number;
+  totalReviews: number;
+  distribution: { stars: number; count: number }[];
+}
+
+export interface MentorReviewsResult {
+  stats: MentorReviewStats;
+  data: MentorReviewItem[];
+}
+
+export interface OwnMentorReview {
+  id: string;
+  rating: number;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+const EMPTY_REVIEW_STATS: MentorReviewStats = {
+  averageRating: 0,
+  totalReviews: 0,
+  distribution: [5, 4, 3, 2, 1].map((stars) => ({ stars, count: 0 })),
+};
+
+export async function getMentorReviews(mentorId: string): Promise<MentorReviewsResult> {
+  const res = await authFetch(`/mentors/${mentorId}/reviews`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    console.error(`getMentorReviews failed (${res.status}):`, json.message);
+    return { stats: EMPTY_REVIEW_STATS, data: [] };
+  }
+  return json.data || { stats: EMPTY_REVIEW_STATS, data: [] };
+}
+
+export async function getMyMentorReview(mentorId: string): Promise<OwnMentorReview | null> {
+  const res = await authFetch(`/mentors/${mentorId}/reviews/me`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) return null;
+  return json.data || null;
+}
+
+export async function submitMentorReview(
+  mentorId: string,
+  data: { rating: number; text: string }
+) {
+  const res = await authFetch(`/mentors/${mentorId}/reviews`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to submit review"));
+  }
+  return json.data;
+}
+
 export async function getStudentProfileForMentor(userId: string) {
   const res = await authFetch(`/students/${userId}/profile`, { cache: "no-store" });
   const json = await res.json();

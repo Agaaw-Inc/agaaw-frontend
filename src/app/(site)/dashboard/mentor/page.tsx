@@ -11,13 +11,15 @@ import MentorBlogs from "@/components/dashboard/mentor/MentorBlogs";
 import Footer from "@/components/landing/Footer";
 import StatCard from "@/components/ui/StatCard";
 import { Users, UserCheck, Eye, Star } from "lucide-react";
-import { getMentorProfile, getConnections } from "@/lib/api";
+import { getMentorProfile, getConnections, getMentorReviews, type MentorReviewStats } from "@/lib/api";
+import { getUserInfo } from "@/lib/auth";
 
 export default function MentorDashboardPage() {
     const [profile, setProfile] = useState<any>(null);
     const [isProfileLoading, setIsProfileLoading] = useState(true);
     const [totalStudents, setTotalStudents] = useState<number | null>(null);
     const [activeStudents, setActiveStudents] = useState<number | null>(null);
+    const [reviewStats, setReviewStats] = useState<MentorReviewStats | null>(null);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -42,6 +44,13 @@ export default function MentorDashboardPage() {
             }
         };
         fetchConnectionCounts();
+
+        const user = getUserInfo();
+        if (user) {
+            getMentorReviews(user.id)
+                .then((result) => setReviewStats(result.stats))
+                .catch((err) => console.error("Failed to load review stats:", err));
+        }
     }, []);
 
     const stats = [
@@ -60,7 +69,16 @@ export default function MentorDashboardPage() {
             color: "bg-blue-600",
         },
         { icon: Eye, label: "Profile Views", value: "—", sub: "Coming soon", color: "bg-purple-600" },
-        { icon: Star, label: "Average Rating", value: "—", sub: "Coming soon", color: "bg-amber-500" },
+        {
+            icon: Star,
+            label: "Average Rating",
+            value: reviewStats === null ? "—" : reviewStats.totalReviews > 0 ? String(reviewStats.averageRating) : "N/A",
+            sub:
+                reviewStats === null
+                    ? "Loading..."
+                    : `${reviewStats.totalReviews} review${reviewStats.totalReviews === 1 ? "" : "s"}`,
+            color: "bg-amber-500",
+        },
     ];
 
     return (

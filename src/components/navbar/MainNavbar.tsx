@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { resolveFileUrl } from "@/lib/api";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import Avatar from "@/components/ui/Avatar";
 import { useRouter } from "next/navigation";
 
@@ -52,6 +53,7 @@ export default function MainNavbar() {
   const dashboardRole = user?.role === "mentor" ? "mentor" : "student";
   const messagesHref = `/dashboard/${dashboardRole}/messages`;
   const messagesActive = pathname.startsWith(messagesHref);
+  const unreadMessages = useUnreadMessages(Boolean(user && user.role !== "admin"));
 
   const navLinks = [
     { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
@@ -136,7 +138,11 @@ export default function MainNavbar() {
                     }`}
                 >
                   <MessageSquare size={22} />
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">2</span>
+                  {unreadMessages > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-4 h-4 px-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                      {unreadMessages > 99 ? "99+" : unreadMessages}
+                    </span>
+                  )}
                 </Link>
                 <button className="text-gray-500 hover:text-teal-600 transition-colors relative">
                   <Bell size={22} />

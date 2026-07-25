@@ -9,7 +9,9 @@ import {
     uploadMentorDocument,
     deleteMentorDocument,
     getMentorBlogs,
-    getConnections
+    getConnections,
+    getMentorReviews,
+    type MentorReviewsResult
 } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { calculateMentorProfileCompletion } from "@/lib/mentorProfileUtils";
@@ -54,6 +56,7 @@ export default function MentorProfilePage() {
     const [selectedDoc, setSelectedDoc] = useState<{ type: string; title: string; subtitle: string } | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [studentsCount, setStudentsCount] = useState<number | undefined>(undefined);
+    const [reviews, setReviews] = useState<MentorReviewsResult | null>(null);
 
     const fetchProfileAndDocs = async () => {
         try {
@@ -67,6 +70,13 @@ export default function MentorProfilePage() {
             setDocuments(docsData);
             setBlogs(blogsData);
             setStudentsCount(connections.length);
+
+            const user = getUserInfo();
+            if (user) {
+                getMentorReviews(user.id)
+                    .then(setReviews)
+                    .catch((err) => console.error("Failed to load reviews:", err));
+            }
         } catch (err) {
             console.error("Error loading mentor profile or documents:", err);
         } finally {
@@ -147,7 +157,12 @@ export default function MentorProfilePage() {
             <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6">
                 
                 {/* Header Section */}
-                <MentorProfileHeader profile={profile} onEdit={() => setActiveModal("header")} studentsCount={studentsCount} />
+                <MentorProfileHeader
+                    profile={profile}
+                    onEdit={() => setActiveModal("header")}
+                    studentsCount={studentsCount}
+                    reviewStats={reviews?.stats}
+                />
 
                 {/* Profile Completion */}
                 <ProfileCompletionBar percentage={percentage} missingItems={missingItems} />
@@ -169,7 +184,11 @@ export default function MentorProfilePage() {
 
                 <MentorServicesCard profile={profile} onEdit={() => setActiveModal("services")} />
                 
-                <MentorReviewsCard profile={profile} />
+                <MentorReviewsCard
+                    reviews={reviews?.data ?? []}
+                    stats={reviews?.stats ?? { averageRating: 0, totalReviews: 0, distribution: [] }}
+                    viewAllHref="/dashboard/mentor/reviews"
+                />
                 
                 <MentorBlogPostsCard blogs={blogs} />
 

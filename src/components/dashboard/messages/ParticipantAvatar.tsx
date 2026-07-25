@@ -1,8 +1,9 @@
-import Image from "next/image";
-import type { MessageParticipant } from "@/data/messages";
+import Avatar from "@/components/ui/Avatar";
+import { resolveFileUrl } from "@/lib/api";
+import { counterpartFullName, type ChatCounterpart } from "@/lib/chat";
 
 interface ParticipantAvatarProps {
-  participant: MessageParticipant;
+  participant: ChatCounterpart;
   size?: "sm" | "md" | "lg";
   showStatus?: boolean;
 }
@@ -18,28 +19,22 @@ export default function ParticipantAvatar({
   size = "md",
   showStatus = true,
 }: ParticipantAvatarProps) {
-  const initials = participant.name
+  const name = counterpartFullName(participant);
+  const initials = name
     .split(" ")
     .map((part) => part[0])
     .join("")
-    .slice(0, 2);
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div className={`relative shrink-0 ${sizeClasses[size]}`}>
-      <div className="h-full w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-900 shadow-sm">
-        {participant.avatar ? (
-          <Image
-            src={participant.avatar}
-            alt={participant.name}
-            width={56}
-            height={56}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-slate-900 font-semibold text-white">
-            {initials}
-          </div>
-        )}
+      <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-900 font-semibold text-white shadow-sm">
+        <Avatar
+          src={participant.profileImage ? resolveFileUrl(participant.profileImage) : null}
+          name={initials || "?"}
+          alt={name}
+        />
       </div>
       {showStatus && participant.isOnline && (
         <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-emerald-500" />
@@ -47,4 +42,3 @@ export default function ParticipantAvatar({
     </div>
   );
 }
-

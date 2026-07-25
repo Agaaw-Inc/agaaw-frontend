@@ -1,26 +1,26 @@
 import { Search } from "lucide-react";
-import type { DashboardConversation, DashboardMessageRole } from "@/data/messages";
+import {
+  counterpartFullName,
+  formatConversationTime,
+  type ConversationListItem,
+} from "@/lib/chat";
 import ParticipantAvatar from "./ParticipantAvatar";
 
 interface ConversationListProps {
-  conversations: DashboardConversation[];
-  activeConversationId: string;
-  role: DashboardMessageRole;
+  conversations: ConversationListItem[];
+  loading: boolean;
+  error: string | null;
+  activeConversationId: string | null;
   query: string;
   onQueryChange: (query: string) => void;
   onSelectConversation: (conversationId: string) => void;
 }
 
-const statusCopy = {
-  active: "Active",
-  waiting: "Waiting",
-  scheduled: "Scheduled",
-};
-
 export default function ConversationList({
   conversations,
+  loading,
+  error,
   activeConversationId,
-  role,
   query,
   onQueryChange,
   onSelectConversation,
@@ -51,10 +51,17 @@ export default function ConversationList({
       </div>
 
       <div className="flex-1 overflow-y-auto p-2">
-        {conversations.length > 0 ? (
+        {loading ? (
+          <div className="flex h-full items-center justify-center px-6 text-center">
+            <p className="text-sm font-medium text-slate-500">Loading conversations…</p>
+          </div>
+        ) : error ? (
+          <div className="flex h-full items-center justify-center px-6 text-center">
+            <p className="text-sm font-medium text-red-500">{error}</p>
+          </div>
+        ) : conversations.length > 0 ? (
           conversations.map((conversation) => {
-            const participant = role === "mentor" ? conversation.student : conversation.mentor;
-            const lastMessage = conversation.messages[conversation.messages.length - 1];
+            const { counterpart } = conversation;
             const isActive = conversation.id === activeConversationId;
 
             return (
@@ -68,19 +75,33 @@ export default function ConversationList({
                     : "border-transparent bg-white hover:border-slate-200 hover:bg-slate-50"
                 }`}
               >
-                <ParticipantAvatar participant={participant} size="md" />
+                <ParticipantAvatar participant={counterpart} size="md" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-950">{participant.name}</p>
-                      <p className="truncate text-xs font-medium text-slate-500">{participant.title}</p>
+                      <p className="truncate text-sm font-semibold text-slate-950">
+                        {counterpartFullName(counterpart)}
+                      </p>
+                      <p className="truncate text-xs font-medium text-slate-500">
+                        {counterpart.title || conversation.subject || ""}
+                      </p>
                     </div>
-                    <span className="shrink-0 text-xs font-medium text-slate-500">{conversation.lastMessageAt}</span>
+                    <span className="shrink-0 text-xs font-medium text-slate-500">
+                      {formatConversationTime(conversation.lastMessageAt)}
+                    </span>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-600">{lastMessage.body}</p>
+                  <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-600">
+                    {conversation.lastMessage?.body || "No messages yet — say hello!"}
+                  </p>
                   <div className="mt-3 flex items-center justify-between gap-3">
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
-                      {statusCopy[conversation.status]}
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                        conversation.connectionStatus === "active"
+                          ? "bg-slate-100 text-slate-600"
+                          : "bg-amber-50 text-amber-600"
+                      }`}
+                    >
+                      {conversation.connectionStatus === "active" ? "Active" : "Ended"}
                     </span>
                     {conversation.unreadCount > 0 && (
                       <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0F172A] px-1.5 text-[11px] font-bold text-white">
@@ -94,7 +115,9 @@ export default function ConversationList({
           })
         ) : (
           <div className="flex h-full items-center justify-center px-6 text-center">
-            <p className="text-sm font-medium text-slate-500">No conversations match your search.</p>
+            <p className="text-sm font-medium text-slate-500">
+              {query ? "No conversations match your search." : "No conversations yet."}
+            </p>
           </div>
         )}
       </div>
