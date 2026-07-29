@@ -8,6 +8,7 @@ import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut,
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { resolveFileUrl } from "@/lib/api";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 import Avatar from "@/components/ui/Avatar";
 import { useRouter } from "next/navigation";
 
@@ -144,10 +145,9 @@ export default function MainNavbar() {
                     </span>
                   )}
                 </Link>
-                <button className="text-gray-500 hover:text-teal-600 transition-colors relative">
-                  <Bell size={22} />
-                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-                </button>
+                {user.role !== "admin" && (
+                  <NotificationDropdown dashboardRole={dashboardRole} />
+                )}
 
                 <div className="h-6 w-px bg-gray-200 mx-1"></div>
 
@@ -191,6 +191,9 @@ export default function MainNavbar() {
                           <Link href='/dashboard/mentor/reviews' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Star size={18} className="text-gray-400 group-hover:text-teal-600" /> Reviews
                           </Link>
+                          <Link href='/dashboard/mentor/notifications' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Bell size={18} className="text-gray-400 group-hover:text-teal-600" /> Notifications
+                          </Link>
                           <Link href='/dashboard/mentor/settings' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Settings size={18} className="text-gray-400 group-hover:text-teal-600" /> Settings
                           </Link>
@@ -214,6 +217,9 @@ export default function MainNavbar() {
                           </Link>
                           <Link href='/dashboard/student/messages' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <MessageSquare size={18} className="text-gray-400 group-hover:text-teal-600" /> Messages
+                          </Link>
+                          <Link href='/dashboard/student/notifications' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Bell size={18} className="text-gray-400 group-hover:text-teal-600" /> Notifications
                           </Link>
                           <Link href='/dashboard/student/settings' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Settings size={18} className="text-gray-400 group-hover:text-teal-600" /> Settings
@@ -346,6 +352,9 @@ export default function MainNavbar() {
                       </Link>
                       <Link href='/dashboard/student/messages' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <MessageSquare size={18} className="text-gray-400" /> Messages
+                      </Link>
+                      <Link href='/dashboard/student/notifications' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Bell size={18} className="text-gray-400" /> Notifications
                       </Link>
                       <Link href='/dashboard/student/settings' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Settings size={18} className="text-gray-400" /> Settings

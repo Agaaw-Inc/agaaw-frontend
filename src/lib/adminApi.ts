@@ -673,3 +673,60 @@ async function downloadCsv(url: string, filename: string): Promise<void> {
   link.remove();
   window.URL.revokeObjectURL(downloadUrl);
 }
+
+// ================================================================
+// Announcement Endpoints (Notification System)
+// ================================================================
+
+export interface AdminAnnouncement {
+  id: string;
+  title: string;
+  message: string;
+  audience: "all" | "students" | "mentors";
+  link: string | null;
+  sentCount: number;
+  sentBy: string;
+  createdAt: string;
+}
+
+/**
+ * Sends an announcement to an audience.
+ * POST /api/admin/announcements
+ */
+export async function createAnnouncement(payload: {
+  title: string;
+  message: string;
+  audience: "all" | "students" | "mentors";
+  link?: string;
+}): Promise<{ id: string; sentCount: number }> {
+  return adminFetch<{ id: string; sentCount: number }>(
+    `${API_URL}/admin/announcements`,
+    { method: "POST", body: JSON.stringify(payload) }
+  );
+}
+
+/**
+ * Announcement history.
+ * GET /api/admin/announcements
+ */
+export async function listAnnouncements(
+  params: { page?: number; limit?: number } = {}
+): Promise<PaginatedResponse<AdminAnnouncement>> {
+  const qs = toQueryString(params as Record<string, unknown>);
+  return adminFetch<PaginatedResponse<AdminAnnouncement>>(
+    `${API_URL}/admin/announcements${qs}`
+  );
+}
+
+/**
+ * Audience size hint for the composer confirm dialog.
+ * GET /api/admin/announcements/audience-size/:audience
+ */
+export async function getAudienceSize(
+  audience: "all" | "students" | "mentors"
+): Promise<number> {
+  const result = await adminFetch<{ audience: string; count: number }>(
+    `${API_URL}/admin/announcements/audience-size/${audience}`
+  );
+  return result?.count ?? 0;
+}
