@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Star, MapPin, MessageCircle, Loader2 } from "lucide-react";
 import Footer from "@/components/landing/Footer";
 import Avatar from "@/components/ui/Avatar";
@@ -11,6 +11,9 @@ import { formatReviewDate } from "@/components/profile/mentor/sections/MentorRev
 export default function MentorReviewsPage() {
     const [reviews, setReviews] = useState<MentorReviewsResult | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    // Deep-link target from a review_received notification (#review-{id})
+    const [highlightedId, setHighlightedId] = useState<string | null>(null);
+    const scrolledRef = useRef(false);
 
     useEffect(() => {
         const user = getUserInfo();
@@ -34,6 +37,20 @@ export default function MentorReviewsPage() {
             cancelled = true;
         };
     }, []);
+
+    // B7 — scroll the deep-linked review card into view with a brief highlight
+    useEffect(() => {
+        if (isLoading || scrolledRef.current) return;
+        const hash = window.location.hash;
+        if (!hash.startsWith("#review-")) return;
+        const target = document.getElementById(hash.slice(1));
+        if (!target) return;
+        scrolledRef.current = true;
+        target.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightedId(hash.slice("#review-".length));
+        const timer = setTimeout(() => setHighlightedId(null), 2500);
+        return () => clearTimeout(timer);
+    }, [isLoading, reviews]);
 
     if (isLoading) {
         return (
@@ -119,7 +136,15 @@ export default function MentorReviewsPage() {
                         {/* All Reviews */}
                         <div className="space-y-4">
                             {items.map((review) => (
-                                <div key={review.id} className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
+                                <div
+                                    key={review.id}
+                                    id={`review-${review.id}`}
+                                    className={`bg-white rounded-xl border p-6 shadow-sm transition-all duration-500 ${
+                                        highlightedId === review.id
+                                            ? "border-teal-400 ring-2 ring-teal-300/60"
+                                            : "border-gray-100"
+                                    }`}
+                                >
                                     <div className="flex items-start gap-4">
                                         <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-sm uppercase">
                                             <Avatar

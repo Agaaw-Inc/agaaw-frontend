@@ -38,6 +38,7 @@ export const ROUTE_PERMISSIONS: Record<string, AdminRole> = {
   "/internal-hq/scholarships": "admin",
   "/internal-hq/blogs": "admin",
   "/internal-hq/mentors": "admin",
+  "/internal-hq/announcements": "admin",
 
   // Restricted — super_admin only
   "/internal-hq/users": "super_admin",

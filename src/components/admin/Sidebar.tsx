@@ -21,6 +21,7 @@ import {
   Settings,
   Menu,
   BookOpen,
+  Megaphone,
   ShieldCheck,
   ScrollText,
 } from "lucide-react";
@@ -46,6 +47,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/internal-hq/scholarships", icon: <GraduationCap size={18} />,   label: "Scholarships" },
   { href: "/internal-hq/blogs",        icon: <BookOpen size={18} />,        label: "Blogs" },
   { href: "/internal-hq/mentors",      icon: <GraduationCap size={18} />,   label: "Mentors" },
+  { href: "/internal-hq/announcements", icon: <Megaphone size={18} />,      label: "Announcements" },
   { href: "/internal-hq/users",        icon: <Users size={18} />,           label: "Users",    requiredRole: "super_admin" },
   { href: "/internal-hq/admins",       icon: <UserCog size={18} />,         label: "Admins",   requiredRole: "super_admin" },
   { href: "/internal-hq/logs",         icon: <ScrollText size={18} />,      label: "Logs",     requiredRole: "super_admin" },
