@@ -6,6 +6,7 @@ import { Calendar, Tag, ArrowRight, Loader2, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
 import * as api from "@/lib/api";
 import { PublicBlog } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 
 export default function BlogsPreview() {
   const [blogs, setBlogs] = useState<PublicBlog[]>([]);
@@ -77,8 +78,13 @@ export default function BlogsPreview() {
                 className="group bg-white rounded-[2rem] p-8 border border-gray-100 hover:shadow-2xl hover:shadow-teal-900/5 hover:-translate-y-2 transition-all duration-300 flex flex-col h-full relative"
               >
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-lg border border-teal-100/50">
-                    {blog.author.firstName.charAt(0)}
+                  <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-lg border border-teal-100/50 overflow-hidden shrink-0">
+                    <Avatar
+                      src={api.resolveFileUrl(blog.author.profileImage)}
+                      name={blog.author.firstName}
+                      alt={`${blog.author.firstName} ${blog.author.lastName}`}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-gray-900">{blog.author.firstName} {blog.author.lastName}</p>

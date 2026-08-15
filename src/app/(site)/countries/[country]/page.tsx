@@ -13,7 +13,8 @@ import {
     Library,
     Briefcase,
     AlertTriangle,
-    GraduationCap
+    GraduationCap,
+    ClipboardCheck
 } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -48,6 +49,22 @@ export default async function CountryDetails({ params }: CountryProps) {
         notFound();
     }
 
+    // Resolve Tuition Fees details (checking sections array first, then fallback to tuitionCost field)
+    const tuitionFeesContent = (data as any).tuitionFeesDetails ||
+        (data as any).sections?.find((s: any) => s.sectionKey === "tuition_fees")?.content ||
+        data.tuitionCost ||
+        "";
+
+    // Resolve Application Deadlines / Intake Periods
+    const whenToApplyContent = data.whenToApply ||
+        (data as any).sections?.find((s: any) => s.sectionKey === "when_to_apply")?.content ||
+        "";
+
+    // Resolve Visa Documents
+    const visaPolicyContent = data.visaPolicy ||
+        (data as any).sections?.find((s: any) => s.sectionKey === "visa_policy")?.content ||
+        "";
+
     // Helper to parse line breaks and standard bullet points into clean lists
     const parseTextToList = (text?: string | null,
         removeNumbers: boolean = true
@@ -64,13 +81,35 @@ export default async function CountryDetails({ params }: CountryProps) {
             .filter(line => line.length > 0);
     };
 
+    // Resolve Admission details
+    const admissionContent = (data as any).sections?.find((s: any) => s.sectionKey === "admission")?.content || "";
+    const admissionList = parseTextToList(admissionContent);
+
+    // Resolve Test Scores details
+    const testScoresContent = (data as any).sections?.find((s: any) => s.sectionKey === "test_scores")?.content || "";
+    const testScoresList = parseTextToList(testScoresContent);
+
+    const parseTestScore = (item: string) => {
+        const colonIndex = item.indexOf(":");
+        if (colonIndex > -1) {
+            return {
+                name: item.substring(0, colonIndex).trim(),
+                score: item.substring(colonIndex + 1).trim()
+            };
+        }
+        return {
+            name: item,
+            score: ""
+        };
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
             <MainNavbar />
 
             {/* Hero Section */}
             <div className="bg-teal-900 border-b border-teal-800 text-white pt-20 pb-24 px-6">
-                <div className="max-w-5xl mx-auto">
+                <div className="max-w-7xl mx-auto">
                     <Link href="/countries" className="inline-flex items-center text-teal-200 hover:text-white mb-8 transition-colors text-sm font-medium">
                         <ChevronRight className="w-4 h-4 mr-1 rotate-180" />
                         Back to Countries
@@ -81,7 +120,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white min-h-[4rem]">
                                 Study in {data.name}
                             </h1>
-                            <p className="text-lg md:text-xl text-teal-50 max-w-2xl leading-relaxed font-light">
+                            <p className="text-lg md:text-xl text-teal-50 max-w-3xl leading-relaxed font-light">
                                 {data.shortIntro}
                             </p>
                         </div>
@@ -96,7 +135,7 @@ export default async function CountryDetails({ params }: CountryProps) {
             </div>
 
             {/* Main Content Area */}
-            <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
+            <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
                     {/* Scholarships Overview (spans 2 on desktop) */}
@@ -163,71 +202,152 @@ export default async function CountryDetails({ params }: CountryProps) {
                         </div>
                     </section>
 
-                    {/* Visa Info & Requirements Card (1 column in 50/50 split) */}
-                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">
+                    {/* Admission & Requirements Card (spans 2 on desktop) */}
+                    <section className="bg-white rounded-3xl p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                        <div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <ClipboardCheck className="w-5 h-5 text-orange-500" />
+                                <span className="text-xs font-bold text-orange-500 uppercase tracking-widest">Requirements</span>
+                            </div>
+                            <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight mb-8">Admission & requirements</h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                                {/* Admission Column */}
+                                <div>
+                                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-6 border-b border-slate-100 pb-3">Admission</h3>
+                                    {admissionList.length > 0 ? (
+                                        <ul className="space-y-4">
+                                            {admissionList.map((item, idx) => (
+                                                <li key={idx} className="flex gap-3 items-start">
+                                                    <CheckCircle2 className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                                                    <span className="text-slate-600 leading-relaxed text-sm font-medium">{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p className="text-slate-400 text-sm">No admission requirements listed.</p>
+                                    )}
+                                </div>
+
+                                {/* Language Scores Column */}
+                                <div>
+                                    <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-6 border-b border-slate-100 pb-3">Language scores</h3>
+                                    {testScoresList.length > 0 ? (
+                                        <div className="space-y-4">
+                                            {testScoresList.map((item, idx) => {
+                                                const parsed = parseTestScore(item);
+                                                return (
+                                                    <div key={idx} className="bg-slate-50/50 border border-slate-100 rounded-xl p-4 flex justify-between items-center shadow-sm hover:bg-slate-50/80 transition-colors duration-200">
+                                                        <span className="font-bold text-slate-800 text-sm">{parsed.name}</span>
+                                                        {parsed.score && (
+                                                            <span className="text-sm font-semibold text-orange-500">{parsed.score}</span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <p className="text-slate-400 text-sm">No language scores requirements listed.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Visa Documents Card (spans 2 on desktop) */}
+                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                         <div>
                             <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
                                 <div className="bg-teal-100 p-2.5 rounded-xl">
                                     <Globe className="w-6 h-6 text-teal-700" />
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-800 tracking-tight">Visa Info & Requirements</h2>
+                                <h2 className="text-xl font-bold text-slate-800 tracking-tight">Visa Documents</h2>
                             </div>
-                            {data.visaPolicy && data.visaPolicy.trim() !== "" ? (
-                                <ul className="space-y-3">
-                                    {parseTextToList(data.visaPolicy).map((item: string, idx: number) => (
-                                        <li key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                            {visaPolicyContent && visaPolicyContent.trim() !== "" ? (
+                                <div className="space-y-3">
+                                    {parseTextToList(visaPolicyContent).map((item: string, idx: number) => (
+                                        <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
                                             <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
                                             <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
-                                        </li>
+                                        </div>
                                     ))}
-                                </ul>
+                                </div>
                             ) : (
-                                <p className="text-slate-400 text-sm">No visa info listed.</p>
+                                <p className="text-slate-400 text-sm">No visa documents listed.</p>
                             )}
                         </div>
                     </section>
 
-                    {/* Application Timeline & Costs Card (1 column in 50/50 split) */}
-                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">
-                        <div>
-                            <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
-                                <div className="bg-blue-100 p-2.5 rounded-xl">
-                                    <CalendarClock className="w-6 h-6 text-blue-700" />
+                    {/* Costs & Tuition Fees Card (spans 2 on desktop) */}
+                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                            {/* Living Cost */}
+                            <div>
+                                <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                    <div className="bg-teal-100 p-2.5 rounded-xl">
+                                        <Banknote className="w-6 h-6 text-teal-700" />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-800 tracking-tight">Living Cost</h2>
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-800 tracking-tight">When to Apply & Costs</h2>
+                                {data.avgCost && data.avgCost.trim() !== "" ? (
+                                    <div className="space-y-3">
+                                        {parseTextToList(data.avgCost).map((item: string, idx: number) => (
+                                            <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                                <Banknote className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
+                                                <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-slate-400 text-sm">No living cost details listed.</p>
+                                )}
                             </div>
 
-                            {/* Average Living Cost box */}
-                            {data.avgCost && data.avgCost.trim() !== "" && (
-                                <div className="mb-6 bg-teal-50/50 border border-teal-100/50 p-4 rounded-2xl flex gap-4 items-center">
-                                    <div className="w-10 h-10 rounded-xl bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                                        <Banknote className="w-5 h-5" />
+                            {/* Tuition Fees */}
+                            <div>
+                                <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                    <div className="bg-violet-100 p-2.5 rounded-xl">
+                                        <GraduationCap className="w-6 h-6 text-violet-700" />
                                     </div>
-                                    <div>
-                                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-teal-800">Estimated Cost of Living</h4>
-                                        <p className="text-slate-700 text-sm font-semibold">{data.avgCost}</p>
-                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-800 tracking-tight">Tuition Fees</h2>
                                 </div>
-                            )}
-
-                            {/* When to apply list */}
-                            {data.whenToApply && data.whenToApply.trim() !== "" ? (
-                                <div className="space-y-3">
-                                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Application Deadlines</h4>
-                                    <ul className="space-y-3">
-                                        {parseTextToList(data.whenToApply).map((item: string, idx: number) => (
-                                            <li key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
-                                                <CalendarClock className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                                {tuitionFeesContent && tuitionFeesContent.trim() !== "" ? (
+                                    <div className="space-y-3">
+                                        {parseTextToList(tuitionFeesContent).map((item: string, idx: number) => (
+                                            <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                                <GraduationCap className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
                                                 <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
-                                            </li>
+                                            </div>
                                         ))}
-                                    </ul>
-                                </div>
-                            ) : (
-                                <p className="text-slate-400 text-sm">No timeline info listed.</p>
-                            )}
+                                    </div>
+                                ) : (
+                                    <p className="text-slate-400 text-sm">No tuition fee details listed.</p>
+                                )}
+                            </div>
                         </div>
                     </section>
+
+                    {/* Application Deadlines Card (spans 2 on desktop) */}
+                    {whenToApplyContent && whenToApplyContent.trim() !== "" && (
+                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                            <div>
+                                <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                                    <div className="bg-blue-100 p-2.5 rounded-xl">
+                                        <CalendarClock className="w-6 h-6 text-blue-700" />
+                                    </div>
+                                    <h2 className="text-xl font-bold text-slate-800 tracking-tight">Application Deadlines</h2>
+                                </div>
+                                <div className="space-y-3">
+                                    {parseTextToList(whenToApplyContent).map((item: string, idx: number) => (
+                                        <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-4 rounded-xl border border-slate-100">
+                                            <CalendarClock className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                                            <span className="text-slate-700 leading-relaxed text-sm font-medium">{item}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    )}
 
                     {/* Work Rights & Regulations Card (1 column in 50/50 split) */}
                     <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">

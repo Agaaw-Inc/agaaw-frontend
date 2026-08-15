@@ -92,7 +92,7 @@ export default function QuickDetailsBox({
   });
 
   return (
-    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 w-full md:w-[320px] shrink-0 mt-4 md:mt-0 shadow-xl shadow-teal-950/20">
+    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 w-full md:w-[380px] shrink-0 mt-4 md:mt-0 shadow-xl shadow-teal-950/20">
       <h3 className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-5">
         Quick Details
       </h3>

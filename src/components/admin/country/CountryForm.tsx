@@ -16,10 +16,14 @@ const SECTION_KEYS = [
   { value: "opportunities", label: "Opportunities" },
   { value: "top_universities", label: "Top Universities" },
   { value: "how_to_proceed", label: "How to Proceed" },
-  { value: "when_to_apply", label: "When to Apply" },
+  { value: "when_to_apply", label: "Application Deadlines" },
   { value: "cons", label: "Cons/Challenges" },
   { value: "living_cost", label: "Living Cost" },
+  { value: "tuition_fees", label: "Tuition Fees" },
   { value: "scholarships_overview", label: "Scholarships Overview" },
+  { value: "admission", label: "Admission" },
+  { value: "test_scores", label: "Test Scores" },
+  { value: "visa_policy", label: "Visa Documents" },
 ];
 
 export default function CountryForm({

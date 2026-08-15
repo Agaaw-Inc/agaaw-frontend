@@ -100,7 +100,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
 
             {/* Hero Section */}
             <div className="bg-teal-900 border-b border-teal-800 text-white pt-20 pb-24 px-6">
-                <div className="max-w-5xl mx-auto">
+                <div className="max-w-7xl mx-auto">
                     <Link href="/scholarships" className="inline-flex items-center text-teal-200 hover:text-white mb-8 transition-colors text-sm font-medium">
                         <ChevronRight className="w-4 h-4 mr-1 rotate-180" />
                         Back to Scholarships
@@ -114,13 +114,13 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white min-h-[4rem]">
                                 {scholarship.name}
                             </h1>
-                            <p className="text-lg md:text-xl text-teal-50 max-w-2xl leading-relaxed font-light">
+                            <p className="text-lg md:text-xl text-teal-50 max-w-3xl leading-relaxed font-light">
                                 {scholarship.description}
                             </p>
                         </div>
 
                         {/* Meta Info Box */}
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 w-full md:w-auto md:min-w-[300px] shrink-0 mt-4 md:mt-0 shadow-xl shadow-teal-950/20">
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 w-full md:w-[380px] shrink-0 mt-4 md:mt-0 shadow-xl shadow-teal-950/20">
                             <h3 className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-5">Quick Details</h3>
                             <ul className="space-y-5">
                                 <li className="flex items-center gap-4">
@@ -155,7 +155,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
             </div>
 
             {/* Main Content Area */}
-            <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
+            <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
                     {/* Left Column (Details) */}

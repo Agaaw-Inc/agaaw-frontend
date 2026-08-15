@@ -8,6 +8,7 @@ import Footer from "@/components/landing/Footer";
 import Pagination from "@/components/ui/Pagination";
 import * as api from "@/lib/api";
 import { PublicBlog } from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -179,13 +180,14 @@ export default function BlogsPage() {
               {blogs.map((blog) => (
                 <div key={blog.id} className="group relative bg-white border border-slate-100 rounded-[2rem] p-8 hover:shadow-2xl hover:shadow-teal-900/5 transition-all flex flex-col h-full border-b-4 border-b-transparent hover:border-b-teal-500">
                   <div className="flex items-center gap-4 mb-8">
-                    {blog.author.profileImage ? (
-                      <img src={blog.author.profileImage} alt="" className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm" />
-                    ) : (
-                      <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-lg border-2 border-white shadow-sm">
-                        {blog.author.firstName.charAt(0)}
-                      </div>
-                    )}
+                    <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-700 font-bold text-lg border-2 border-white shadow-sm overflow-hidden shrink-0">
+                      <Avatar
+                        src={api.resolveFileUrl(blog.author.profileImage)}
+                        name={blog.author.firstName}
+                        alt={`${blog.author.firstName} ${blog.author.lastName}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div>
                       <p className="text-sm font-bold text-slate-900">{blog.author.firstName} {blog.author.lastName}</p>
                       <div className="flex items-center gap-2 text-[10px] text-slate-400 font-bold uppercase tracking-wider">

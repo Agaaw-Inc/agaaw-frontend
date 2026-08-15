@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Calendar, Tag, ChevronRight, User, Clock, Share2, BookOpen, Layers } from "lucide-react";
+import { Calendar, Tag, ChevronRight, Clock, BookOpen } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import * as api from "@/lib/api";
+import Avatar from "@/components/ui/Avatar";
+import MarkdownRenderer from "@/components/ui/MarkdownRenderer";
+import BlogActionButtons from "@/components/blog/BlogActionButtons";
 
 export default async function SingleBlogPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -47,8 +50,13 @@ export default async function SingleBlogPage({ params }: { params: Promise<{ slu
                       </h1>
                       <div className="flex flex-wrap items-center gap-6 text-slate-400">
                         <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-teal-500 font-bold text-xs border border-slate-700">
-                            {blog.author.firstName.charAt(0)}
+                          <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-teal-500 font-bold text-xs border border-slate-700 overflow-hidden shrink-0">
+                            <Avatar
+                              src={api.resolveFileUrl(blog.author.profileImage)}
+                              name={blog.author.firstName}
+                              alt={`${blog.author.firstName} ${blog.author.lastName}`}
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                           <span className="text-sm font-bold text-slate-200">{blog.author.firstName} {blog.author.lastName}</span>
                         </div>
@@ -80,8 +88,8 @@ export default async function SingleBlogPage({ params }: { params: Promise<{ slu
                     </div>
                   )}
 
-                  <article className="prose prose-xl prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-teal-600 prose-img:rounded-3xl prose-pre:bg-slate-900 prose-pre:rounded-2xl prose-strong:text-slate-900 text-slate-600 leading-[1.8] font-medium whitespace-pre-wrap">
-                      {blog.content}
+                  <article className="max-w-none">
+                      <MarkdownRenderer content={blog.content} />
                   </article>
 
                   <div className="pt-12 border-t border-slate-100">
@@ -103,13 +111,14 @@ export default async function SingleBlogPage({ params }: { params: Promise<{ slu
                   {/* Author Card */}
                   <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 transition-all hover:shadow-xl hover:shadow-slate-200/50">
                       <div className="relative mb-6">
-                        {blog.author.profileImage ? (
-                          <img src={blog.author.profileImage} alt="" className="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-md" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-2xl bg-teal-600 flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-md">
-                            {blog.author.firstName.charAt(0)}
-                          </div>
-                        )}
+                        <div className="w-16 h-16 rounded-2xl bg-teal-600 flex items-center justify-center text-white font-bold text-2xl border-4 border-white shadow-md overflow-hidden shrink-0">
+                          <Avatar
+                            src={api.resolveFileUrl(blog.author.profileImage)}
+                            name={blog.author.firstName}
+                            alt={`${blog.author.firstName} ${blog.author.lastName}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                         <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
                           <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                         </div>
@@ -119,14 +128,11 @@ export default async function SingleBlogPage({ params }: { params: Promise<{ slu
                         {blog.author.role === 'admin' || blog.author.role === 'super_admin' ? 'Agaaw Team' : blog.author.role}
                       </p>
                       
-                      <div className="space-y-4">
-                        <button className="w-full py-3 px-4 bg-white hover:bg-slate-900 hover:text-white rounded-2xl text-slate-600 font-bold text-xs transition-all border border-slate-200 flex items-center justify-center gap-2 group">
-                          <User size={14} className="group-hover:scale-110 transition-transform" /> VIEW PROFILE
-                        </button>
-                        <button className="w-full py-3 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-2xl font-bold text-xs transition-all shadow-lg shadow-teal-100 flex items-center justify-center gap-2 group">
-                          <Share2 size={14} className="group-hover:rotate-12 transition-transform" /> SHARE INSIGHT
-                        </button>
-                      </div>
+                      <BlogActionButtons
+                        authorId={blog.author.id}
+                        authorRole={blog.author.role}
+                        blogTitle={blog.title}
+                      />
                   </div>
 
                   {/* Related Info */}
