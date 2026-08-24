@@ -23,7 +23,7 @@ const SECTION_KEYS = [
   { value: "scholarships_overview", label: "Scholarships Overview" },
   { value: "admission", label: "Admission" },
   { value: "test_scores", label: "Test Scores" },
-  { value: "visa_policy", label: "Visa Documents" },
+  { value: "visa_documents", label: "Visa Documents" },
 ];
 
 export default function CountryForm({
@@ -249,21 +249,8 @@ export default function CountryForm({
                 <input {...register("language")} placeholder="e.g. English, French" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Tuition Cost</label>
-                <input {...register("tuitionCost")} placeholder="e.g. $15k - $30k" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
-              </div>
-              <div className="space-y-1.5">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Work Rights</label>
                 <input {...register("workRights")} placeholder="e.g. 20h/week" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm" />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-tight">Visa Info</label>
-                <textarea
-                  {...register("visaInfo")}
-                  placeholder="e.g. Student visa requires admission letter, bank statement, and valid passport."
-                  rows={4}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:bg-white outline-none transition-all resize-y min-h-[110px]"
-                />
               </div>
             </div>
           </div>

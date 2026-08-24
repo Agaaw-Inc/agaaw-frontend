@@ -62,7 +62,7 @@ export default async function CountryDetails({ params }: CountryProps) {
 
     // Resolve Visa Documents
     const visaPolicyContent = data.visaPolicy ||
-        (data as any).sections?.find((s: any) => s.sectionKey === "visa_policy")?.content ||
+        (data as any).sections?.find((s: any) => s.sectionKey === "visa_documents" || s.sectionKey === "visa_policy")?.content ||
         "";
 
     // Helper to parse line breaks and standard bullet points into clean lists
@@ -126,7 +126,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                         </div>
 
                         <QuickDetailsBox
-                            tuitionCost={data.tuitionCost}
+                            tuitionCost={data.tuitionCost || (tuitionFeesContent ? parseTextToList(tuitionFeesContent)[0] : undefined)}
                             currency={data.currency}
                             language={data.language}
                         />
