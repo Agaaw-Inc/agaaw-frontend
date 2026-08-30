@@ -17,6 +17,8 @@ export default function MentorLayout({ children }: { children: React.ReactNode }
             router.push("/login");
         } else if (user.role !== "mentor") {
             router.push(`/dashboard/${user.role}`);
+        } else if (user.onboardingCompleted === false) {
+            router.push("/register/mentor/onboarding");
         } else {
             setAuthorized(true);
         }

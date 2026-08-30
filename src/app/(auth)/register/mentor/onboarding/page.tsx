@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { PHONE_CODES, COUNTRY_LIST } from "@/data/geo";
 import { completeMentorOnboarding, getCountriesClient } from "@/lib/api";
+import { getUserInfo, setUserInfo } from "@/lib/auth";
 import { EDUCATION_LEVELS, SEMESTER_OPTIONS } from "@/data/educationalData";
 
 
@@ -80,6 +81,14 @@ export default function MentorOnboarding() {
             .then((countries: any[]) => setBackendCountries(countries))
             .catch((err: any) => console.error("Failed to fetch countries:", err));
     }, []);
+
+    // If already completed onboarding, redirect to dashboard
+    useEffect(() => {
+        const user = getUserInfo();
+        if (user?.onboardingCompleted) {
+            router.replace("/dashboard/mentor");
+        }
+    }, [router]);
 
     // Load saved progress
     useEffect(() => {
@@ -153,6 +162,13 @@ export default function MentorOnboarding() {
                     if (payload[key] === undefined) delete payload[key];
                 });
                 await completeMentorOnboarding(payload);
+
+                // Update stored user info with onboardingCompleted: true
+                const currentUser = getUserInfo();
+                if (currentUser) {
+                    setUserInfo({ ...currentUser, onboardingCompleted: true });
+                }
+
                 localStorage.removeItem("mentor_onboarding_data");
                 localStorage.setItem("mentor_onboarding_completed", "true");
                 router.push("/dashboard/mentor");

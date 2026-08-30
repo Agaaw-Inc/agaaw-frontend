@@ -58,12 +58,18 @@ export default function OtpForm() {
         setToken(response.access_token);
         setUserInfo(response.user);
 
-        if (role === "student") {
-          router.push("/register/student/student-onboarding");
-        } else if (role === "mentor") {
-          router.push("/register/mentor/onboarding");
+        if (!response.user.onboardingCompleted) {
+          if (role === "mentor") {
+            router.push("/register/mentor/onboarding");
+          } else {
+            router.push("/register/student/student-onboarding");
+          }
         } else {
-          router.push("/");
+          if (role === "mentor") {
+            router.push("/dashboard/mentor");
+          } else {
+            router.push("/dashboard/student");
+          }
         }
         return;
       } else {
@@ -79,12 +85,18 @@ export default function OtpForm() {
               // Clean up temporary password
               sessionStorage.removeItem("temp_reg_password");
 
-              if (role === "student") {
-                router.push("/register/student/student-onboarding");
-              } else if (role === "mentor") {
-                router.push("/register/mentor/onboarding");
+              if (!loginResponse.user.onboardingCompleted) {
+                if (role === "mentor") {
+                  router.push("/register/mentor/onboarding");
+                } else {
+                  router.push("/register/student/student-onboarding");
+                }
               } else {
-                router.push("/");
+                if (role === "mentor") {
+                  router.push("/dashboard/mentor");
+                } else {
+                  router.push("/dashboard/student");
+                }
               }
               return;
             }

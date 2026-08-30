@@ -8,6 +8,7 @@ export interface UserInfo {
   email: string;
   role: "mentor" | "student" | "admin";
   profileImage?: string | null;
+  onboardingCompleted?: boolean;
 }
 
 export function setToken(token: string) {

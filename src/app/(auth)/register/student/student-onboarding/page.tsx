@@ -24,6 +24,7 @@ import {
   Loader2
 } from "lucide-react";
 import { completeStudentOnboarding, uploadStudentDocument, getCountriesClient } from "@/lib/api";
+import { getUserInfo, setUserInfo } from "@/lib/auth";
 import { COUNTRY_LIST, PHONE_CODES } from "@/data/geo";
 import { SUBJECTS } from "@/data/educationalData";
 
@@ -63,6 +64,14 @@ export default function StudentOnboarding() {
 
   // Countries from backend (with IDs)
   const [backendCountries, setBackendCountries] = useState<{ id: string; name: string; slug: string; image: string }[]>([]);
+
+  // If already completed onboarding, redirect to dashboard
+  useEffect(() => {
+    const user = getUserInfo();
+    if (user?.onboardingCompleted) {
+      router.replace("/dashboard/student");
+    }
+  }, [router]);
 
   // Load from LocalStorage if exists
   useEffect(() => {
@@ -178,6 +187,12 @@ export default function StudentOnboarding() {
         } catch (err) {
           console.warn("CV upload failed (non-critical):", err);
         }
+      }
+
+      // Update stored user info with onboardingCompleted: true
+      const currentUser = getUserInfo();
+      if (currentUser) {
+        setUserInfo({ ...currentUser, onboardingCompleted: true });
       }
 
       // Clear local storage and redirect

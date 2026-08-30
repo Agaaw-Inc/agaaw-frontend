@@ -17,6 +17,8 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             router.push("/login");
         } else if (user.role !== "student") {
             router.push(`/dashboard/${user.role}`);
+        } else if (user.onboardingCompleted === false) {
+            router.push("/register/student/student-onboarding");
         } else {
             setAuthorized(true);
         }
