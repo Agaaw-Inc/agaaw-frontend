@@ -643,6 +643,36 @@ export async function getMentorProfile() {
   return json.data || json;
 }
 
+export interface MentorMonthlyEarning {
+  month: string;
+  fullMonth: string;
+  year: number;
+  amount: number;
+  barHeightPercent: number;
+}
+
+export interface MentorEarningsOverview {
+  currency: string;
+  totalEarnings: number;
+  thisMonthEarnings: number;
+  lastMonthEarnings: number;
+  pendingPayments: number;
+  completedSessions: number;
+  trendPercentage: string | null;
+  trendDirection: "up" | "down" | "neutral";
+  projectedNextMonth: number;
+  monthlyBreakdown: MentorMonthlyEarning[];
+}
+
+export async function getMentorEarningsOverview(): Promise<MentorEarningsOverview> {
+  const res = await authFetch("/mentors/earnings", { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(extractErrorMessage(json, "Failed to fetch earnings overview"));
+  }
+  return json.data;
+}
+
 export async function updateMentorProfile(data: any) {
   const res = await authFetch("/mentors/profile", {
     method: "PATCH",

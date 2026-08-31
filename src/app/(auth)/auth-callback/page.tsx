@@ -24,11 +24,21 @@ function AuthCallbackContent() {
           // 3. Save user info to localStorage
           setUserInfo(user);
 
-          // 4. Redirect based on role
-          if (user.role === "mentor") {
-            router.push("/register/mentor/onboarding");
+          // 4. Redirect based on onboarding completion and role
+          if (!user.onboardingCompleted) {
+            if (user.role === "mentor") {
+              router.push("/register/mentor/onboarding");
+            } else {
+              router.push("/register/student/student-onboarding");
+            }
           } else {
-            router.push("/register/student/student-onboarding");
+            if (user.role === "mentor") {
+              router.push("/dashboard/mentor");
+            } else if (user.role === "student") {
+              router.push("/dashboard/student");
+            } else {
+              router.push("/internal-hq");
+            }
           }
         })
         .catch((err) => {

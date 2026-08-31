@@ -42,6 +42,12 @@ export default function LoginForm() {
       const role = response.user.role;
       if (redirect) {
         router.push(redirect);
+      } else if (!response.user.onboardingCompleted) {
+        if (role === "mentor") {
+          router.push("/register/mentor/onboarding");
+        } else {
+          router.push("/register/student/student-onboarding");
+        }
       } else if (role === "mentor") {
         router.push("/dashboard/mentor");
       } else {
