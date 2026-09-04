@@ -25,6 +25,16 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",
       },
+      // Cloudflare R2 public file domain
+      {
+        protocol: "https",
+        hostname: "files.agaaw.com",
+      },
+      // Cloudflare R2 direct bucket domain (dev/staging fallback)
+      {
+        protocol: "https",
+        hostname: "*.r2.cloudflarestorage.com",
+      },
     ],
   },
 };

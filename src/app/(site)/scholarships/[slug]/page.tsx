@@ -44,6 +44,9 @@ function parseList(value: string) {
     return value
         .split("\n")
         .map((line) => line.replace(/^[\s\d\-•*.:·–—+]+/, "").trim())
+        .map((line) => line.replace(/^[\s\d\-•*.:·–—+]+/, "").trim())
+        .map((line) => line.replace(/^[\s\d\-•*.:·–—+]+/, "").trim())
+        .map((line) => line.replace(/^[\s\d\-•*.:·–—+]+/, "").trim())
         .filter(Boolean);
 }
 
@@ -108,21 +111,21 @@ export default async function ScholarshipDetails({ params }: PageProps) {
 
                     <div className="flex flex-col md:flex-row gap-8 md:gap-12 items-start justify-between">
                         <div className="flex-1">
-                            <span className="inline-block px-4 py-1.5 bg-teal-800/50 text-teal-100 rounded-full text-xs font-bold tracking-widest uppercase mb-6 border border-teal-700/50">
+                            <span className="inline-block px-4 py-1.5 bg-teal-800/50 text-teal-100 rounded-full text-sm font-bold tracking-widest uppercase mb-6 border border-teal-700/50">
                                 {scholarship.provider}
                             </span>
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white min-h-[4rem]">
                                 {scholarship.name}
                             </h1>
-                            <p className="text-lg md:text-xl text-teal-50 max-w-3xl leading-relaxed font-light">
+                            <p className="text-sm md:text-xl text-teal-50 max-w-3xl leading-relaxed font-light">
                                 {scholarship.description}
                             </p>
                         </div>
 
                         {/* Meta Info Box */}
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 w-full md:w-[380px] shrink-0 mt-4 md:mt-0 shadow-xl shadow-teal-950/20">
-                            <h3 className="text-xs font-bold text-teal-200 uppercase tracking-widest mb-5">Quick Details</h3>
-                            <ul className="space-y-5">
+                        <div className="bg-white/10 backdrop-blur-md rounded-4xl p-20 border border-white/10 w-full md:w-auto md:min-w-[350px] shrink-0 mt-4 md:mt-0 shadow-xl shadow-teal-950/20">
+                            <h3 className="text-md font-bold text-teal-200 uppercase tracking-widest mb-5">Quick Details</h3>
+                            <ul className="space-y-7">
                                 <li className="flex items-center gap-4">
                                     <div className="bg-white/10 p-2.5 rounded-xl"><MapPin className="w-5 h-5 text-teal-200" /></div>
                                     <div>
@@ -155,7 +158,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
             </div>
 
             {/* Main Content Area */}
-            <main className="flex-1 w-full max-w-7xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
+            <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-12 -mt-10 mb-20 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
                     {/* Left Column (Details) */}
@@ -168,16 +171,41 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                 </div>
                                 <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Coverage Details</h2>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {coverageDetails.map((item, idx) => (
-                                    <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-5 rounded-2xl border border-slate-100">
-                                        <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                                        <span className="text-slate-700 leading-relaxed text-sm md:text-base font-medium">{item}</span>
-                                    </div>
-                                ))}
+                            <div className="overflow-x-auto w-full">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-slate-100 bg-slate-50/50">
+                                            <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-1/3">Detail / Topic</th>
+                                            <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Information</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
+                                            <td className="py-4 px-4 text-sm font-semibold text-slate-700 align-top">Coverage</td>
+                                            <td className="py-4 px-4 text-sm text-slate-600 leading-relaxed align-top">{formatEnum(scholarship.coverage)}</td>
+                                        </tr>
+                                        {scholarship.amount && (
+                                            <tr className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
+                                                <td className="py-4 px-4 text-sm font-semibold text-slate-700 align-top">Amount / Stipend</td>
+                                                <td className="py-4 px-4 text-sm text-slate-600 leading-relaxed align-top">{scholarship.amount}</td>
+                                            </tr>
+                                        )}
+                                        {scholarship.category && (
+                                            <tr className="border-b border-slate-100 hover:bg-slate-50/30 transition-colors">
+                                                <td className="py-4 px-4 text-sm font-semibold text-slate-700 align-top">Category</td>
+                                                <td className="py-4 px-4 text-sm text-slate-600 leading-relaxed align-top">{scholarship.category}</td>
+                                            </tr>
+                                        )}
+                                        <tr className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                            <td className="py-4 px-4 text-sm font-semibold text-slate-700 align-top">Provider</td>
+                                            <td className="py-4 px-4 text-sm text-slate-600 leading-relaxed align-top">{scholarship.provider}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </section>
 
+                        {/* Benefits Card */}
                         {benefits.length > 0 && (
                             <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                                 <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
@@ -186,17 +214,32 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                     </div>
                                     <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Benefits</h2>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {benefits.map((benefit, idx) => (
-                                        <div key={idx} className="flex gap-3 bg-slate-50 hover:bg-slate-100/80 transition-colors p-5 rounded-2xl border border-slate-100">
-                                            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                                            <span className="text-slate-700 leading-relaxed text-sm md:text-base font-medium">{benefit}</span>
-                                        </div>
-                                    ))}
+                                <div className="overflow-x-auto w-full">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-slate-100 bg-slate-50/50">
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-12">Status</th>
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Benefit</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {benefits.map((benefit, idx) => (
+                                                <tr key={idx} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                                    <td className="py-4 px-4 align-top w-12">
+                                                        <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                                                    </td>
+                                                    <td className="py-4 px-4 text-slate-700 leading-relaxed text-sm font-medium">
+                                                        {benefit}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </section>
                         )}
 
+                        {/* Eligibility Card */}
                         {eligibility.length > 0 && (
                             <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                                 <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
@@ -205,57 +248,100 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                                     </div>
                                     <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Eligibility</h2>
                                 </div>
-                                <ul className="space-y-4">
-                                    {eligibility.map((item, idx) => (
-                                        <li key={idx} className="flex gap-4 items-start p-4 hover:bg-slate-50 transition-colors rounded-xl">
-                                            <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 mt-2 shadow-sm"></div>
-                                            <p className="text-slate-700 leading-relaxed font-medium flex-1">{item}</p>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <div className="overflow-x-auto w-full">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-slate-100 bg-slate-50/50">
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-12">Status</th>
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Eligibility Criteria</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {eligibility.map((item, idx) => (
+                                                <tr key={idx} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                                    <td className="py-4 px-4 align-top w-12">
+                                                        <CheckCircle2 className="w-5 h-5 text-amber-500" />
+                                                    </td>
+                                                    <td className="py-4 px-4 text-slate-700 leading-relaxed text-sm font-medium">
+                                                        {item}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </section>
                         )}
 
                         {/* Required Documents Card */}
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
-                            <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
-                                <div className="bg-amber-100 p-3 rounded-2xl">
-                                    <FileText className="w-7 h-7 text-amber-700" />
+                        {requiredDocuments.length > 0 && (
+                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                                <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
+                                    <div className="bg-amber-100 p-3 rounded-2xl">
+                                        <FileText className="w-7 h-7 text-amber-700" />
+                                    </div>
+                                    <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Required Documents</h2>
                                 </div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Required Documents</h2>
-                            </div>
-                            <ul className="space-y-4">
-                                {requiredDocuments.map((item, idx) => (
-                                    <li key={idx} className="flex gap-4 items-start p-4 hover:bg-slate-50 transition-colors rounded-xl">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0 mt-2 shadow-sm"></div>
-                                        <p className="text-slate-700 leading-relaxed font-medium flex-1">{item}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
+                                <div className="overflow-x-auto w-full">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-slate-100 bg-slate-50/50">
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-12">Required</th>
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Document Name</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {requiredDocuments.map((item, idx) => (
+                                                <tr key={idx} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                                    <td className="py-4 px-4 align-top w-12">
+                                                        <FileText className="w-5 h-5 text-amber-600" />
+                                                    </td>
+                                                    <td className="py-4 px-4 text-slate-700 leading-relaxed text-sm font-medium">
+                                                        {item}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        )}
 
                         {/* Application Steps Card */}
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
-                            <div className="flex items-center gap-4 mb-10 border-b border-slate-100 pb-6">
-                                <div className="bg-blue-100 p-3 rounded-2xl">
-                                    <ListOrdered className="w-7 h-7 text-blue-700" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Application Steps</h2>
-                            </div>
-
-                            <div className="space-y-0 relative before:absolute before:inset-0 before:ml-[1.1rem] md:before:mx-auto md:before:translate-x-0 before:h-full before:w-[2px] before:bg-gradient-to-b before:from-blue-200 before:via-blue-200 before:to-transparent">
-                                {applicationSteps.map((step, idx) => (
-                                    <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group py-6">
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-white border-[3px] border-blue-500 text-blue-700 font-bold text-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-md z-10 mx-auto absolute left-0 md:left-1/2 -ml-0.5 md:ml-0">
-                                            {idx + 1}
-                                        </div>
-                                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] ml-[3.5rem] md:ml-0 bg-white p-6 rounded-2xl border border-slate-200 group-hover:border-blue-400 group-hover:shadow-md transition-all shadow-sm">
-                                            <p className="text-slate-700 text-base leading-relaxed font-medium">{step}</p>
-                                        </div>
+                        {applicationSteps.length > 0 && (
+                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                                <div className="flex items-center gap-4 mb-10 border-b border-slate-100 pb-6">
+                                    <div className="bg-blue-100 p-3 rounded-2xl">
+                                        <ListOrdered className="w-7 h-7 text-blue-700" />
                                     </div>
-                                ))}
-                            </div>
-                        </section>
+                                    <h2 className="text-2xl font-bold text-slate-800 tracking-tight">Application Steps</h2>
+                                </div>
+                                <div className="overflow-x-auto w-full">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-slate-100 bg-slate-50/50">
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500 w-24">Step</th>
+                                                <th className="py-3 px-4 text-xs font-bold uppercase tracking-wider text-slate-500">Action / Process Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {applicationSteps.map((step, idx) => (
+                                                <tr key={idx} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors">
+                                                    <td className="py-4 px-4 align-top w-24">
+                                                        <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-50 border-2 border-blue-500 text-blue-700 font-bold text-sm">
+                                                            {idx + 1}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-4 px-4 text-slate-700 leading-relaxed text-sm font-medium align-middle">
+                                                        {step}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        )}
 
                         {scholarship.faqs && scholarship.faqs.length > 0 && (
                             <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">

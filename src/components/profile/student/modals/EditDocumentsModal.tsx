@@ -3,6 +3,8 @@
 import React, { useState, useRef } from "react";
 import { X, UploadCloud, FileText, Loader2 } from "lucide-react";
 
+const MAX_DOCUMENT_SIZE = 1.5 * 1024 * 1024; // 1.5 MB
+
 interface EditDocumentsModalProps {
     docInfo: { type: string; title: string; subtitle: string };
     onClose: () => void;
@@ -12,12 +14,26 @@ interface EditDocumentsModalProps {
 export default function EditDocumentsModal({ docInfo, onClose, onUpload }: EditDocumentsModalProps) {
     const [file, setFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [fileError, setFileError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setFile(e.target.files[0]);
+        setFileError(null);
+        const selected = e.target.files?.[0];
+        if (!selected) return;
+
+        if (selected.type !== "application/pdf") {
+            setFileError("Only PDF files are allowed.");
+            e.target.value = "";
+            return;
         }
+        if (selected.size > MAX_DOCUMENT_SIZE) {
+            setFileError("File must be smaller than 1.5MB.");
+            e.target.value = "";
+            return;
+        }
+
+        setFile(selected);
     };
 
     const handleUploadClick = () => {
@@ -30,9 +46,9 @@ export default function EditDocumentsModal({ docInfo, onClose, onUpload }: EditD
         try {
             await onUpload(docInfo.type, file);
             onClose();
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to upload document:", err);
-            alert("Failed to upload document. Please try again.");
+            setFileError(err.message || "Failed to upload document. Please try again.");
         } finally {
             setIsUploading(false);
         }
@@ -75,7 +91,7 @@ export default function EditDocumentsModal({ docInfo, onClose, onUpload }: EditD
                             onChange={handleFileChange} 
                             disabled={isUploading}
                             className="hidden" 
-                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            accept="application/pdf"
                         />
                         <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                             <UploadCloud size={24} />
@@ -89,10 +105,11 @@ export default function EditDocumentsModal({ docInfo, onClose, onUpload }: EditD
                         ) : (
                             <>
                                 <h3 className="text-sm font-bold text-gray-900 mb-1">Click to select file</h3>
-                                <p className="text-xs text-gray-500">PDF, DOC, DOCX, JPG, or PNG (max. 10MB)</p>
+                                <p className="text-xs text-gray-500">PDF only (max. 1.5MB)</p>
                             </>
                         )}
                     </div>
+                    {fileError && <p className="text-xs text-red-500 -mt-2">{fileError}</p>}
                 </div>
 
                 {/* Footer */}

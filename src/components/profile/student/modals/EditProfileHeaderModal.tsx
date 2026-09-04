@@ -7,8 +7,8 @@ import Avatar from "@/components/ui/Avatar";
 
 type StudyLevel = 'bachelors' | 'masters' | 'phd' | 'diploma' | 'other';
 
-const MAX_AVATAR_SIZE = 1 * 1024 * 1024; // 1MB
-const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const MAX_AVATAR_SIZE = 1 * 1024 * 1024; // 1 MB
+const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 interface EditProfileHeaderModalProps {
     profile: any;
@@ -44,7 +44,7 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave, onAva
             return;
         }
         if (file.size > MAX_AVATAR_SIZE) {
-            setAvatarError("Image must be smaller than 5MB.");
+            setAvatarError("Image must be smaller than 1MB.");
             return;
         }
 
@@ -134,7 +134,7 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave, onAva
                             <input
                                 ref={fileInputRef}
                                 type="file"
-                                accept="image/jpeg,image/png,image/webp,image/gif"
+                                accept="image/jpeg,image/png,image/webp"
                                 onChange={handleAvatarSelect}
                                 className="hidden"
                             />
@@ -158,7 +158,7 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave, onAva
                                     </button>
                                 )}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1.5">JPG, PNG, WEBP or GIF. Max size 5MB.</p>
+                            <p className="text-xs text-gray-500 mt-1.5">JPG, PNG or WEBP. Max size 1MB.</p>
                             {avatarError && <p className="text-xs text-red-500 mt-1">{avatarError}</p>}
                         </div>
                     </div>

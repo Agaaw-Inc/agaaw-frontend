@@ -21,7 +21,9 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
 
     const getFileUrl = (url: string) => {
         if (!url) return "#";
-        if (url.startsWith("http")) return url;
+        // R2 URLs (and all other absolute URLs) are returned as-is
+        if (url.startsWith("http://") || url.startsWith("https://")) return url;
+        // Legacy relative path fallback (dev only)
         return `http://localhost:3001${url}`;
     };
 
