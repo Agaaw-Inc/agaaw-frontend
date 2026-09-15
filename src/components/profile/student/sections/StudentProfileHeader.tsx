@@ -72,29 +72,38 @@ export default function StudentProfileHeader({
                         </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
-                        <div className="flex items-center gap-1.5">
-                            <MapPin size={16} />
-                            {profile?.nationality || "Add nationality / location"}
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                            <GraduationCap size={16} />
-                            {profile?.studyLevel ? (
-                                <span className="capitalize">
-                                    Targeting {profile.studyLevel} {profile.fieldOfInterest ? `in ${profile.fieldOfInterest}` : ""}
-                                </span>
-                            ) : (
-                                "Add targeting education goals"
+                    {/* "Add …" placeholders only belong to the student's own editable header. */}
+                    {(onEdit || profile?.nationality || profile?.studyLevel) && (
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 font-medium">
+                            {(onEdit || profile?.nationality) && (
+                                <div className="flex items-center gap-1.5">
+                                    <MapPin size={16} />
+                                    {profile?.nationality || "Add nationality / location"}
+                                </div>
+                            )}
+                            {(onEdit || profile?.studyLevel) && (
+                                <div className="flex items-center gap-1.5">
+                                    <GraduationCap size={16} />
+                                    {profile?.studyLevel ? (
+                                        <span className="capitalize">
+                                            Targeting {profile.studyLevel} {profile.fieldOfInterest ? `in ${profile.fieldOfInterest}` : ""}
+                                        </span>
+                                    ) : (
+                                        "Add targeting education goals"
+                                    )}
+                                </div>
                             )}
                         </div>
-                    </div>
+                    )}
 
-                    <div className="pt-1">
-                        <p className="text-sm font-semibold text-gray-700">About me:</p>
-                        <p className="text-sm text-gray-600 mt-0.5 max-w-3xl leading-relaxed">
-                            {profile?.bio || "Add a short bio about yourself to attract mentors..."}
-                        </p>
-                    </div>
+                    {(onEdit || profile?.bio) && (
+                        <div className="pt-1">
+                            <p className="text-sm font-semibold text-gray-700">About me:</p>
+                            <p className="text-sm text-gray-600 mt-0.5 max-w-3xl leading-relaxed">
+                                {profile?.bio || "Add a short bio about yourself to attract mentors..."}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Actions */}

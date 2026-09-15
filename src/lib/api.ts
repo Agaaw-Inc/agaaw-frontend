@@ -1216,6 +1216,15 @@ export async function getStudentDocumentsForMentor(userId: string) {
   return Array.isArray(json.data) ? json.data : [];
 }
 
+/** Tells the backend a mentor opened a student's document (drives the student's "viewed your CV" notification). */
+export async function markStudentDocumentViewed(userId: string, documentId: string) {
+  const res = await authFetch(`/students/${userId}/documents/${documentId}/view`, { method: "POST" });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(extractErrorMessage(json, "Failed to record document view"));
+  }
+}
+
 // ── Mentorship sessions (video calls) ────────────────────────────────────
 
 export type SessionStatus = "scheduled" | "in_progress" | "completed" | "cancelled" | "no_show";

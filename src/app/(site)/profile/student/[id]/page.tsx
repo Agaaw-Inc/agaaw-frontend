@@ -13,6 +13,7 @@ import {
     getStudentPublicProfile,
     getStudentProfileForMentor,
     getStudentDocumentsForMentor,
+    markStudentDocumentViewed,
     getMentorshipRequests,
     getConnections,
     getSessions,
@@ -305,13 +306,23 @@ export default function StudentPublicProfilePage() {
                     </div>
                 )}
 
-                {/* Phone is only shared with admins. Financial & document details require a connection. */}
+                {/* Phone & email are only returned by the API for admins. Financial & document details require a connection. */}
                 {/* Every card below is only shown if the student actually added that information. */}
                 {hasPersonalInfo && <PersonalInfoCard profile={profile} />}
                 {hasAcademicInfo && <AcademicInfoCard profile={profile} />}
                 {hasExperience && <ExperienceCard profile={profile} />}
                 {hasFinancialDetails && <FinancialDetailsCard profile={profile} />}
-                {hasDocuments && <DocumentsCard documents={documents} />}
+                {hasDocuments && (
+                    <DocumentsCard
+                        documents={documents}
+                        onView={(doc) => {
+                            // Fire-and-forget: the document opens regardless; this only notifies the student.
+                            markStudentDocumentViewed(id, doc.id).catch((err) =>
+                                console.error("Failed to record document view:", err),
+                            );
+                        }}
+                    />
+                )}
                 {hasSkills && <SkillsCard profile={profile} />}
                 {hasCertifications && <CertificationsCard profile={profile} />}
                 {hasResearch && <ResearchCard profile={profile} />}

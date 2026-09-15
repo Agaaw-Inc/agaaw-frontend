@@ -7,9 +7,15 @@ interface DocumentsCardProps {
     documents: any[];
     onUploadClick?: (type: string, title: string, subtitle: string) => void;
     onDelete?: (id: string) => void;
+    /** Called when a viewer opens an uploaded document (the link still opens as normal). */
+    onView?: (document: { id: string }) => void;
 }
 
-export default function DocumentsCard({ documents, onUploadClick, onDelete }: DocumentsCardProps) {
+export default function DocumentsCard({ documents, onUploadClick, onDelete, onView }: DocumentsCardProps) {
+    // The checklist (required badges, "Not Uploaded", upload buttons) is for the student's
+    // own profile. Viewers (mentors) only see the documents that were actually uploaded.
+    const isEditable = !!(onUploadClick || onDelete);
+
     const docTypes = [
         { type: "transcript", title: "Academic Transcript", subtitle: "Official university transcript", required: true },
         { type: "certificate", title: "Student ID Card", subtitle: "Front & back scan of ID card", required: true },
@@ -18,6 +24,10 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
         { type: "cv", title: "CV / Resume", subtitle: "Professional/Academic CV", required: false },
         { type: "sop", title: "Statement of Purpose (SOP)", subtitle: "Draft or final version", required: false },
     ];
+
+    const visibleDocTypes = isEditable
+        ? docTypes
+        : docTypes.filter((docType) => documents?.some((d) => d.type === docType.type));
 
     const getFileUrl = (url: string) => {
         if (!url) return "#";
@@ -31,11 +41,11 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
         <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-6">
                 <FileText size={20} className="text-teal-600" />
-                <h2 className="text-lg font-bold text-gray-900">Documents Checklist</h2>
+                <h2 className="text-lg font-bold text-gray-900">{isEditable ? "Documents Checklist" : "Documents"}</h2>
             </div>
 
             <div className="space-y-4">
-                {docTypes.map((docType) => {
+                {visibleDocTypes.map((docType) => {
                     const dbDoc = documents?.find((d) => d.type === docType.type);
                     const isUploaded = !!dbDoc;
 
@@ -47,7 +57,7 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
                                 </div>
                                 <div>
                                     <h3 className="text-sm font-bold text-gray-900">
-                                        {docType.title} {docType.required && <span className="text-red-500 text-[10px] font-bold uppercase ml-1">(Required)</span>}
+                                        {docType.title} {isEditable && docType.required && <span className="text-red-500 text-[10px] font-bold uppercase ml-1">(Required)</span>}
                                     </h3>
                                     {isUploaded ? (
                                         <div className="mt-1 space-y-0.5">
@@ -71,9 +81,10 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
                                             <CheckCircle2 size={16} />
                                             <span className="text-xs font-bold">Uploaded</span>
                                         </div>
-                                        <a 
-                                            href={getFileUrl(dbDoc.fileUrl)} 
-                                            target="_blank" 
+                                        <a
+                                            href={getFileUrl(dbDoc.fileUrl)}
+                                            onClick={() => onView?.(dbDoc)}
+                                            target="_blank"
                                             rel="noopener noreferrer"
                                             className="flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-bold transition-colors"
                                             title="View Uploaded File"
@@ -81,7 +92,7 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
                                             <ExternalLink size={12} /> View
                                         </a>
                                         {onUploadClick && (
-                                            <button 
+                                            <button
                                                 onClick={() => onUploadClick(docType.type, docType.title, docType.subtitle)}
                                                 className="px-3 py-1.5 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg text-xs font-bold transition-colors"
                                             >
@@ -89,7 +100,7 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
                                             </button>
                                         )}
                                         {onDelete && (
-                                            <button 
+                                            <button
                                                 onClick={() => onDelete(dbDoc.id)}
                                                 className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 rounded-lg transition-colors border border-red-100"
                                                 title="Delete File"
@@ -105,7 +116,7 @@ export default function DocumentsCard({ documents, onUploadClick, onDelete }: Do
                                             <span className="text-xs font-bold">Not Uploaded</span>
                                         </div>
                                         {onUploadClick && (
-                                            <button 
+                                            <button
                                                 onClick={() => onUploadClick(docType.type, docType.title, docType.subtitle)}
                                                 className="flex items-center gap-1.5 px-4 py-1.5 bg-teal-500 text-white hover:bg-teal-600 rounded-lg text-xs font-bold transition-colors shadow-sm"
                                             >
