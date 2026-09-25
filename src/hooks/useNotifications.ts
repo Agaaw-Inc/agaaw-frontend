@@ -30,8 +30,18 @@ export function emitNotificationChange() {
 }
 
 /**
- * Live unread-notification total for the bell badge. Socket-driven with a
- * 60s polling fallback. Independent from the chat/messages badge.
+ * Fallback poll for when the socket silently misses a push. Kept slow and
+ * visible-tab-only on purpose: every poll is a database query, and a
+ * forgotten background tab polling every minute kept the (Neon, billed per
+ * active hour) database awake all night.
+ */
+const POLL_FALLBACK_MS = 5 * 60_000;
+
+/**
+ * Live unread-notification total for the bell badge. Socket-driven, with a
+ * slow polling fallback that only runs while the tab is visible and catches
+ * up immediately when the user returns. Independent from the chat/messages
+ * badge.
  *
  * `onLiveNotification` (optional) fires for every `notification:new` socket
  * push, with `shouldToast` precomputed per the B4 type list.
@@ -59,8 +69,28 @@ export function useUnreadNotifications(
         .catch(() => {});
     };
 
+    let interval: number | undefined;
+    const startPolling = () => {
+      if (interval === undefined) {
+        interval = window.setInterval(refresh, POLL_FALLBACK_MS);
+      }
+    };
+    const stopPolling = () => {
+      window.clearInterval(interval);
+      interval = undefined;
+    };
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refresh(); // catch up on anything missed while hidden
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
     refresh();
-    const interval = window.setInterval(refresh, 60_000); // poll fallback
+    if (document.visibilityState === "visible") startPolling();
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const socket = getChatSocket();
     const onNotificationNew = (item: NotificationItem) => {
@@ -74,7 +104,8 @@ export function useUnreadNotifications(
 
     return () => {
       cancelled = true;
-      window.clearInterval(interval);
+      stopPolling();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       socket.off("notification:new", onNotificationNew);
       socket.off("connect", refresh);
       window.removeEventListener(NOTIFICATION_CHANGE_EVENT, refresh);
