@@ -11,7 +11,9 @@
  */
 
 import { useState, useRef, useEffect } from "react";
-import { LogOut, ChevronDown, ShieldCheck } from "lucide-react";
+import { LogOut, ChevronDown, ShieldCheck, Menu } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { pageTitle } from "./Sidebar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 /** Build a display name from the Admin object */
@@ -33,8 +35,9 @@ function getInitials(admin: { firstName?: string; lastName?: string } | null): s
     .slice(0, 2);
 }
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { admin, logout } = useAdminAuth();
+  const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -54,9 +57,18 @@ export default function Topbar() {
   const roleLabel = admin?.adminProfile?.adminRole?.replace("_", " ") || admin?.role || "admin";
 
   return (
-    <header className="bg-white shadow-sm px-6 py-3 flex justify-between items-center border-b border-gray-100">
-      {/* ── Title ── */}
-      <h1 className="text-lg font-semibold text-gray-900">Dashboard</h1>
+    <header className="bg-white shadow-sm px-4 sm:px-6 py-3 flex justify-between items-center gap-3 border-b border-gray-100">
+      {/* ── Menu (phones & tablets) + title ── */}
+      <div className="flex items-center gap-2 min-w-0">
+        <button
+          onClick={onMenuClick}
+          className="md:hidden p-2 -ml-2 rounded-lg hover:bg-gray-100 text-gray-700"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+        <h1 className="text-lg font-semibold text-gray-900 truncate">{pageTitle(pathname)}</h1>
+      </div>
 
       {/* ── Profile area ── */}
       <div className="relative" ref={dropdownRef}>

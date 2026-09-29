@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import { X, Save, Upload, Loader2, Trash2 } from "lucide-react";
 import { resolveFileUrl, uploadMentorProfilePicture, deleteMentorProfilePicture } from "@/lib/api";
 import Avatar from "@/components/ui/Avatar";
+import CountrySelect from "@/components/ui/CountrySelect";
 
 const MAX_AVATAR_SIZE = 1 * 1024 * 1024; // 1 MB
 const ALLOWED_AVATAR_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -196,12 +197,11 @@ export default function EditMentorHeaderModal({ profile, onClose, onSave, onAvat
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Country</label>
-                                    <input 
-                                        type="text" 
-                                        value={country} 
-                                        onChange={(e) => setCountry(e.target.value)} 
+                                    <CountrySelect
+                                        value={country}
+                                        onChange={setCountry}
                                         disabled={isSaving}
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50" 
+                                        aria-label="Country"
                                     />
                                 </div>
                             </div>

@@ -24,6 +24,7 @@ import MentorServicesCard from "@/components/profile/mentor/sections/MentorServi
 import MentorReviewsCard from "@/components/profile/mentor/sections/MentorReviewsCard";
 import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
 import WriteReviewModal from "@/components/reviews/WriteReviewModal";
+import OrderServiceModal from "@/components/orders/OrderServiceModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 
@@ -38,6 +39,8 @@ export default function MentorPublicProfilePage() {
     const [profile, setProfile] = useState<any>(null);
     const [relationshipStatus, setRelationshipStatus] = useState<"none" | "pending" | "connected">("none");
     const [conversationId, setConversationId] = useState<string | null>(null);
+    const [connectionId, setConnectionId] = useState<string | null>(null);
+    const [showOrderModal, setShowOrderModal] = useState(false);
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [reviews, setReviews] = useState<MentorReviewsResult | null>(null);
@@ -89,6 +92,7 @@ export default function MentorPublicProfilePage() {
                     if (matchedConnection) {
                         setRelationshipStatus("connected");
                         setConversationId(matchedConnection.conversationId);
+                        setConnectionId(matchedConnection.id);
                     } else if (pendingRequests.data.some((r) => r.mentorId === id)) {
                         setRelationshipStatus("pending");
                     } else {
@@ -172,6 +176,7 @@ export default function MentorPublicProfilePage() {
                         )
                     }
                     onWriteReview={() => setShowReviewModal(true)}
+                    onOrderService={connectionId ? () => setShowOrderModal(true) : undefined}
                     reviewStats={reviews?.stats}
                 />
                 {/* Phone number is only shared with admins — never with students. */}
@@ -199,6 +204,15 @@ export default function MentorPublicProfilePage() {
                         setShowRequestModal(false);
                         showToast("Mentorship request sent!");
                     }}
+                />
+            )}
+
+            {showOrderModal && connectionId && (
+                <OrderServiceModal
+                    connectionId={connectionId}
+                    mentorId={id}
+                    mentorName={`${profile.user?.firstName || ""} ${profile.user?.lastName || ""}`.trim()}
+                    onClose={() => setShowOrderModal(false)}
                 />
             )}
 

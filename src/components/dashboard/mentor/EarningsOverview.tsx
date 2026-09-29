@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { DollarSign, TrendingUp, TrendingDown, Calendar, Clock, CreditCard, Wallet, Loader2 } from "lucide-react";
 import SectionCard from "@/components/dashboard/common/SectionCard";
 import { getMentorEarningsOverview, type MentorEarningsOverview } from "@/lib/api";
 
-const formatMoney = (amount: number, curr = "$") => {
+const formatMoney = (amount: number, curr = "৳") => {
     const formatted = Number(amount || 0).toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
@@ -42,27 +43,27 @@ export default function EarningsOverview() {
         };
     }, []);
 
-    const currency = earnings?.currency || "$";
+    const currency = earnings?.currency || "৳";
 
     const metrics = [
         {
             icon: DollarSign,
             label: "Total Earnings",
-            value: earnings ? formatMoney(earnings.totalEarnings, currency) : "$0.00",
+            value: earnings ? formatMoney(earnings.totalEarnings, currency) : "৳0.00",
             iconClass: "bg-teal-100 text-teal-600",
         },
         {
             icon: Calendar,
             label: "This Month",
-            value: earnings ? formatMoney(earnings.thisMonthEarnings, currency) : "$0.00",
+            value: earnings ? formatMoney(earnings.thisMonthEarnings, currency) : "৳0.00",
             trend: earnings?.trendPercentage || null,
             trendDirection: earnings?.trendDirection || "neutral",
             iconClass: "bg-blue-100 text-blue-600",
         },
         {
             icon: Clock,
-            label: "Pending Payments",
-            value: earnings ? formatMoney(earnings.pendingPayments, currency) : "$0.00",
+            label: "On the Way",
+            value: earnings ? formatMoney(earnings.pendingPayments, currency) : "৳0.00",
             iconClass: "bg-amber-100 text-amber-600",
         },
         {
@@ -74,19 +75,18 @@ export default function EarningsOverview() {
     ];
 
     const monthlyBreakdown = earnings?.monthlyBreakdown || [];
-    const hasAnyEarnings = (earnings?.totalEarnings || 0) > 0;
 
     return (
         <SectionCard
             title="Earnings Overview"
             icon={Wallet}
             actions={
-                <button
-                    className="text-sm font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-3.5 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={!hasAnyEarnings}
+                <Link
+                    href="/dashboard/mentor/wallet"
+                    className="text-sm font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-3.5 py-1.5 rounded-lg transition-colors"
                 >
-                    Withdraw Funds
-                </button>
+                    Wallet &amp; Withdraw
+                </Link>
             }
         >
             {isLoading ? (

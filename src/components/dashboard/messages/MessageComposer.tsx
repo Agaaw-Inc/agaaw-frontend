@@ -16,7 +16,7 @@ interface MessageComposerProps {
 }
 
 const DOC_ACCEPT = ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp";
+const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp,image/gif";
 
 export default function MessageComposer({
   draft,

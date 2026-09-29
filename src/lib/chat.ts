@@ -142,24 +142,40 @@ export async function uploadChatAttachment(
   return json.data;
 }
 
-/**
- * Attachment downloads are JWT-guarded, so a plain <a href> won't work.
- * Fetch the file with auth and trigger a browser download.
- */
-export async function downloadChatAttachment(attachment: ChatAttachment): Promise<void> {
-  const res = await authFetch(attachment.url);
-  if (!res.ok) {
-    throw new Error("Failed to download attachment");
+// Attachment files are private: each request carries the user's token and is
+// checked against the conversation. The browser can't attach a token to a
+// plain <img src> or <a href>, so we fetch the file ourselves and hand the
+// page a temporary blob: URL. Cached per attachment so scrolling a thread
+// doesn't re-download every image.
+const attachmentUrlCache = new Map<string, Promise<string>>();
+
+export function getAttachmentObjectUrl(attachment: ChatAttachment): Promise<string> {
+  let cached = attachmentUrlCache.get(attachment.id);
+  if (!cached) {
+    cached = authFetch(attachment.url).then(async (res) => {
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error(extractErrorMessage(json, "Couldn't load this file"));
+      }
+      return URL.createObjectURL(await res.blob());
+    });
+    // A failed load shouldn't stay cached — let the next attempt retry.
+    cached.catch(() => attachmentUrlCache.delete(attachment.id));
+    attachmentUrlCache.set(attachment.id, cached);
   }
-  const blob = await res.blob();
-  const objectUrl = URL.createObjectURL(blob);
+  return cached;
+}
+
+export async function downloadChatAttachment(attachment: ChatAttachment): Promise<void> {
+  const objectUrl = await getAttachmentObjectUrl(attachment);
   const anchor = document.createElement("a");
   anchor.href = objectUrl;
   anchor.download = attachment.name;
   document.body.appendChild(anchor);
   anchor.click();
   anchor.remove();
-  URL.revokeObjectURL(objectUrl);
+  // The URL stays cached (and valid) for previews, so it isn't revoked here —
+  // revoking right after click() cancels the download in Safari and Firefox.
 }
 
 // ── Formatting helpers ────────────────────────────────────────────────────

@@ -3,32 +3,7 @@
  * registration flows, and profile editors.
  */
 
-export const COUNTRY_LIST: string[] = [
-  "Bangladesh",
-  "Denmark",
-  "Finland",
-  "Norway",
-  "Iceland",
-  "India",
-  "Pakistan",
-  "United States",
-  "United Kingdom",
-  "Canada",
-  "Germany",
-  "Australia",
-  "Malaysia",
-  "Singapore",
-  "UAE",
-  "Sweden",
-  "Netherlands",
-  "Japan",
-  "South Korea",
-  "France",
-  "Italy",
-  "Spain",
-  "Brazil",
-  "China",
-];
+// Country names now come from lib/countries.ts (ISO 3166 via i18n-iso-countries).
 
 export interface PhoneCode {
   code: string;

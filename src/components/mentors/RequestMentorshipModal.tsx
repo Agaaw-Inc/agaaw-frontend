@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Send, Loader2, AlertCircle } from "lucide-react";
 import { getMentorServices, sendMentorshipRequest, type MentorServiceItem } from "@/lib/api";
+import { formatTaka } from "@/lib/orders";
 
 const MIN_MESSAGE_LENGTH = 20;
 
@@ -55,8 +56,6 @@ export default function RequestMentorshipModal({
     const total = services
         .filter((s) => selectedIds.has(s.id))
         .reduce((sum, s) => sum + Number(s.price || 0), 0);
-
-    const currency = services.find((s) => selectedIds.has(s.id))?.currency || "$";
 
     const trimmedLength = message.trim().length;
     const isMessageValid = trimmedLength >= MIN_MESSAGE_LENGTH;
@@ -170,8 +169,7 @@ export default function RequestMentorshipModal({
                                                 </div>
                                             </div>
                                             <span className="text-sm font-bold text-gray-800 shrink-0">
-                                                {service.currency || "$"}
-                                                {service.price}
+                                                {formatTaka(service.price)}
                                             </span>
                                         </label>
                                     ))}
@@ -183,8 +181,7 @@ export default function RequestMentorshipModal({
                             <div className="flex items-center justify-between border-t border-gray-100 pt-4">
                                 <span className="text-sm font-semibold text-gray-600">Total</span>
                                 <span className="text-lg font-extrabold text-gray-900">
-                                    {currency}
-                                    {total.toFixed(2)}
+                                    {formatTaka(total)}
                                 </span>
                             </div>
                         )}

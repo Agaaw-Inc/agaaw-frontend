@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard, Package, Wallet } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { resolveFileUrl } from "@/lib/api";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
@@ -182,6 +182,12 @@ export default function MainNavbar() {
                           <Link href='/dashboard/mentor/requests' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Inbox size={18} className="text-gray-400 group-hover:text-teal-600" /> Mentorship Requests
                           </Link>
+                          <Link href='/dashboard/mentor/orders' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Package size={18} className="text-gray-400 group-hover:text-teal-600" /> Orders
+                          </Link>
+                          <Link href='/dashboard/mentor/wallet' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Wallet size={18} className="text-gray-400 group-hover:text-teal-600" /> Wallet
+                          </Link>
                           <Link href='/dashboard/mentor/blogs' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <BookOpen size={18} className="text-gray-400 group-hover:text-teal-600" /> Blog & Resources
                           </Link>
@@ -208,6 +214,9 @@ export default function MainNavbar() {
                           </Link>
                           <Link href='/dashboard/student/mentors' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Users size={18} className="text-gray-400 group-hover:text-teal-600" /> Your Mentors
+                          </Link>
+                          <Link href='/dashboard/student/orders' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Package size={18} className="text-gray-400 group-hover:text-teal-600" /> My Orders
                           </Link>
                           <Link href='/dashboard/student/documents' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <FileText size={18} className="text-gray-400 group-hover:text-teal-600" /> Documents
@@ -314,6 +323,12 @@ export default function MainNavbar() {
                       <Link href='/dashboard/mentor/requests' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Inbox size={18} className="text-gray-400" /> Mentorship Requests
                       </Link>
+                      <Link href='/dashboard/mentor/orders' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Package size={18} className="text-gray-400" /> Orders
+                      </Link>
+                      <Link href='/dashboard/mentor/wallet' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Wallet size={18} className="text-gray-400" /> Wallet
+                      </Link>
                       <Link href='/dashboard/mentor/services' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Briefcase size={18} className="text-gray-400" /> Services
                       </Link>
@@ -343,6 +358,9 @@ export default function MainNavbar() {
                       </Link>
                       <Link href='/dashboard/student/mentors' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Users size={18} className="text-gray-400" /> Your Mentors
+                      </Link>
+                      <Link href='/dashboard/student/orders' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <Package size={18} className="text-gray-400" /> My Orders
                       </Link>
                       <Link href='/dashboard/student/documents' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <FileText size={18} className="text-gray-400" /> Documents

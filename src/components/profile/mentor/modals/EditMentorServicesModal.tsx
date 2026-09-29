@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import { X, Save, Plus, Trash2, Clock, Loader2 } from "lucide-react";
+import { useOrderConfig } from "@/hooks/useOrderConfig";
+import { formatTaka, previewSplit } from "@/lib/orders";
 
 interface Service {
     id: number | string;
@@ -19,6 +21,8 @@ interface EditMentorServicesModalProps {
 }
 
 export default function EditMentorServicesModal({ profile, onClose, onSave }: EditMentorServicesModalProps) {
+    const { commissionRate } = useOrderConfig();
+    const feePct = Math.round(commissionRate * 100);
     const initialServices = Array.isArray(profile?.services) ? profile.services : [];
     const [services, setServices] = useState<Service[]>(initialServices);
     const [isSaving, setIsSaving] = useState(false);
@@ -36,7 +40,7 @@ export default function EditMentorServicesModal({ profile, onClose, onSave }: Ed
                 title: newTitle.trim(),
                 description: newDesc.trim() || "No description provided.",
                 price: Number(newPrice),
-                currency: "$",
+                currency: "৳",
                 duration: newDuration.trim()
             };
             setServices([...services, newService]);
@@ -82,6 +86,10 @@ export default function EditMentorServicesModal({ profile, onClose, onSave }: Ed
 
                 {/* Scrollable Content */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    <p className="text-xs text-gray-500 bg-teal-50/60 border border-teal-100 rounded-lg px-3 py-2">
+                        Prices are in taka — what the student pays. Agaaw keeps a {feePct}% platform fee; the rest is paid to you after the student confirms delivery.
+                    </p>
+
                     {/* Add New Service Form */}
                     <form onSubmit={handleAddService} className="bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-4">
                         <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Add a New Service</h3>
@@ -107,10 +115,10 @@ export default function EditMentorServicesModal({ profile, onClose, onSave }: Ed
                             
                             <div className="grid grid-cols-2 gap-3">
                                 <div className="relative">
-                                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">৳</span>
                                     <input 
                                         type="number"
-                                        placeholder="Price"
+                                        placeholder="Price (taka)"
                                         value={newPrice}
                                         onChange={(e) => setNewPrice(e.target.value)}
                                         disabled={isSaving}
@@ -128,6 +136,14 @@ export default function EditMentorServicesModal({ profile, onClose, onSave }: Ed
                                     required
                                 />
                             </div>
+                            {Number(newPrice) > 0 && (
+                                <p className="text-xs text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2">
+                                    Student pays {formatTaka(newPrice)} · Agaaw fee ({feePct}%) {formatTaka(previewSplit(Number(newPrice), commissionRate).platformFee)} ·{" "}
+                                    <span className="font-bold text-teal-700">
+                                        You receive {formatTaka(previewSplit(Number(newPrice), commissionRate).mentorPayout)}
+                                    </span>
+                                </p>
+                            )}
                         </div>
                         
                         <button 
@@ -152,7 +168,10 @@ export default function EditMentorServicesModal({ profile, onClose, onSave }: Ed
                                         <h4 className="text-sm font-bold text-gray-900">{service.title}</h4>
                                         <p className="text-xs text-gray-500 leading-relaxed">{service.description}</p>
                                         <div className="flex items-center gap-3 pt-1">
-                                            <span className="text-sm font-bold text-teal-700">{service.currency || "$"}{service.price}</span>
+                                            <span className="text-sm font-bold text-gray-900">{formatTaka(service.price)}</span>
+                                            <span className="text-xs font-semibold text-teal-700">
+                                                You get {formatTaka(previewSplit(Number(service.price), commissionRate).mentorPayout)}
+                                            </span>
                                             <span className="text-xs text-gray-400 flex items-center gap-1"><Clock size={12} /> {service.duration}</span>
                                         </div>
                                     </div>

@@ -46,6 +46,7 @@ import type {
   BlogQueryParams,
   UpdateProfilePayload,
 } from "./adminTypes";
+import type { Order, Payout, PayoutDetails, PayoutMethod } from "./orders";
 
 // ─── Configuration ──────────────────────────────────────────
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -260,6 +261,24 @@ export async function getDashboardStats(): Promise<DashboardStatsResponse> {
   return adminFetch<DashboardStatsResponse>(
     `${API_URL}/admin/dashboard/stats`
   );
+}
+
+/** Chart windows; buckets are cut in Bangladesh time on the server. */
+export type StatsRange = "7d" | "30d" | "12m" | "all";
+
+export interface RegistrationBucket {
+  /** "YYYY-MM-DD" — the first day of the bucket, Dhaka time. */
+  bucket: string;
+  students: number;
+  mentors: number;
+}
+
+/**
+ * New students and mentors per day (7d/30d) or month (12m/all).
+ * GET /api/admin/dashboard/registrations
+ */
+export async function getRegistrationStats(range: StatsRange): Promise<RegistrationBucket[]> {
+  return adminFetch<RegistrationBucket[]>(`${API_URL}/admin/dashboard/registrations?range=${range}`);
 }
 
 // ================================================================
@@ -729,4 +748,204 @@ export async function getAudienceSize(
     `${API_URL}/admin/announcements/audience-size/${audience}`
   );
   return result?.count ?? 0;
+}
+
+// ================================================================
+// Payments (manual bKash/bank verification, disputes, refunds, payouts)
+// ================================================================
+
+
+export interface PaymentsSummary {
+  pendingPayments: number;
+  openDisputes: number;
+  pendingRefunds: number;
+  pendingPayouts: number;
+  pendingKyc: number;
+}
+
+export interface AdminPaymentSubmission {
+  id: string;
+  orderId: string;
+  method: "bkash" | "bank";
+  senderInfo: string;
+  transactionId: string;
+  hasScreenshot: boolean;
+  status: "pending" | "verified" | "rejected";
+  submittedAt: string;
+  reviewedAt: string | null;
+  rejectionReason: string | null;
+  order: {
+    id: string;
+    reference: string;
+    title: string;
+    amount: string;
+    currency: string;
+    status: string;
+    student: { id: string; firstName: string; lastName: string };
+    mentor: { id: string; firstName: string; lastName: string };
+  };
+}
+
+export interface AdminDispute {
+  id: string;
+  round: number;
+  reason: string;
+  status: "open" | "resolved_release" | "resolved_refund" | "resolved_revision";
+  adminNotes: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+  /** Null when raised automatically (missed revision deadline). */
+  raisedBy: { id: string; firstName: string; lastName: string } | null;
+  order: Order;
+}
+
+export interface AdminPayout extends Payout {
+  mentor: { id: string; firstName: string; lastName: string; email: string };
+}
+
+export interface AdminKycEntry {
+  mentorId: string;
+  mentor: { id: string; firstName: string; lastName: string; email: string };
+  payoutMethod: PayoutMethod;
+  payoutDetails: PayoutDetails;
+  kycVerified: boolean;
+  kycVerifiedAt: string | null;
+  availableBalance: string;
+  detailsUpdatedAt: string;
+}
+
+export interface PlatformPaymentConfig {
+  bkashNumber: string | null;
+  bkashType: "personal" | "merchant";
+  bankName: string | null;
+  bankAccountNo: string | null;
+  bankAccountName: string | null;
+  bankBranch: string | null;
+  instructions: string | null;
+  updatedAt: string | null;
+}
+
+const P = () => `${API_URL}/admin/payments`;
+
+export const getPaymentsSummary = () => adminFetch<PaymentsSummary>(`${P()}/summary`);
+
+export const listPaymentSubmissions = (status = "pending", page = 1) =>
+  adminFetch<PaginatedResponse<AdminPaymentSubmission>>(`${P()}/submissions${toQueryString({ status, page, limit: 20 })}`);
+
+export const verifyPaymentSubmission = (id: string, approved: boolean, note?: string) =>
+  adminFetch<Order>(`${P()}/submissions/${id}/verify`, {
+    method: "PATCH",
+    body: JSON.stringify({ approved, note: note || undefined }),
+  });
+
+export const listAdminOrders = (status?: string, page = 1) =>
+  adminFetch<PaginatedResponse<Order>>(`${P()}/orders${toQueryString({ status, page, limit: 20 })}`);
+
+export const markOrderRefunded = (id: string, reason?: string) =>
+  adminFetch<Order>(`${P()}/orders/${id}/mark-refunded`, {
+    method: "PATCH",
+    body: JSON.stringify(reason ? { reason } : {}),
+  });
+
+export const listDisputes = (status = "open", page = 1) =>
+  adminFetch<PaginatedResponse<AdminDispute>>(`${P()}/disputes${toQueryString({ status, page, limit: 20 })}`);
+
+export const resolveDispute = (
+  id: string,
+  resolution: "release" | "refund" | "revision",
+  notes?: string,
+  revisionDays?: number,
+) =>
+  adminFetch<Order>(`${P()}/disputes/${id}/resolve`, {
+    method: "PATCH",
+    body: JSON.stringify({ resolution, notes: notes || undefined, revisionDays }),
+  });
+
+export const listAdminPayouts = (status = "pending", page = 1) =>
+  adminFetch<PaginatedResponse<AdminPayout>>(`${P()}/payouts${toQueryString({ status, page, limit: 20 })}`);
+
+export const completePayout = (id: string, transferReference: string, note?: string) =>
+  adminFetch<Payout>(`${P()}/payouts/${id}/complete`, {
+    method: "PATCH",
+    body: JSON.stringify({ transferReference, note: note || undefined }),
+  });
+
+export const failPayout = (id: string, reason: string) =>
+  adminFetch<Payout>(`${P()}/payouts/${id}/fail`, { method: "PATCH", body: JSON.stringify({ reason }) });
+
+export const listKyc = (verified = false, page = 1) =>
+  adminFetch<PaginatedResponse<AdminKycEntry>>(`${P()}/kyc${toQueryString({ verified, page, limit: 20 })}`);
+
+export const verifyKyc = (mentorId: string, detailsUpdatedAt: string) =>
+  adminFetch<{ mentorId: string }>(`${P()}/kyc/${mentorId}/verify`, {
+    method: "PATCH",
+    body: JSON.stringify({ detailsUpdatedAt }),
+  });
+
+export const getPaymentConfig = () => adminFetch<PlatformPaymentConfig>(`${P()}/config`);
+
+export const updatePaymentConfig = (payload: Omit<PlatformPaymentConfig, "updatedAt">) =>
+  adminFetch<PlatformPaymentConfig>(`${P()}/config`, { method: "PUT", body: JSON.stringify(payload) });
+
+export interface OrderAnalyticsBucket {
+  bucket: string;
+  /** Agaaw's fee on orders released in this bucket. */
+  income: string;
+  /** Payments verified in this bucket (incl. ones later refunded). */
+  received: string;
+  orders: number;
+  delivered: number;
+  refunded: number;
+  refundedAmount: string;
+}
+
+export interface OrderAnalytics {
+  range: StatsRange;
+  unit: "day" | "month";
+  timezone: string;
+  currency: string;
+  totals: {
+    income: string;
+    received: string;
+    orders: number;
+    delivered: number;
+    refunded: number;
+    refundedAmount: string;
+  };
+  snapshot: {
+    incomeAllTime: string;
+    completedOrdersAllTime: number;
+    heldForActiveOrders: string;
+    activeOrders: number;
+    expectedIncome: string;
+    awaitingVerification: string;
+    awaitingVerificationCount: number;
+    refundsOwed: string;
+    refundsOwedCount: number;
+    owedToMentors: string;
+    paidOutToMentors: string;
+    servicesListed: number;
+    mentorsWithServices: number;
+  };
+  series: OrderAnalyticsBucket[];
+}
+
+export const getOrderAnalytics = (range: StatsRange) =>
+  adminFetch<OrderAnalytics>(`${P()}/analytics?range=${range}`);
+
+/**
+ * Private files (payment screenshots, deliverables) are fetched with the
+ * admin's token and returned as a temporary blob URL. Revoke it when done.
+ */
+export async function fetchPrivateFileUrl(path: string): Promise<string> {
+  const token = getAccessToken();
+  const res = await fetch(`${P()}${path}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.message || `Couldn't load file (${res.status})`);
+  }
+  return URL.createObjectURL(await res.blob());
 }

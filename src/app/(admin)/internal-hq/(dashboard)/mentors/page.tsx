@@ -30,18 +30,13 @@ function Toast({ message, type, onHide }: { message: string; type: "success" | "
 }
 
 /* ─── Status Badge ───────────────────────────────────────────── */
-function StatusBadge({ isApproved }: { isApproved: boolean | null }) {
-  if (isApproved === true) {
+// The backend stores approval as a single boolean: new mentors and rejected
+// mentors are both `isApproved: false`, so "not approved" means "Pending".
+function StatusBadge({ isApproved }: { isApproved: boolean }) {
+  if (isApproved) {
     return (
       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
         Approved
-      </span>
-    );
-  }
-  if (isApproved === false) {
-    return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-        Rejected
       </span>
     );
   }

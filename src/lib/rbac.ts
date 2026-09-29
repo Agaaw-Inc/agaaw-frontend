@@ -39,6 +39,9 @@ export const ROUTE_PERMISSIONS: Record<string, AdminRole> = {
   "/internal-hq/blogs": "admin",
   "/internal-hq/mentors": "admin",
   "/internal-hq/announcements": "admin",
+  // Any admin can open it; the backend still requires the `payments` module
+  // permission for each action.
+  "/internal-hq/payments": "admin",
 
   // Restricted — super_admin only
   "/internal-hq/users": "super_admin",

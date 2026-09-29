@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Save, Loader2 } from "lucide-react";
+import CountrySelect from "@/components/ui/CountrySelect";
 
 interface EditMentorDetailsModalProps {
     profile: any;
@@ -89,12 +90,11 @@ export default function EditMentorDetailsModal({ profile, onClose, onSave }: Edi
                             </div>
                             <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Country Location</label>
-                                <input
-                                    type="text"
+                                <CountrySelect
                                     value={country}
-                                    onChange={(e) => setCountry(e.target.value)}
+                                    onChange={setCountry}
                                     disabled={isSaving}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 disabled:opacity-50"
+                                    aria-label="Country"
                                 />
                             </div>
                         </div>

@@ -7,6 +7,7 @@ import SectionCard from "@/components/dashboard/common/SectionCard";
 import Toast from "@/components/ui/Toast";
 import Avatar from "@/components/ui/Avatar";
 import { useToast } from "@/hooks/useToast";
+import { formatTaka } from "@/lib/orders";
 import {
     getMentorshipRequests,
     acceptMentorshipRequest,
@@ -147,7 +148,7 @@ export default function MentorshipRequests() {
                                         </div>
                                         {request.requestedServices.length > 0 && (
                                             <p className="text-xs font-semibold text-teal-700">
-                                                {request.requestedServices.length} service(s) requested &bull; Total {request.requestedServices[0].currency || "$"}{request.totalPrice}
+                                                {request.requestedServices.length} service(s) requested &bull; Total {formatTaka(request.totalPrice)}
                                             </p>
                                         )}
                                     </div>

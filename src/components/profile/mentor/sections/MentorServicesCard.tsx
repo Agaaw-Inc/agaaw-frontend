@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Clock, Settings } from "lucide-react";
+import { formatTaka } from "@/lib/orders";
 
 interface MentorServicesCardProps {
     profile: any;
@@ -41,7 +42,7 @@ export default function MentorServicesCard({ profile, onEdit }: MentorServicesCa
 
                         <div className="flex items-center gap-3">
                             <span className="text-lg font-bold text-teal-700">
-                                {service.currency || "$"} {service.price}
+                                {formatTaka(service.price)}
                             </span>
                             <span className="text-xs text-gray-400 flex items-center gap-1">
                                 <Clock size={12} />

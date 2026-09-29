@@ -2,14 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Loader2, Calendar } from "lucide-react";
+import { Users, Loader2, Calendar, Package } from "lucide-react";
 import Footer from "@/components/landing/Footer";
 import Avatar from "@/components/ui/Avatar";
+import OrderServiceModal from "@/components/orders/OrderServiceModal";
 import { getConnections, resolveFileUrl, type ConnectionItem } from "@/lib/api";
 
 export default function StudentMentorsPage() {
     const [connections, setConnections] = useState<ConnectionItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [ordering, setOrdering] = useState<ConnectionItem | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -29,11 +31,16 @@ export default function StudentMentorsPage() {
     return (
         <div className="min-h-screen bg-[#F8FAFC]">
             <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-gray-900">My Mentors</h1>
-                    <p className="text-gray-600 mt-1">
-                        {connections.length} mentor{connections.length !== 1 && "s"} currently connected with you.
-                    </p>
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-extrabold text-gray-900">My Mentors</h1>
+                        <p className="text-gray-600 mt-1">
+                            {connections.length} mentor{connections.length !== 1 && "s"} currently connected with you.
+                        </p>
+                    </div>
+                    <Link href="/dashboard/student/orders" className="text-sm font-semibold text-teal-700 hover:underline">
+                        My orders &rarr;
+                    </Link>
                 </div>
 
                 {isLoading ? (
@@ -60,12 +67,11 @@ export default function StudentMentorsPage() {
                             const mentor = conn.counterpart;
                             const name = `${mentor.firstName} ${mentor.lastName}`;
                             return (
-                                <Link
+                                <div
                                     key={conn.id}
-                                    href={`/profile/mentor/${mentor.id}`}
                                     className="bg-white border border-gray-100 rounded-xl p-5 hover:border-teal-200 hover:shadow-sm transition-all flex flex-col"
                                 >
-                                    <div className="flex items-center gap-3 mb-3">
+                                    <div className="flex items-center gap-3 mb-4">
                                         <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-100 bg-teal-50 flex items-center justify-center text-teal-700 font-bold uppercase shrink-0">
                                             <Avatar src={resolveFileUrl(mentor.profileImage)} name={name} />
                                         </div>
@@ -76,13 +82,34 @@ export default function StudentMentorsPage() {
                                             </div>
                                         </div>
                                     </div>
-                                    <span className="mt-auto text-xs font-semibold text-teal-600">View Profile &rarr;</span>
-                                </Link>
+                                    <div className="mt-auto flex gap-2">
+                                        <Link
+                                            href={`/profile/mentor/${mentor.id}`}
+                                            className="flex-1 text-center text-xs font-semibold text-teal-700 border border-teal-200 hover:bg-teal-50 rounded-lg py-2 transition"
+                                        >
+                                            View Profile
+                                        </Link>
+                                        <button
+                                            onClick={() => setOrdering(conn)}
+                                            className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg py-2 transition"
+                                        >
+                                            <Package size={13} /> Order Service
+                                        </button>
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>
                 )}
             </div>
+            {ordering && (
+                <OrderServiceModal
+                    connectionId={ordering.id}
+                    mentorId={ordering.counterpart.id}
+                    mentorName={`${ordering.counterpart.firstName} ${ordering.counterpart.lastName}`}
+                    onClose={() => setOrdering(null)}
+                />
+            )}
             <Footer />
         </div>
     );

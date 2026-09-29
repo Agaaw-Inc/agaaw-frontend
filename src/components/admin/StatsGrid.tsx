@@ -1,14 +1,14 @@
 /**
  * Stats Grid
  *
- * Displays the top-level summary cards on the admin dashboard.
- * Accepts stats data as props from the dashboard page,
- * which fetches from GET /api/admin/dashboard/stats.
- *
- * Shows a loading skeleton when data hasn't loaded yet.
+ * Platform-wide counts (users, mentors, content) from
+ * GET /api/admin/dashboard/stats. These are all-time totals — the dashboard's
+ * range filter doesn't apply to them.
  */
 
-import SummaryCard from "./SummaryCard";
+import { BookOpen, GraduationCap, Hourglass, UserCheck, Users, UserRound } from "lucide-react";
+import StatTile from "./analytics/StatTile";
+import { count } from "./analytics/chartTheme";
 import type { DashboardStatsResponse } from "@/lib/adminTypes";
 
 interface StatsGridProps {
@@ -18,35 +18,30 @@ interface StatsGridProps {
   isLoading?: boolean;
 }
 
-/** Animated pulse placeholder for loading state */
-function SkeletonCard() {
-  return (
-    <div className="bg-white p-6 rounded-xl shadow-sm animate-pulse">
-      <div className="h-3 w-24 bg-gray-200 rounded mb-4" />
-      <div className="h-7 w-16 bg-gray-200 rounded" />
-    </div>
-  );
-}
-
 export default function StatsGrid({ stats, isLoading }: StatsGridProps) {
-  if (isLoading || !stats) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
-      </div>
-    );
-  }
+  const loading = isLoading || !stats;
+  const tiles = [
+    { label: "Total users", value: stats?.totalUsers, icon: Users },
+    { label: "Students", value: stats?.totalStudents, icon: UserRound },
+    { label: "Mentors", value: stats?.totalMentors, icon: UserCheck },
+    { label: "Pending mentors", value: stats?.pendingMentors, icon: Hourglass, href: "/internal-hq/mentors", attention: !!stats?.pendingMentors },
+    { label: "Scholarships", value: stats?.totalScholarships, icon: GraduationCap },
+    { label: "Blogs", value: stats?.totalBlogs, icon: BookOpen },
+  ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6">
-      <SummaryCard title="Total Users" value={stats.totalUsers} />
-      <SummaryCard title="Total Students" value={stats.totalStudents} />
-      <SummaryCard title="Total Mentors" value={stats.totalMentors} />
-      <SummaryCard title="Pending Mentors" value={stats.pendingMentors} />
-      <SummaryCard title="Scholarships" value={stats.totalScholarships} />
-      <SummaryCard title="Total Blogs" value={stats.totalBlogs} />
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+      {tiles.map((t) => (
+        <StatTile
+          key={t.label}
+          label={t.label}
+          value={count(t.value ?? 0)}
+          icon={t.icon}
+          href={t.href}
+          attention={t.attention}
+          loading={loading}
+        />
+      ))}
     </div>
   );
 }

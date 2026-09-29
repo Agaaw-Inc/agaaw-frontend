@@ -1,83 +1,88 @@
 "use client";
 
-import { useState } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-import { registrationData } from "@/lib/mock/dashboardData";
-import TimeFilter from "./TimeFilter";
-import { motion } from "framer-motion";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import type { RegistrationBucket } from "@/lib/adminApi";
+import ChartCard from "./analytics/ChartCard";
+import ChartTooltip from "./analytics/ChartTooltip";
+import { CHROME, SERIES, bucketLabel, bucketLabelLong, count } from "./analytics/chartTheme";
 
-interface RegistrationChartProps {
-  data?: { date: string; count: number }[];
-  isLoading?: boolean;
+interface Props {
+    data: RegistrationBucket[];
+    unit: "day" | "month";
+    loading: boolean;
+    refreshing: boolean;
+    rangeText: string;
 }
 
-export default function RegistrationChart({ data, isLoading }: RegistrationChartProps) {
-  const [filter, setFilter] = useState<"weekly" | "monthly" | "yearly">("monthly");
+const LINES = [
+    { key: "students", label: "Students", color: SERIES.blue },
+    { key: "mentors", label: "Mentors", color: SERIES.orange },
+] as const;
 
-  // Use real data if provided, else fallback to mock for now
-  const chartData = data ? data.map(d => ({
-    name: new Date(d.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-    total: d.count
-  })) : registrationData[filter];
+/** New sign-ups per day/month, students and mentors as separate lines. */
+export default function RegistrationChart({ data, unit, loading, refreshing, rangeText }: Props) {
+    const empty = !loading && data.every((r) => !r.students && !r.mentors);
 
-  if (isLoading) {
     return (
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-[410px] animate-pulse">
-        <div className="h-6 w-40 bg-gray-100 rounded mb-6" />
-        <div className="h-full bg-gray-50 rounded-xl" />
-      </div>
+        <ChartCard
+            title="New sign-ups"
+            subtitle={`Students and mentors who registered · ${rangeText}`}
+            legend={LINES.map((l) => ({ label: l.label, color: l.color }))}
+            rows={data}
+            columns={[
+                { header: unit === "day" ? "Day" : "Month", cell: (r) => bucketLabelLong(r.bucket, unit) },
+                { header: "Students", cell: (r) => count(r.students), align: "right" },
+                { header: "Mentors", cell: (r) => count(r.mentors), align: "right" },
+            ]}
+            loading={loading}
+            refreshing={refreshing}
+            empty={empty}
+            emptyText="No new sign-ups in this period."
+        >
+            <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+                    <CartesianGrid vertical={false} stroke={CHROME.grid} />
+                    <XAxis
+                        dataKey="bucket"
+                        tickFormatter={(b) => bucketLabel(b, unit)}
+                        tick={{ fill: CHROME.axisText, fontSize: 11 }}
+                        tickLine={false}
+                        axisLine={{ stroke: CHROME.grid }}
+                        minTickGap={24}
+                    />
+                    <YAxis
+                        tick={{ fill: CHROME.axisText, fontSize: 11 }}
+                        tickLine={false}
+                        axisLine={false}
+                        width={32}
+                        allowDecimals={false}
+                    />
+                    <Tooltip
+                        cursor={{ stroke: CHROME.axisText, strokeWidth: 1 }}
+                        content={(p) => (
+                            <ChartTooltip
+                                active={p.active}
+                                label={p.label}
+                                payload={p.payload}
+                                formatLabel={(b) => bucketLabelLong(b, unit)}
+                                formatValue={(v) => count(v)}
+                            />
+                        )}
+                    />
+                    {LINES.map((l) => (
+                        <Line
+                            key={l.key}
+                            type="monotone"
+                            dataKey={l.key}
+                            name={l.label}
+                            stroke={l.color}
+                            strokeWidth={2}
+                            dot={data.length <= 12 ? { r: 4, fill: l.color, stroke: "#fff", strokeWidth: 2 } : false}
+                            activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
+                        />
+                    ))}
+                </LineChart>
+            </ResponsiveContainer>
+        </ChartCard>
     );
-  }
-
-  return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h3 className="font-semibold text-lg">User Registrations</h3>
-          <p className="text-xs text-gray-400">Total new accounts per day (Last 30 days)</p>
-        </div>
-        {!data && <TimeFilter value={filter} onChange={(val) => setFilter(val as any)} />}
-      </div>
-
-      <motion.div
-        key={data ? 'real' : filter}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="name" 
-              stroke="#94a3b8" 
-              fontSize={11} 
-              tickLine={false} 
-              axisLine={false}
-              dy={10}
-            />
-            <YAxis 
-              stroke="#94a3b8" 
-              fontSize={11} 
-              tickLine={false} 
-              axisLine={false} 
-              dx={-10}
-            />
-            <Tooltip 
-              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey={data ? "total" : "students"} 
-              stroke="#0f766e" 
-              strokeWidth={3} 
-              dot={{ r: 4, fill: "#0f766e", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, strokeWidth: 0 }}
-            />
-            {!data && <Line type="monotone" dataKey="mentors" stroke="#0ea5e9" strokeWidth={3} />}
-          </LineChart>
-        </ResponsiveContainer>
-      </motion.div>
-    </div>
-  );
 }

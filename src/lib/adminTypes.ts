@@ -215,7 +215,6 @@ export interface DashboardStatsResponse {
   };
   roleDistribution: Record<string, number>;
   recentActivity: ActivityLog[];
-  registrationStats?: { date: string; count: number }[];
 }
 
 // ─── Activity Log ───────────────────────────────────────────

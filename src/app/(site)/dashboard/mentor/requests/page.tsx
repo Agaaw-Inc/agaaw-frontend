@@ -8,6 +8,7 @@ import Pagination from "@/components/ui/Pagination";
 import Toast from "@/components/ui/Toast";
 import Avatar from "@/components/ui/Avatar";
 import { useToast } from "@/hooks/useToast";
+import { formatTaka } from "@/lib/orders";
 import {
     getMentorshipRequests,
     acceptMentorshipRequest,
@@ -157,7 +158,7 @@ export default function MentorRequestsInboxPage() {
                                             </p>
                                             {request.requestedServices.length > 0 && (
                                                 <p className="text-xs font-semibold text-teal-700">
-                                                    {request.requestedServices.map((s) => s.title).join(", ")} &bull; Total {request.requestedServices[0].currency || "$"}{request.totalPrice}
+                                                    {request.requestedServices.map((s) => s.title).join(", ")} &bull; Total {formatTaka(request.totalPrice)}
                                                 </p>
                                             )}
                                             <p className="text-xs text-gray-400">

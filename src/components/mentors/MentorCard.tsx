@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { MapPin, GraduationCap, CheckCircle2, Briefcase, Languages, Send, Clock, Users } from "lucide-react";
+import { MapPin, GraduationCap, CheckCircle2, Briefcase, Languages, Send, Clock, Users, Package } from "lucide-react";
 import { resolveFileUrl } from "@/lib/api";
 import Avatar from "@/components/ui/Avatar";
 
@@ -28,8 +28,10 @@ interface MentorCardProps {
     /** Omit to hide the request CTA entirely (e.g. viewer isn't a student). */
     requestStatus?: MentorRequestStatus;
     onRequestMentorship?: () => void;
+    /** Shown once connected — paid services require an active connection. */
+    onOrderService?: () => void;
 }
-export default function MentorCard({ mentor, isMatch, requestStatus, onRequestMentorship }: MentorCardProps) {
+export default function MentorCard({ mentor, isMatch, requestStatus, onRequestMentorship, onOrderService }: MentorCardProps) {
     const {
         id,
         name,
@@ -153,7 +155,20 @@ export default function MentorCard({ mentor, isMatch, requestStatus, onRequestMe
 
                     {requestStatus && (
                         <div className="mt-3">
-                            {requestStatus === "connected" ? (
+                            {requestStatus === "connected" && onOrderService ? (
+                                <div className="space-y-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={onOrderService}
+                                        className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-4 py-2.5 transition-colors"
+                                    >
+                                        <Package className="w-4 h-4" /> Order Service
+                                    </button>
+                                    <p className="flex items-center justify-center gap-1 text-xs font-semibold text-emerald-700">
+                                        <Users className="w-3.5 h-3.5" /> Connected
+                                    </p>
+                                </div>
+                            ) : requestStatus === "connected" ? (
                                 <div className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 text-emerald-700 font-semibold text-sm px-4 py-2.5 border border-emerald-100">
                                     <Users className="w-4 h-4" /> Connected
                                 </div>

@@ -11,7 +11,6 @@ import {
   Upload,
   Plus,
   Search,
-  Globe,
   Phone,
   ArrowRight,
   ArrowLeft,
@@ -25,7 +24,9 @@ import {
 } from "lucide-react";
 import { completeStudentOnboarding, uploadStudentDocument, getCountriesClient } from "@/lib/api";
 import { getUserInfo, setUserInfo } from "@/lib/auth";
-import { COUNTRY_LIST, PHONE_CODES } from "@/data/geo";
+import { PHONE_CODES } from "@/data/geo";
+import CountrySelect, { CountryMultiSelect } from "@/components/ui/CountrySelect";
+import { findCountry, type CountryOption } from "@/lib/countries";
 import { SUBJECTS } from "@/data/educationalData";
 
 
@@ -36,7 +37,6 @@ export default function StudentOnboarding() {
 
   // --- Step 1 State: Study Goals ---
   const [targetCountries, setTargetCountries] = useState<string[]>([]);
-  const [countryInput, setCountryInput] = useState("");
   const [targetSubject, setTargetSubject] = useState<string[]>([]);
   const [subjectInput, setSubjectInput] = useState("");
   const [degreeLevel, setDegreeLevel] = useState<"Bachelor's" | "Master's" | "PhD" | "">("");
@@ -64,6 +64,12 @@ export default function StudentOnboarding() {
 
   // Countries from backend (with IDs)
   const [backendCountries, setBackendCountries] = useState<{ id: string; name: string; slug: string; image: string }[]>([]);
+  // Target countries must be ones Agaaw has pages for: that's what gets saved.
+  const agaawCountryOptions: CountryOption[] = backendCountries.map((c) => ({
+    code: findCountry(c.name)?.code ?? c.slug,
+    name: c.name,
+    flag: findCountry(c.name)?.flag ?? "",
+  }));
 
   // If already completed onboarding, redirect to dashboard
   useEffect(() => {
@@ -135,6 +141,13 @@ export default function StudentOnboarding() {
     if (level === "PhD") return "phd";
     return undefined;
   };
+
+  const currentYear = new Date().getFullYear();
+
+  const graduationYears = Array.from(
+    { length: currentYear + 10 - 2000 + 1 },
+    (_, index) => 2000 + index
+  );
 
   // Submit all onboarding data to the backend
   const submitOnboarding = async (withCv: boolean) => {
@@ -231,17 +244,6 @@ export default function StudentOnboarding() {
     }
   };
 
-  // Autocomplete Helpers
-  const addCountry = (country: string) => {
-    if (country && !targetCountries.includes(country)) {
-      setTargetCountries([...targetCountries, country]);
-    }
-    setCountryInput("");
-  };
-
-  const removeCountry = (country: string) => {
-    setTargetCountries(targetCountries.filter(c => c !== country));
-  };
 
   const addSubject = (subj: string) => {
     if (subj && !targetSubject.includes(subj)) {
@@ -382,42 +384,15 @@ export default function StudentOnboarding() {
                   <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider">
                     Target Country
                   </label>
-                  <div className="border border-slate-200 focus-within:border-teal-500 focus-within:ring-1 focus-within:ring-teal-500 rounded-xl p-3 bg-slate-50/50 flex flex-wrap gap-2 items-center min-h-[50px] transition-all">
-                    {targetCountries.map(country => (
-                      <span key={country} className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-1.5 px-3 rounded-lg transition-colors border border-slate-150">
-                        {country}
-                        <button type="button" onClick={() => removeCountry(country)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ))}
-                    <div className="relative flex-1 min-w-[120px]">
-                      <input
-                        type="text"
-                        placeholder="Add country..."
-                        value={countryInput}
-                        onChange={(e) => setCountryInput(e.target.value)}
-                        className="w-full bg-transparent border-none outline-none text-sm p-0.5 placeholder:text-slate-400 focus:ring-0"
-                      />
-                      {countryInput && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-150 rounded-xl shadow-lg max-h-40 overflow-y-auto z-50 py-1">
-                          {COUNTRY_LIST
-                            .filter(c => c.toLowerCase().includes(countryInput.toLowerCase()) && !targetCountries.includes(c))
-                            .map(c => (
-                              <button key={c} type="button" onClick={() => addCountry(c)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold transition-colors">
-                                {c}
-                              </button>
-                            ))
-                          }
-                          {COUNTRY_LIST.filter(c => c.toLowerCase().includes(countryInput.toLowerCase()) && !targetCountries.includes(c)).length === 0 && (
-                            <button type="button" onClick={() => addCountry(countryInput)} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-xs font-semibold text-teal-600 transition-colors">
-                                Add &quot;{countryInput}&quot;
-                              </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  {/* Only countries Agaaw has pages for — those are the only ones that can be saved. */}
+                  <CountryMultiSelect
+                    variant="onboarding"
+                    values={targetCountries}
+                    onChange={setTargetCountries}
+                    options={agaawCountryOptions}
+                    placeholder={agaawCountryOptions.length ? "Add a country…" : "Loading countries…"}
+                    aria-label="Target countries"
+                  />
                 </div>
 
                 {/* Target Subject / Major */}
@@ -639,18 +614,17 @@ export default function StudentOnboarding() {
                     </label>
                     <div className="relative">
                       <select
+                        id="graduation-year"
                         value={graduationYear}
                         onChange={(e) => setGraduationYear(e.target.value)}
                         className="w-full bg-slate-50/50 border border-slate-250 rounded-xl px-4 py-3 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 font-semibold"
                       >
                         <option value="">Expected Year</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                        <option value="2027">2027</option>
-                        <option value="2028">2028</option>
-                        <option value="2029">2029</option>
-                        <option value="2030">2030</option>
+                        {graduationYears.map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
                       </select>
                       <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
                         <Calendar className="h-4 w-4" />
@@ -842,29 +816,13 @@ export default function StudentOnboarding() {
                   <label className="text-xs font-extrabold text-slate-700 uppercase tracking-wider block">
                     Your Country
                   </label>
-                  <div className="relative">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-                      <Globe className="h-4.5 w-4.5" />
-                    </div>
-                    <select
-                      value={currentCountry}
-                      onChange={(e) => setCurrentCountry(e.target.value)}
-                      className="w-full bg-slate-50/50 border border-slate-200 rounded-xl pl-11 pr-4 py-3.5 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 font-semibold"
-                    >
-                      <option value="">Select your country</option>
-                      <option value="Bangladesh">Bangladesh</option>
-                      <option value="India">India</option>
-                      <option value="Pakistan">Pakistan</option>
-                      <option value="United States">United States</option>
-                      <option value="United Kingdom">United Kingdom</option>
-                      <option value="Canada">Canada</option>
-                      <option value="Germany">Germany</option>
-                      <option value="Australia">Australia</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                      <ChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
+                  <CountrySelect
+                    variant="onboarding"
+                    value={currentCountry}
+                    onChange={setCurrentCountry}
+                    placeholder="Select your country"
+                    aria-label="Your country"
+                  />
                 </div>
 
                 {/* Phone Number */}

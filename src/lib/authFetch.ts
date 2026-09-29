@@ -89,6 +89,27 @@ function getRefreshedToken(): Promise<string | null> {
   return refreshPromise;
 }
 
+/** Seconds left before the JWT's `exp`, or 0 if unreadable/expired. */
+function secondsUntilExpiry(token: string): number {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof payload.exp === "number" ? payload.exp - Date.now() / 1000 : 0;
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * An access token that is valid right now — refreshed first if it expires
+ * within 30 seconds. For callers that can't retry on a 401 the way authFetch
+ * does, like the chat socket's handshake. Returns null when logged out.
+ */
+export async function getValidAccessToken(): Promise<string | null> {
+  const token = getToken();
+  if (token && secondsUntilExpiry(token) > 30) return token;
+  return getRefreshedToken();
+}
+
 /**
  * Clears all auth state and redirects to the login page.
  */

@@ -1,9 +1,11 @@
-"use client";
+
+"use client";
 
 import React, { useRef, useState } from "react";
 import { X, Save, Upload, Loader2, Trash2 } from "lucide-react";
 import { resolveFileUrl, uploadStudentProfilePicture, deleteStudentProfilePicture } from "@/lib/api";
 import Avatar from "@/components/ui/Avatar";
+import CountrySelect from "@/components/ui/CountrySelect";
 
 type StudyLevel = 'bachelors' | 'masters' | 'phd' | 'diploma' | 'other';
 
@@ -188,11 +190,10 @@ export default function EditProfileHeaderModal({ profile, onClose, onSave, onAva
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1.5">
                                 <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">Location / Nationality</label>
-                                <input 
-                                    type="text" 
-                                    value={nationality} 
-                                    onChange={(e) => setNationality(e.target.value)}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500" 
+                                <CountrySelect
+                                    value={nationality}
+                                    onChange={setNationality}
+                                    aria-label="Country"
                                 />
                             </div>
                             <div className="space-y-1.5">

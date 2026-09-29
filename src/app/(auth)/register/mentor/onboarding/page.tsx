@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useOrderConfig } from "@/hooks/useOrderConfig";
+import { formatTaka, previewSplit } from "@/lib/orders";
 import {
     GraduationCap,
     MapPin,
@@ -18,7 +20,8 @@ import {
     CheckCircle,
     Loader2,
 } from "lucide-react";
-import { PHONE_CODES, COUNTRY_LIST } from "@/data/geo";
+import { PHONE_CODES } from "@/data/geo";
+import CountrySelect from "@/components/ui/CountrySelect";
 import { completeMentorOnboarding, getCountriesClient } from "@/lib/api";
 import { getUserInfo, setUserInfo } from "@/lib/auth";
 import { EDUCATION_LEVELS, SEMESTER_OPTIONS } from "@/data/educationalData";
@@ -38,21 +41,22 @@ const DEFAULT_SERVICES: Service[] = [
         id: 1,
         title: "Document Review",
         description: "Thorough review of your SOP, LOR, or CV with detailed feedback.",
-        price: 40,
-        currency: "$",
+        price: 1500,
+        currency: "৳",
         duration: "45 min",
     },
     {
         id: 2,
         title: "Full Application Process",
         description: "End-to-end guidance from university selection to final submission.",
-        price: 150,
-        currency: "$",
+        price: 6000,
+        currency: "৳",
         duration: "3 sessions",
     },
 ];
 export default function MentorOnboarding() {
     const router = useRouter();
+    const { commissionRate } = useOrderConfig();
     const [step, setStep] = useState(1);
     // --- Step 1: Academic & Basic Info ---
     const [country, setCountry] = useState("");
@@ -195,7 +199,7 @@ export default function MentorOnboarding() {
             title: newTitle.trim(),
             description: newDesc.trim() || "No description provided.",
             price: Number(newPrice),
-            currency: "$",
+            currency: "৳",
             duration: newDuration.trim(),
         };
         setServices([...services, svc]);
@@ -274,19 +278,13 @@ export default function MentorOnboarding() {
                                     <label className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest block">
                                         Current Country
                                     </label>
-                                    <div className="relative">
-                                        <select
-                                            value={country}
-                                            onChange={(e) => setCountry(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 font-semibold transition-all"
-                                        >
-                                            <option value="">Select Country</option>
-                                            {COUNTRY_LIST.map((c) => (
-                                                <option key={c} value={c}>{c}</option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-                                    </div>
+                                    <CountrySelect
+                                        variant="onboarding"
+                                        value={country}
+                                        onChange={setCountry}
+                                        placeholder="Select Country"
+                                        aria-label="Current country"
+                                    />
                                 </div>
                                 {/* City */}
                                 <div className="space-y-1.5">
@@ -494,10 +492,10 @@ export default function MentorOnboarding() {
                                         />
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="relative">
-                                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">$</span>
+                                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">৳</span>
                                                 <input
                                                     type="number"
-                                                    placeholder="Price"
+                                                    placeholder="Price (taka)"
                                                     value={newPrice}
                                                     onChange={(e) => setNewPrice(e.target.value)}
                                                     className="w-full bg-white border border-slate-200 rounded-xl pl-8 pr-4 py-2.5 text-sm focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 transition-all"
@@ -514,6 +512,15 @@ export default function MentorOnboarding() {
                                                 required
                                             />
                                         </div>
+                                        {Number(newPrice) > 0 && (
+                                            <p className="text-xs text-slate-600 bg-white border border-slate-200 rounded-lg px-3 py-2">
+                                                Student pays {formatTaka(newPrice)} · Agaaw fee ({Math.round(commissionRate * 100)}%){" "}
+                                                {formatTaka(previewSplit(Number(newPrice), commissionRate).platformFee)} ·{" "}
+                                                <span className="font-bold text-teal-700">
+                                                    You receive {formatTaka(previewSplit(Number(newPrice), commissionRate).mentorPayout)}
+                                                </span>
+                                            </p>
+                                        )}
                                         <div className="flex gap-2">
                                             <button
                                                 type="button"
@@ -542,7 +549,10 @@ export default function MentorOnboarding() {
                                                 <h4 className="text-sm font-bold text-slate-900">{svc.title}</h4>
                                                 <p className="text-xs text-slate-500 leading-relaxed">{svc.description}</p>
                                                 <div className="flex items-center gap-3 pt-1">
-                                                    <span className="text-sm font-extrabold text-teal-700">{svc.currency}{svc.price}</span>
+                                                    <span className="text-sm font-extrabold text-slate-900">{formatTaka(svc.price)}</span>
+                                                    <span className="text-xs font-semibold text-teal-700">
+                                                        You get {formatTaka(previewSplit(svc.price, commissionRate).mentorPayout)}
+                                                    </span>
                                                     <span className="text-xs text-slate-400 flex items-center gap-1">
                                                         <Clock className="h-3 w-3" /> {svc.duration}
                                                     </span>

@@ -1,6 +1,7 @@
 "use client";
 import MentorCard, { type MentorListItem, type MentorRequestStatus } from "@/components/mentors/MentorCard";
 import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
+import OrderServiceModal from "@/components/orders/OrderServiceModal";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import Pagination from "@/components/ui/Pagination";
@@ -37,6 +38,9 @@ function MentorList() {
     const [accessDenied, setAccessDenied] = useState(false);
     const [requestStatusMap, setRequestStatusMap] = useState<Record<string, MentorRequestStatus>>({});
     const [requestModalMentor, setRequestModalMentor] = useState<{ id: string; name: string } | null>(null);
+    // mentor user id → active connection id; an order is placed on a connection.
+    const [connectionIds, setConnectionIds] = useState<Record<string, string>>({});
+    const [orderModalMentor, setOrderModalMentor] = useState<{ id: string; name: string; connectionId: string } | null>(null);
     const { toast, showToast, hideToast } = useToast();
 
     // Load user session and mentors
@@ -77,10 +81,13 @@ function MentorList() {
                     pendingRequests.data.forEach((req) => {
                         statusMap[req.mentorId] = "pending";
                     });
+                    const connIds: Record<string, string> = {};
                     activeConnections.forEach((conn) => {
                         statusMap[conn.counterpart.id] = "connected";
+                        connIds[conn.counterpart.id] = conn.id;
                     });
                     setRequestStatusMap(statusMap);
+                    setConnectionIds(connIds);
                 }
             } catch (error) {
                 console.error("Error fetching mentors:", error);
@@ -366,6 +373,16 @@ function MentorList() {
                                         onRequestMentorship={() =>
                                             setRequestModalMentor({ id: mentor.id, name: mentor.name })
                                         }
+                                        onOrderService={
+                                            connectionIds[mentor.id]
+                                                ? () =>
+                                                      setOrderModalMentor({
+                                                          id: mentor.id,
+                                                          name: mentor.name,
+                                                          connectionId: connectionIds[mentor.id],
+                                                      })
+                                                : undefined
+                                        }
                                     />
                                 );
                             })}
@@ -403,6 +420,14 @@ function MentorList() {
                         setRequestModalMentor(null);
                         showToast("Mentorship request sent!");
                     }}
+                />
+            )}
+            {orderModalMentor && (
+                <OrderServiceModal
+                    connectionId={orderModalMentor.connectionId}
+                    mentorId={orderModalMentor.id}
+                    mentorName={orderModalMentor.name}
+                    onClose={() => setOrderModalMentor(null)}
                 />
             )}
             <Toast toast={toast} onHide={hideToast} />

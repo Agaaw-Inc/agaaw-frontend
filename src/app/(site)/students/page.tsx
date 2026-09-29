@@ -9,7 +9,6 @@ import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { popularInterestTags } from "@/data/educationalData";
 import { getStudents, getMentorProfile, getConnections } from "@/lib/api";
-import { COUNTRY_LIST } from "@/data/geo";
 import Link from "next/link";
 
 interface OwnMentorProfile {
@@ -90,11 +89,16 @@ function StudentList() {
         }, 300);
         return () => clearTimeout(timer);
     }, [searchQuery]);
-    // Unique country options from geo data
-    const currentCountryOptions = COUNTRY_LIST.slice().sort();
-    
-    // Unique target country options from geo data
-    const targetCountryOptions = COUNTRY_LIST.slice().sort();
+    // Filter options come from the students themselves, so every choice
+    // returns at least one result (a fixed list offered dead ends).
+    const currentCountryOptions = useMemo(
+        () => [...new Set(students.map((s) => s.country).filter(Boolean))].sort(),
+        [students],
+    );
+    const targetCountryOptions = useMemo(
+        () => [...new Set(students.flatMap((s) => s.goals.targetCountries))].sort(),
+        [students],
+    );
     // Filter and Sort Students
     const processedStudents = useMemo(() => {
         // 1. Filter

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Check, CheckCheck, Download, FileText, ImageIcon, RotateCcw } from "lucide-react";
+import { AlertCircle, Check, CheckCheck, Download, FileText, ImageIcon, Loader2, RotateCcw, X } from "lucide-react";
 import {
   downloadChatAttachment,
+  getAttachmentObjectUrl,
   formatDayLabel,
   formatFileSize,
   formatMessageTime,
@@ -29,15 +30,107 @@ interface MessageThreadProps {
 const attachmentTypeLabel = { pdf: "PDF Document", doc: "Document", image: "Image" };
 
 function MessageAttachmentCard({ attachment }: { attachment: ChatAttachment }) {
+  return attachment.type === "image" ? (
+    <ImageAttachment attachment={attachment} />
+  ) : (
+    <FileAttachment attachment={attachment} />
+  );
+}
+
+/** Shown inline like a photo in WhatsApp; tap to view full size. */
+function ImageAttachment({ attachment }: { attachment: ChatAttachment }) {
+  const [src, setSrc] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    getAttachmentObjectUrl(attachment)
+      .then((url) => alive && setSrc(url))
+      .catch(() => alive && setFailed(true));
+    return () => {
+      alive = false;
+    };
+  }, [attachment]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  if (failed) return <FileAttachment attachment={attachment} />;
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => src && setOpen(true)}
+        className="mt-3 block overflow-hidden rounded-lg border border-slate-200 bg-slate-100"
+        aria-label={`View ${attachment.name}`}
+      >
+        {src ? (
+          // eslint-disable-next-line @next/next/no-img-element -- private blob: URL, not optimisable
+          <img src={src} alt={attachment.name} className="block max-h-64 w-auto max-w-[min(18rem,100%)] object-cover" />
+        ) : (
+          <div className="flex h-40 w-56 items-center justify-center text-slate-400">
+            <Loader2 className="h-5 w-5 animate-spin" />
+          </div>
+        )}
+      </button>
+
+      {open && src && (
+        <div
+          className="fixed inset-0 z-[300] flex flex-col bg-black/90"
+          role="dialog"
+          aria-modal="true"
+          aria-label={attachment.name}
+          onClick={() => setOpen(false)}
+        >
+          <div className="flex items-center justify-between gap-3 p-3 text-white" onClick={(e) => e.stopPropagation()}>
+            <p className="truncate text-sm font-semibold">{attachment.name}</p>
+            <div className="flex shrink-0 gap-1">
+              <button
+                type="button"
+                onClick={() => downloadChatAttachment(attachment).catch(() => {})}
+                className="rounded-full p-2 hover:bg-white/10"
+                aria-label={`Download ${attachment.name}`}
+              >
+                <Download className="h-5 w-5" />
+              </button>
+              <button type="button" onClick={() => setOpen(false)} className="rounded-full p-2 hover:bg-white/10" aria-label="Close">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+          <div className="flex flex-1 items-center justify-center overflow-hidden p-4">
+            {/* eslint-disable-next-line @next/next/no-img-element -- private blob: URL */}
+            <img
+              src={src}
+              alt={attachment.name}
+              className="max-h-full max-w-full object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+function FileAttachment({ attachment }: { attachment: ChatAttachment }) {
   const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleDownload = async () => {
     if (downloading) return;
     setDownloading(true);
+    setError(null);
     try {
       await downloadChatAttachment(attachment);
-    } catch {
-      /* transient network failure — user can click again */
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Download failed");
     } finally {
       setDownloading(false);
     }
@@ -46,25 +139,28 @@ function MessageAttachmentCard({ attachment }: { attachment: ChatAttachment }) {
   const Icon = attachment.type === "image" ? ImageIcon : FileText;
 
   return (
-    <div className="mt-3 flex max-w-md items-center gap-4 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-600">
-        <Icon className="h-6 w-6" />
+    <div className="mt-3 max-w-md">
+      <div className="flex items-center gap-4 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-red-50 text-red-600">
+          <Icon className="h-6 w-6" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-bold text-slate-950">{attachment.name}</p>
+          <p className="text-xs font-semibold text-slate-500">
+            {formatFileSize(attachment.sizeBytes)} {attachmentTypeLabel[attachment.type]}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={downloading}
+          className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
+          aria-label={`Download ${attachment.name}`}
+        >
+          {downloading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
+        </button>
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-slate-950">{attachment.name}</p>
-        <p className="text-xs font-semibold text-slate-500">
-          {formatFileSize(attachment.sizeBytes)} {attachmentTypeLabel[attachment.type]}
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={handleDownload}
-        disabled={downloading}
-        className="rounded-md p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50"
-        aria-label={`Download ${attachment.name}`}
-      >
-        <Download className="h-5 w-5" />
-      </button>
+      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
     </div>
   );
 }

@@ -12,7 +12,7 @@
  * Wraps the sidebar + topbar + main content area.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -30,6 +30,7 @@ export default function AdminProtectedLayout({
   const { admin, isAuthenticated, isLoading } = useAdminAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // ── Redirect to login if not authenticated ─────────────────
   useEffect(() => {
@@ -64,10 +65,10 @@ export default function AdminProtectedLayout({
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Topbar />
-        <main className="p-6 overflow-y-auto flex-1">
+      <Sidebar mobileOpen={mobileNavOpen} onMobileClose={() => setMobileNavOpen(false)} />
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <Topbar onMenuClick={() => setMobileNavOpen(true)} />
+        <main className="p-4 sm:p-6 overflow-y-auto flex-1">
           {authorized ? children : (
             <AccessDenied userRole={adminRole} requiredRole={requiredRole} />
           )}
