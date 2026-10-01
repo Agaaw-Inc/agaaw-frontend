@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Footer from "@/components/landing/Footer";
 import {
     getMentorProfile,
@@ -49,6 +50,7 @@ type ModalType =
   | null;
 
 export default function MentorProfilePage() {
+    const router = useRouter();
     const [activeModal, setActiveModal] = useState<ModalType>(null);
     const [profile, setProfile] = useState<any>(null);
     const [documents, setDocuments] = useState<any[]>([]);
@@ -182,7 +184,8 @@ export default function MentorProfilePage() {
                     onDelete={handleDeleteDocument} 
                 />
 
-                <MentorServicesCard profile={profile} onEdit={() => setActiveModal("services")} />
+                {/* Services are managed per category on their own page now. */}
+                <MentorServicesCard profile={profile} onEdit={() => router.push("/dashboard/mentor/services")} />
                 
                 <MentorReviewsCard
                     reviews={reviews?.data ?? []}

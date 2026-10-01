@@ -36,24 +36,9 @@ interface Service {
     duration: string;
 }
 
-const DEFAULT_SERVICES: Service[] = [
-    {
-        id: 1,
-        title: "Document Review",
-        description: "Thorough review of your SOP, LOR, or CV with detailed feedback.",
-        price: 1500,
-        currency: "৳",
-        duration: "45 min",
-    },
-    {
-        id: 2,
-        title: "Full Application Process",
-        description: "End-to-end guidance from university selection to final submission.",
-        price: 6000,
-        currency: "৳",
-        duration: "3 sessions",
-    },
-];
+// No preloaded services: mentors write their own, in the categories they
+// choose, from Dashboard → Services.
+const DEFAULT_SERVICES: Service[] = [];
 export default function MentorOnboarding() {
     const router = useRouter();
     const { commissionRate } = useOrderConfig();
