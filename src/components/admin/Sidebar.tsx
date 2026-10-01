@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   ScrollText,
   CreditCard,
+  BadgeCheck,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -49,6 +50,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/internal-hq/scholarships", icon: <GraduationCap size={18} />,   label: "Scholarships" },
   { href: "/internal-hq/blogs",        icon: <BookOpen size={18} />,        label: "Blogs" },
   { href: "/internal-hq/mentors",      icon: <GraduationCap size={18} />,   label: "Mentors" },
+  { href: "/internal-hq/verifications", icon: <BadgeCheck size={18} />,    label: "Verifications" },
   { href: "/internal-hq/payments",     icon: <CreditCard size={18} />,      label: "Payments" },
   { href: "/internal-hq/announcements", icon: <Megaphone size={18} />,      label: "Announcements" },
   { href: "/internal-hq/users",        icon: <Users size={18} />,           label: "Users",    requiredRole: "super_admin" },

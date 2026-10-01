@@ -949,3 +949,76 @@ export async function fetchPrivateFileUrl(path: string): Promise<string> {
   }
   return URL.createObjectURL(await res.blob());
 }
+
+// ================================================================
+// Mentor Verification Endpoints
+// ================================================================
+
+export type VerificationStatus = "pending" | "approved" | "rejected";
+
+export interface AdminVerificationDocument {
+  id: string;
+  kind: "id_card" | "supporting";
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  uploadedAt: string;
+}
+
+export interface AdminVerification {
+  id: string;
+  credentialType: "university" | "company" | "organization";
+  professionalEmail: string;
+  linkedinUrl: string;
+  /** Admin-only — no other endpoint ever returns it. */
+  phoneNumber: string;
+  status: VerificationStatus;
+  submittedAt: string;
+  reviewedAt: string | null;
+  reviewedById: string | null;
+  rejectionReason: string | null;
+  documents: AdminVerificationDocument[];
+  mentor: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    profileImage: string | null;
+    mentorProfile: { currentUniversity: string | null; isApproved: boolean } | null;
+  };
+}
+
+const V = () => `${API_URL}/admin/mentor-verifications`;
+
+export const listVerifications = (status: VerificationStatus = "pending", page = 1) =>
+  adminFetch<PaginatedResponse<AdminVerification>>(`${V()}${toQueryString({ status, page, limit: 20 })}`);
+
+/**
+ * `submittedAt` is the version the admin reviewed. If the mentor resubmitted
+ * since, the API refuses (409) so nothing gets approved unseen.
+ */
+export const approveVerification = (id: string, submittedAt: string) =>
+  adminFetch<AdminVerification>(`${V()}/${id}/approve`, {
+    method: "PATCH",
+    body: JSON.stringify({ submittedAt }),
+  });
+
+export const rejectVerification = (id: string, submittedAt: string, reason: string) =>
+  adminFetch<AdminVerification>(`${V()}/${id}/reject`, {
+    method: "PATCH",
+    body: JSON.stringify({ submittedAt, reason }),
+  });
+
+/** An ID card or supporting document as a temporary blob URL. Revoke it when done. */
+export async function fetchVerificationDocumentUrl(verificationId: string, documentId: string): Promise<string> {
+  const token = getAccessToken();
+  const res = await fetch(`${V()}/${verificationId}/documents/${documentId}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}));
+    throw new Error(json.message || `Couldn't load file (${res.status})`);
+  }
+  return URL.createObjectURL(await res.blob());
+}
