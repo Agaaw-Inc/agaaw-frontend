@@ -4,13 +4,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard, Package, Wallet } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard, Package, Wallet, Plane, BadgeCheck } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { resolveFileUrl } from "@/lib/api";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 import Avatar from "@/components/ui/Avatar";
 import { useRouter } from "next/navigation";
+
+// Scholarships and countries now live under Study abroad: one global link,
+// plus this sub-nav on every study-abroad route.
+const STUDY_ABROAD_LINKS = [
+  { href: "/study-abroad", label: "Overview" },
+  { href: "/scholarships", label: "Scholarships" },
+  { href: "/countries", label: "Countries" },
+];
+
+function isUnder(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 function getStoredUser(): UserInfo | null {
   const token = getToken();
@@ -56,14 +68,22 @@ export default function MainNavbar() {
   const messagesActive = pathname.startsWith(messagesHref);
   const unreadMessages = useUnreadMessages(Boolean(user && user.role !== "admin"));
 
-  const navLinks = [
-    { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
-    { href: "/countries", label: "Countries", icon: Globe },
+  const navLinks: { href: string; label: string; icon: typeof Plane; matches?: string[] }[] = [
+    {
+      href: "/study-abroad",
+      label: "Study abroad",
+      icon: Plane,
+      matches: STUDY_ABROAD_LINKS.map((link) => link.href),
+    },
     ...(user?.role === "mentor" ? [{ href: "/students", label: "Students", icon: Users }] : []),
     ...(user?.role === "student" ? [{ href: "/mentors", label: "Mentors", icon: Users }] : []),
     { href: "/blogs", label: "Blogs", icon: BookOpen },
     { href: "/about-us", label: "About", icon: Info },
   ];
+
+  const linkActive = (link: { href: string; matches?: string[] }) =>
+    (link.matches ?? [link.href]).some((href) => isUnder(pathname, href));
+  const onStudyAbroad = STUDY_ABROAD_LINKS.some((link) => isUnder(pathname, link.href));
 
   // Close menus on outside click
   useEffect(() => {
@@ -111,8 +131,9 @@ export default function MainNavbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ href, label }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/");
+            {navLinks.map((link) => {
+              const { href, label } = link;
+              const isActive = linkActive(link);
               return (
                 <Link
                   key={href}
@@ -187,6 +208,12 @@ export default function MainNavbar() {
                           </Link>
                           <Link href='/dashboard/mentor/wallet' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <Wallet size={18} className="text-gray-400 group-hover:text-teal-600" /> Wallet
+                          </Link>
+                          <Link href='/dashboard/mentor/services' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <Briefcase size={18} className="text-gray-400 group-hover:text-teal-600" /> Services
+                          </Link>
+                          <Link href='/dashboard/mentor/verification' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
+                            <BadgeCheck size={18} className="text-gray-400 group-hover:text-teal-600" /> Verification
                           </Link>
                           <Link href='/dashboard/mentor/blogs' className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors">
                             <BookOpen size={18} className="text-gray-400 group-hover:text-teal-600" /> Blog & Resources
@@ -282,8 +309,9 @@ export default function MainNavbar() {
             className="md:hidden border-t border-gray-100 bg-white shadow-lg"
           >
             <div className="px-4 py-3 space-y-1">
-              {navLinks.map(({ href, label, icon: Icon }) => {
-                const isActive = pathname === href || pathname.startsWith(href + "/");
+              {navLinks.map((link) => {
+                const { href, label, icon: Icon } = link;
+                const isActive = linkActive(link);
                 return (
                   <Link
                     key={href}
@@ -331,6 +359,9 @@ export default function MainNavbar() {
                       </Link>
                       <Link href='/dashboard/mentor/services' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Briefcase size={18} className="text-gray-400" /> Services
+                      </Link>
+                      <Link href='/dashboard/mentor/verification' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                        <BadgeCheck size={18} className="text-gray-400" /> Verification
                       </Link>
                       <Link href='/dashboard/mentor/blogs' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <BookOpen size={18} className="text-gray-400" /> Blog & Resources
@@ -410,6 +441,29 @@ export default function MainNavbar() {
               )}
             </div>
           </div>
+        )}
+
+        {/* Study abroad sub-nav */}
+        {onStudyAbroad && (
+          <nav aria-label="Study abroad" className="border-t border-gray-100 bg-white">
+            <div className="mx-auto flex max-w-7xl items-center gap-1 overflow-x-auto px-6 py-2">
+              {STUDY_ABROAD_LINKS.map(({ href, label }) => {
+                const isActive = isUnder(pathname, href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`shrink-0 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isActive
+                      ? "text-teal-700 bg-teal-50"
+                      : "text-gray-600 hover:bg-gray-100"
+                      }`}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
         )}
       </header>
 

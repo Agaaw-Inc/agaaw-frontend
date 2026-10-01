@@ -5,6 +5,7 @@ import WhyChooseSection from "@/components/landing/WhyChooseSection";
 import MentorBanner from "@/components/landing/MentorBanner";
 import ResourceBanner from "@/components/landing/ResourceBanner";
 import Footer from "@/components/landing/Footer";
+import CategoryDiscovery from "@/components/landing/CategoryDiscovery";
 
 export default function HomePage() {
   return (
@@ -12,6 +13,8 @@ export default function HomePage() {
       <MainNavbar />
 
       <HeroSection />
+
+      <CategoryDiscovery />
 
       <ImageCarousel />
 
