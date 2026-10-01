@@ -1,18 +1,16 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ChevronLeft, ChevronRight, SearchX } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
-import CategoryIcon from "@/components/categories/CategoryIcon";
-import ServiceListingCard from "@/components/categories/ServiceListingCard";
-import { getCategoryBySlug, getPublicServices } from "@/lib/categories";
-
-const PAGE_SIZE = 12;
+import MentorPreviewCard from "@/components/categories/MentorPreviewCard";
+import { getCategoryBySlug, getCategoryMentors } from "@/lib/categories";
+import { visualFor } from "@/lib/categoryVisuals";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -26,85 +24,90 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 /**
- * Generic hub for one category: who offers what, at what price. Study abroad
- * has its own richer page, so it redirects there instead.
+ * One category: who mentors here. Students find a mentor by category, then
+ * see that mentor's services on their profile — services are never listed
+ * on their own. Study abroad has a richer page, so it redirects there.
  */
-export default async function CategoryPage({ params, searchParams }: PageProps) {
+export default async function CategoryPage({ params }: PageProps) {
   const { slug } = await params;
   if (slug === "study-abroad") redirect("/study-abroad");
 
   const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const page = Math.max(1, Number((await searchParams).page) || 1);
-  const services = category.isActive
-    ? await getPublicServices({ categoryId: category.id, page, limit: PAGE_SIZE })
-    : null;
-  const totalPages = services?.meta.totalPages ?? 0;
+  const visual = visualFor(category.slug);
+  const preview = category.isActive ? await getCategoryMentors(slug) : null;
+  const mentors = preview?.mentors ?? [];
+  const total = preview?.total ?? 0;
 
   return (
     <>
       <MainNavbar />
 
-      <main className="min-h-screen bg-[#F8FAFC]">
-        {/* Header */}
-        <section className="bg-white border-b border-gray-100">
-          <div className="mx-auto max-w-7xl px-6 py-12 md:py-16 flex flex-col md:flex-row md:items-center gap-6">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-elm/10 text-elm shrink-0">
-              <CategoryIcon name={category.icon} size={30} />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-3">
-                <h1 className="text-3xl md:text-4xl font-bold text-codgray tracking-tight">{category.name}</h1>
-                {!category.isActive && (
-                  <span className="inline-flex items-center whitespace-nowrap rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                    Coming soon
-                  </span>
-                )}
-              </div>
-              {category.description && (
-                <p className="mt-3 max-w-2xl text-base md:text-lg text-bombay leading-relaxed">{category.description}</p>
-              )}
-            </div>
+      <main className="bg-paper">
+        {/* Header: words left, photograph right */}
+        <section className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-14 pt-12 md:pt-16 lg:grid-cols-2">
+          <div>
+            <Link href="/#categories" className="text-sm font-semibold text-ink-soft hover:text-ink">
+              ← All categories
+            </Link>
+            <h1 className="mt-6 font-display text-5xl font-extrabold leading-[0.98] tracking-[-0.035em] text-ink md:text-6xl">
+              {category.name}
+            </h1>
+            {category.description && (
+              <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-soft">{category.description}</p>
+            )}
+            {category.isActive ? (
+              <p className="mt-8 inline-flex items-center rounded-full px-4 py-2 text-sm font-bold text-ink" style={{ backgroundColor: visual.accent }}>
+                {total === 0 ? "Mentors are joining now" : `${total} mentor${total === 1 ? "" : "s"} ready to help`}
+              </p>
+            ) : (
+              <p className="mt-8 inline-flex items-center rounded-full bg-ink/10 px-4 py-2 text-sm font-bold uppercase tracking-wider text-ink-soft">
+                Coming soon
+              </p>
+            )}
+          </div>
+
+          <div className={`relative h-72 overflow-hidden rounded-[32px] md:h-[380px] ${category.isActive ? "" : "grayscale"}`}>
+            <Image src={visual.image} alt={visual.alt} fill priority sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-6 py-10">
-          {!services ? (
-            <EmptyState
-              title="We're getting this category ready"
-              body="Mentors can't list services here yet. Check back soon."
-            />
-          ) : services.data.length === 0 ? (
-            <EmptyState
-              title="No services listed yet"
-              body="Mentors in this category haven't added services yet. Are you an expert here?"
+        <div className="stitch mx-auto max-w-7xl text-ink/15" />
+
+        {/* Mentors */}
+        <section className="mx-auto max-w-7xl px-6 py-14 md:py-20">
+          {!category.isActive ? (
+            <Empty title="We're getting this category ready" body="Mentors can't join it yet. Check back soon." />
+          ) : mentors.length === 0 ? (
+            <Empty
+              title="Be one of the first mentors here"
+              body={`Students are looking for help with ${category.name.toLowerCase()}. If you've done it, you can guide them.`}
               cta={{ href: "/register/mentor", label: "Become a mentor" }}
             />
           ) : (
             <>
-              <p className="text-sm text-gray-500 mb-6">
-                {services.meta.total} service{services.meta.total === 1 ? "" : "s"} available
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.data.map((service) => (
-                  <ServiceListingCard key={service.id} service={service} />
+              <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+                <h2 className="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink">Meet the mentors</h2>
+                <p className="text-sm text-ink-soft">Open a profile to see what they offer and their prices.</p>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {mentors.map((mentor) => (
+                  <MentorPreviewCard key={mentor.id} mentor={mentor} />
                 ))}
               </div>
 
-              {totalPages > 1 && (
-                <nav aria-label="Pagination" className="mt-10 flex items-center justify-center gap-3">
-                  <PageLink slug={slug} page={page - 1} disabled={page <= 1} label="Previous">
-                    <ChevronLeft size={16} /> Previous
-                  </PageLink>
-                  <span className="text-sm text-gray-500">
-                    Page {page} of {totalPages}
-                  </span>
-                  <PageLink slug={slug} page={page + 1} disabled={page >= totalPages} label="Next">
-                    Next <ChevronRight size={16} />
-                  </PageLink>
-                </nav>
-              )}
+              <div className="mt-12 flex flex-col items-start justify-between gap-4 rounded-[28px] bg-ink px-8 py-8 text-paper sm:flex-row sm:items-center">
+                <p className="font-display text-2xl font-bold tracking-[-0.02em]">
+                  {total > mentors.length ? `See all ${total} mentors and filter by country` : "Ready to talk to one of them?"}
+                </p>
+                <Link
+                  href={`/mentors?category=${category.slug}`}
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-marigold px-6 py-3 font-semibold text-ink transition-colors hover:bg-paper"
+                >
+                  Find your mentor <ArrowRight size={18} />
+                </Link>
+              </div>
             </>
           )}
         </section>
@@ -115,54 +118,17 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   );
 }
 
-function EmptyState({ title, body, cta }: { title: string; body: string; cta?: { href: string; label: string } }) {
+function Empty({ title, body, cta }: { title: string; body: string; cta?: { href: string; label: string } }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 py-16 px-6 text-center">
-      <SearchX size={40} className="mx-auto mb-3 text-gray-300" />
-      <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-      <p className="mt-1 text-sm text-gray-500">{body}</p>
+    <div className="rounded-[28px] border-2 border-dashed border-ink/15 px-6 py-16 text-center">
+      <p className="font-hand text-3xl text-brick">nothing here yet</p>
+      <h2 className="mt-2 font-display text-2xl font-bold text-ink">{title}</h2>
+      <p className="mx-auto mt-2 max-w-md text-ink-soft">{body}</p>
       {cta && (
-        <Link
-          href={cta.href}
-          className="mt-6 inline-flex items-center justify-center rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-5 py-2.5 transition-colors"
-        >
-          {cta.label}
+        <Link href={cta.href} className="mt-6 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-semibold text-paper hover:bg-forest">
+          {cta.label} <ArrowRight size={18} />
         </Link>
       )}
     </div>
-  );
-}
-
-/** Pagination as plain links, so this page stays a server component. */
-function PageLink({
-  slug,
-  page,
-  disabled,
-  label,
-  children,
-}: {
-  slug: string;
-  page: number;
-  disabled: boolean;
-  label: string;
-  children: React.ReactNode;
-}) {
-  const className =
-    "inline-flex items-center gap-1 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors";
-  if (disabled) {
-    return (
-      <span aria-disabled="true" className={`${className} border-gray-100 text-gray-300`}>
-        {children}
-      </span>
-    );
-  }
-  return (
-    <Link
-      href={`/categories/${slug}?page=${page}`}
-      aria-label={`${label} page`}
-      className={`${className} border-gray-200 text-gray-700 hover:bg-gray-50`}
-    >
-      {children}
-    </Link>
   );
 }

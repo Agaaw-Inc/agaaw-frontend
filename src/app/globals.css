@@ -8,12 +8,43 @@
   --color-codgray: #191919;
   --color-bombay: #aeaeaf;
   --color-light: #ffffff;
+
+  /* Redesign palette: warm paper, deep ink, and two local accents used as
+     solid blocks (never gradients). Marigold and brick come from Bengali
+     festival colour; teal (elm) stays the brand. */
+  --color-paper: #f5f0e6;
+  --color-paper-deep: #ebe3d3;
+  --color-card: #fffcf6;
+  --color-ink: #17211e;
+  --color-ink-soft: #4a5450;
+  --color-marigold: #f2b33d;
+  --color-brick: #c4513a;
+  --color-forest: #12332f;
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-kalam), cursive;
 }
 
 @layer utilities {
   .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       font-family: 'Material Symbols Outlined';
+  }
+
+  /* Kantha stitch: the running stitch of Bengali quilts, as a divider. */
+  .stitch {
+      background-image: repeating-linear-gradient(
+        90deg,
+        currentColor 0 10px,
+        transparent 10px 18px
+      );
+      height: 2px;
+  }
+
+  /* Faint paper grain so large flat areas don't look digital. */
+  .paper-grain {
+      background-image: radial-gradient(rgba(23, 33, 30, 0.035) 1px, transparent 1px);
+      background-size: 4px 4px;
   }
 
   .ambient-shadow {

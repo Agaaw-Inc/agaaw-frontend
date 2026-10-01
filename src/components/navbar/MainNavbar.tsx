@@ -111,7 +111,7 @@ export default function MainNavbar() {
 
   return (
     <>
-      <header className="w-full border-b border-bombay/20 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+      <header className="w-full border-b border-ink/10 bg-card/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
           {/* Logo */}

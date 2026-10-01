@@ -1,18 +1,13 @@
 "use client";
 
 import React, { useSyncExternalStore } from "react";
-import Link from "next/link";
-import { Search } from "lucide-react";
 import MentorsSection from "@/components/dashboard/student/MentorsSection";
-import UpcomingDeadlines from "@/components/dashboard/student/UpcomingDeadlines";
-import MatchingCountries from "@/components/dashboard/student/MatchingCountries";
-import MatchingScholarships from "@/components/dashboard/student/MatchingScholarships";
-import ConnectedMentors from "@/components/dashboard/student/ConnectedMentors";
-import UpcomingSessions from "@/components/dashboard/student/UpcomingSessions";
-import ScholarshipsPreview from "@/components/scholarships/ScholarshipsPreview";
-import CountriesPreview from "@/components/countries/CountriesPreview";
-import BlogsPreview from "@/components/shared/BlogsPreview";
+import StudentWelcome from "@/components/dashboard/student/StudentWelcome";
+import CategoryRail from "@/components/dashboard/student/CategoryRail";
+import ScholarshipBoard from "@/components/dashboard/student/ScholarshipBoard";
+import { MyMentorsCard, TargetCountriesCard } from "@/components/dashboard/student/DashboardSideCards";
 import Footer from "@/components/landing/Footer";
+import { useStudentDashboard } from "@/hooks/useStudentDashboard";
 import { getToken, getUserInfo, type UserInfo } from "@/lib/auth";
 
 function getStoredUser(): UserInfo | null {
@@ -33,79 +28,41 @@ function subscribeToUserStore(onStoreChange: () => void) {
     };
 }
 
+/**
+ * The student's home: what's next, where to get help, and scholarships that
+ * fit them — instead of every preview on the site stacked in one column.
+ */
 export default function StudentDashboardPage() {
     const user = useSyncExternalStore(subscribeToUserStore, getStoredUser, () => null);
-
-    const userFirstName = user?.firstName || "Student";
+    const { data, isLoading, setData } = useStudentDashboard();
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
-            <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
+        <div className="min-h-screen bg-paper">
+            <div className="mx-auto max-w-7xl space-y-12 px-6 py-10 md:py-14">
+                <StudentWelcome
+                    firstName={user?.firstName || "there"}
+                    sessions={data.sessions}
+                    scholarships={data.scholarships}
+                    isLoading={isLoading}
+                />
 
-                {/* Hero Section */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div>
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">
-                            Welcome back, {userFirstName}
-                        </h1>
-                        <p className="text-gray-600 text-base">
-                            Your journey to world-class education continues here.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Link
-                            href="/mentors"
-                            className="flex items-center justify-center gap-2 bg-teal-700 hover:bg-teal-800 text-white px-6 py-2.5 rounded-lg font-semibold transition-colors"
-                        >
-                            <Search size={18} />
-                            Find a mentor
-                        </Link>
-                        <Link
-                            href="/dashboard/student/checklist"
-                            className="flex items-center justify-center bg-white border border-gray-200 hover:border-gray-300 text-gray-700 px-6 py-2.5 rounded-lg font-semibold transition-colors shadow-sm"
-                        >
-                            View Checklist
-                        </Link>
-                    </div>
-                </div>
+                <CategoryRail categories={data.categories} isLoading={isLoading} />
 
-                {/* Upcoming Deadlines */}
-                <UpcomingDeadlines />
-
-                {/* Profile Matches */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <MatchingCountries />
-                    <MatchingScholarships />
-                </div>
-
-                {/* Mentors & Sessions */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <ConnectedMentors />
-                    <UpcomingSessions />
-                </div>
-
-                {/* Discovery Modules */}
-                <div className="space-y-4">
-                    <MentorsSection />
-
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                        </div>
-                        <CountriesPreview />
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                        </div>
-                        <ScholarshipsPreview />
-                    </div>
-
+                <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                    <ScholarshipBoard
+                        scholarships={data.scholarships}
+                        savedIds={data.savedIds}
+                        targetCountries={data.targetCountries}
+                        isLoading={isLoading}
+                        onSavedChange={(savedIds) => setData((d) => ({ ...d, savedIds }))}
+                    />
                     <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                        </div>
-                        <BlogsPreview />
+                        <MyMentorsCard mentors={data.mentors} isLoading={isLoading} />
+                        <TargetCountriesCard countries={data.targetCountries} isLoading={isLoading} />
                     </div>
                 </div>
+
+                <MentorsSection />
             </div>
 
             <Footer />

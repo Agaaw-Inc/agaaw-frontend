@@ -1,102 +1,88 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Globe, GraduationCap, Users } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import ScholarshipsPreview from "@/components/scholarships/ScholarshipsPreview";
 import CountriesPreview from "@/components/countries/CountriesPreview";
-import ServiceListingCard from "@/components/categories/ServiceListingCard";
-import { getCategoryBySlug, getPublicServices } from "@/lib/categories";
+import MentorPreviewCard from "@/components/categories/MentorPreviewCard";
+import { getCategoryBySlug, getCategoryMentors } from "@/lib/categories";
+import { visualFor } from "@/lib/categoryVisuals";
 
 export const metadata: Metadata = {
   title: "Study abroad | Agaaw",
-  description: "Scholarships, countries and mentors who are already studying abroad.",
+  description: "Scholarships, country guides and mentors who are already studying abroad.",
 };
 
 const QUICK_LINKS = [
-  {
-    href: "/scholarships",
-    title: "Scholarships",
-    desc: "Funding by country, level and deadline.",
-    icon: GraduationCap,
-  },
-  {
-    href: "/countries",
-    title: "Countries",
-    desc: "Costs, visas, admissions and work rights.",
-    icon: Globe,
-  },
-  {
-    href: "/mentors",
-    title: "Mentors",
-    desc: "Students already living your plan.",
-    icon: Users,
-  },
+  { href: "/scholarships", title: "Scholarships", desc: "Funding by country, level and deadline." },
+  { href: "/countries", title: "Country guides", desc: "Costs, visas, admissions and work rights." },
+  { href: "/mentors?category=study-abroad", title: "Mentors", desc: "Students already living your plan." },
 ];
 
 /**
  * The study-abroad hub: the platform's original features (scholarships,
- * countries, mentors) gathered under one category. /categories/study-abroad
+ * countries, mentors) under one category. /categories/study-abroad
  * redirects here.
  */
 export default async function StudyAbroadPage() {
-  // The page still renders with its static content if the API is unreachable.
+  const visual = visualFor("study-abroad");
+  // The page still renders its static content if the API is unreachable.
   const category = await getCategoryBySlug("study-abroad").catch(() => null);
-  const services = category
-    ? await getPublicServices({ categoryId: category.id, limit: 6 }).catch(() => null)
-    : null;
+  const preview = category ? await getCategoryMentors("study-abroad").catch(() => null) : null;
+  const mentors = preview?.mentors.slice(0, 4) ?? [];
 
   return (
     <>
       <MainNavbar />
 
-      <main className="bg-white">
-        {/* Header */}
-        <section className="bg-gradient-to-br from-teal-700 via-teal-600 to-emerald-600">
-          <div className="mx-auto max-w-7xl px-6 py-14 md:py-20">
-            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
-              Study <span className="text-teal-100">abroad</span>
+      <main className="bg-paper">
+        <section className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-16 pt-12 md:pt-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div>
+            <p className="font-hand text-2xl text-brick">where Agaaw began</p>
+            <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.98] tracking-[-0.035em] text-ink md:text-7xl">
+              Study abroad
             </h1>
-            <p className="mt-4 max-w-2xl text-lg text-teal-50/90 leading-relaxed">
-              {category?.description ??
-                "Scholarships, applications, visas and life abroad — guidance from students already there."}
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-soft">
+              {category?.description ?? visual.tagline}
             </p>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              {QUICK_LINKS.map(({ href, title, desc, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="group flex items-start gap-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 p-5 hover:bg-white/15 transition-colors"
-                >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 text-white shrink-0">
-                    <Icon size={22} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white flex items-center gap-1.5">
-                      {title}
-                      <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                    </p>
-                    <p className="text-sm text-teal-50/80 mt-0.5">{desc}</p>
-                  </div>
-                </Link>
+            <ul className="mt-10 divide-y-2 divide-ink/10 border-y-2 border-ink/10">
+              {QUICK_LINKS.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="group flex items-center justify-between gap-4 py-4">
+                    <span>
+                      <span className="block font-display text-xl font-bold text-ink">{link.title}</span>
+                      <span className="text-sm text-ink-soft">{link.desc}</span>
+                    </span>
+                    <ArrowRight size={20} className="shrink-0 text-ink transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
+          </div>
+
+          <div className="relative h-80 overflow-hidden rounded-[32px] md:h-[480px]">
+            <Image src={visual.image} alt={visual.alt} fill priority sizes="(min-width: 1024px) 45vw, 100vw" className="object-cover" />
           </div>
         </section>
 
-        {/* Services from study-abroad mentors */}
-        {services && services.data.length > 0 && (
-          <section className="py-20 px-6">
-            <div className="max-w-6xl mx-auto">
-              <h2 className="text-3xl font-bold text-center mb-12">
-                Mentor <span className="text-teal-700">Services</span>
+        {mentors.length > 0 && (
+          <section className="mx-auto max-w-7xl px-6 pb-16">
+            <div className="stitch mb-14 text-ink/15" />
+            <div className="mb-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+              <h2 className="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink md:text-4xl">
+                Mentors who made the move
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.data.map((service) => (
-                  <ServiceListingCard key={service.id} service={service} />
-                ))}
-              </div>
+              <Link href="/mentors?category=study-abroad" className="font-semibold text-elm hover:underline">
+                See all {preview?.total} →
+              </Link>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {mentors.map((mentor) => (
+                <MentorPreviewCard key={mentor.id} mentor={mentor} />
+              ))}
             </div>
           </section>
         )}

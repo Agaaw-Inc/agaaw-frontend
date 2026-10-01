@@ -26,6 +26,24 @@ export interface Category {
   modules: string[];
 }
 
+/** GET /categories adds how many approved mentors work in each one. */
+export interface CategoryWithCount extends Category {
+  mentorCount: number;
+}
+
+export interface CategoryMentorPreview {
+  /** The mentor's user id — the one /profile/mentor/[id] uses. */
+  id: string;
+  firstName: string;
+  lastName: string;
+  profileImage: string | null;
+  currentUniversity: string | null;
+  countryName: string | null;
+  subject: string | null;
+  /** An admin approved their ID documents. */
+  identityVerified: boolean;
+}
+
 export interface JoinedCategory extends Category {
   joinedAt: string;
 }
@@ -53,23 +71,6 @@ export interface MyMentorService {
   updatedAt: string;
   /** Null for services created before categories existed. */
   category: MentorServiceCategoryRef | null;
-}
-
-export interface PublicMentorService extends MyMentorService {
-  mentor: {
-    /** The mentor's user id — the one /profile/mentor/[id] uses. */
-    id: string;
-    firstName: string;
-    lastName: string;
-    profileImage: string | null;
-    currentUniversity: string | null;
-    countryName: string | null;
-  };
-}
-
-export interface Paginated<T> {
-  data: T[];
-  meta: { page: number; limit: number; total: number; totalPages: number };
 }
 
 export interface ServiceInput {
@@ -103,7 +104,7 @@ async function readJson<T>(res: Response, fallback: string): Promise<T> {
 // ── Public (safe to call from server components) ─────────────────────────
 
 /** All categories in homepage order, including "coming soon" ones. */
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(): Promise<CategoryWithCount[]> {
   try {
     const res = await fetch(`${API_URL}/categories`, {
       // Categories change rarely; refresh the cached copy every 5 minutes.
@@ -127,23 +128,18 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   return readJson<Category>(res, "Failed to load category");
 }
 
-export async function getPublicServices(params: {
-  categoryId?: string;
-  mentorId?: string;
-  page?: number;
-  limit?: number;
-}): Promise<Paginated<PublicMentorService>> {
-  const qs = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") qs.set(key, String(value));
-  });
-  const res = await fetch(`${API_URL}/mentor-services?${qs.toString()}`, {
-    // Always fresh: a mentor who adds a service and opens the category page
-    // must see it there. (A cached copy showed "No services" for a minute.)
-    // Two indexed queries per view; Neon bills awake time, not query count.
+/**
+ * Up to 12 approved mentors in a category, plus the total. Null when the
+ * slug doesn't exist. Always fresh: a mentor who just joined must show up.
+ */
+export async function getCategoryMentors(
+  slug: string
+): Promise<{ total: number; mentors: CategoryMentorPreview[] } | null> {
+  const res = await fetch(`${API_URL}/categories/${encodeURIComponent(slug)}/mentors`, {
     cache: "no-store",
   });
-  return readJson<Paginated<PublicMentorService>>(res, "Failed to load services");
+  if (res.status === 404) return null;
+  return readJson<{ total: number; mentors: CategoryMentorPreview[] }>(res, "Failed to load mentors");
 }
 
 // ── Mentor: own categories ───────────────────────────────────────────────

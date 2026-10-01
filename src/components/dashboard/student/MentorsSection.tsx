@@ -68,11 +68,11 @@ export default function MentorsSection() {
         <section className="mb-10">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Find a Mentor</h2>
+                    <h2 className="font-display text-2xl font-extrabold tracking-[-0.02em] text-ink">Mentors for you</h2>
                 </div>
                 <Link
                     href="/mentors"
-                    className="text-sm font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1 group bg-teal-50 px-4 py-2 rounded-full transition-colors"
+                    className="text-sm font-semibold text-ink flex items-center gap-1 group border-2 border-ink/15 hover:border-ink px-4 py-2 rounded-full transition-colors"
                 >
                     See all mentors
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
