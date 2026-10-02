@@ -24,6 +24,8 @@ import { PHONE_CODES } from "@/data/geo";
 import CountrySelect from "@/components/ui/CountrySelect";
 import { completeMentorOnboarding, getCountriesClient } from "@/lib/api";
 import { getUserInfo, setUserInfo } from "@/lib/auth";
+import { getMyCategories, joinCategory, leaveCategory } from "@/lib/categories";
+import OnboardingCategoryStep from "@/components/categories/OnboardingCategoryStep";
 import { EDUCATION_LEVELS, SEMESTER_OPTIONS } from "@/data/educationalData";
 
 
@@ -43,6 +45,14 @@ export default function MentorOnboarding() {
     const router = useRouter();
     const { commissionRate } = useOrderConfig();
     const [step, setStep] = useState(1);
+    // Multi-category: mentors first choose what they can help with.
+    const [phase, setPhase] = useState<"categories" | "details">("categories");
+    const [joinedIds, setJoinedIds] = useState<string[]>([]);
+    useEffect(() => {
+        getMyCategories()
+            .then((cats) => setJoinedIds(cats.map((c) => c.id)))
+            .catch(() => {});
+    }, []);
     // --- Step 1: Academic & Basic Info ---
     const [country, setCountry] = useState("");
     const [city, setCity] = useState("");
@@ -173,6 +183,7 @@ export default function MentorOnboarding() {
         }
     };
     const handleBack = () => {
+        if (step === 1) setPhase("categories");
         if (step > 1) saveProgress(step - 1);
     };
     // Service Management
@@ -199,6 +210,24 @@ export default function MentorOnboarding() {
     // The backend is missing a POST /mentors/services endpoint (MentorService model exists in schema
     // but has no controller/service methods). Hourly rate is the only step-2 data that can be saved.
     const step2Valid = !!hourlyRate;
+    if (phase === "categories") {
+        return (
+            <OnboardingCategoryStep
+                role="mentor"
+                initialIds={joinedIds}
+                onContinue={async (ids) => {
+                    const wanted = new Set(ids);
+                    const current = new Set(joinedIds);
+                    // Join the new ones, leave the ones they unticked.
+                    for (const id of ids) if (!current.has(id)) await joinCategory(id);
+                    for (const id of joinedIds) if (!wanted.has(id)) await leaveCategory(id);
+                    setJoinedIds(ids);
+                    setPhase("details");
+                }}
+            />
+        );
+    }
+
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
             {/* Header */}

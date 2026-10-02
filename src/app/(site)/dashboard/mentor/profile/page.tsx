@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import CategorySettingsCard from "@/components/categories/CategorySettingsCard";
 import { useRouter } from "next/navigation";
 import Footer from "@/components/landing/Footer";
 import {
@@ -183,6 +184,8 @@ export default function MentorProfilePage() {
                     onUploadClick={handleUploadClick} 
                     onDelete={handleDeleteDocument} 
                 />
+
+                <CategorySettingsCard role="mentor" />
 
                 {/* Services are managed per category on their own page now. */}
                 <MentorServicesCard profile={profile} onEdit={() => router.push("/dashboard/mentor/services")} />

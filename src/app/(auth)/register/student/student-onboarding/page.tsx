@@ -23,6 +23,8 @@ import {
   Loader2
 } from "lucide-react";
 import { completeStudentOnboarding, uploadStudentDocument, getCountriesClient } from "@/lib/api";
+import { getMyStudentCategories, setMyStudentCategories } from "@/lib/categories";
+import OnboardingCategoryStep from "@/components/categories/OnboardingCategoryStep";
 import { getUserInfo, setUserInfo } from "@/lib/auth";
 import { PHONE_CODES } from "@/data/geo";
 import CountrySelect, { CountryMultiSelect } from "@/components/ui/CountrySelect";
@@ -34,6 +36,10 @@ import { SUBJECTS } from "@/data/educationalData";
 export default function StudentOnboarding() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  // Multi-category: students first say what they need help with. The
+  // study-abroad steps below only follow if they picked study abroad.
+  const [phase, setPhase] = useState<"categories" | "details">("categories");
+  const [savedCategoryIds, setSavedCategoryIds] = useState<string[]>([]);
 
   // --- Step 1 State: Study Goals ---
   const [targetCountries, setTargetCountries] = useState<string[]>([]);
@@ -103,6 +109,13 @@ export default function StudentOnboarding() {
         console.error("Failed to parse onboarding data", e);
       }
     }
+  }, []);
+
+  // Pre-tick categories already saved (a refresh, or an existing student).
+  useEffect(() => {
+    getMyStudentCategories()
+      .then((cats) => setSavedCategoryIds(cats.map((c) => c.id)))
+      .catch(() => {});
   }, []);
 
   // Fetch countries from backend for ID mapping
@@ -232,7 +245,7 @@ export default function StudentOnboarding() {
     if (step > 1) {
       saveProgress(step - 1);
     } else {
-      router.push("/my-profile"); // Or profile page
+      setPhase("categories");
     }
   };
 
@@ -268,6 +281,30 @@ export default function StudentOnboarding() {
       setCvFile(e.target.files[0]);
     }
   };
+
+  if (phase === "categories") {
+    return (
+      <OnboardingCategoryStep
+        role="student"
+        initialIds={savedCategoryIds}
+        onContinue={async (ids, chosen) => {
+          await setMyStudentCategories(ids);
+          setSavedCategoryIds(ids);
+          if (chosen.some((c) => c.slug === "study-abroad")) {
+            setPhase("details");
+          } else {
+            // The remaining steps are all about studying abroad — skip them.
+            // Errors propagate to the category step, which shows them.
+            await completeStudentOnboarding({});
+            const currentUser = getUserInfo();
+            if (currentUser) setUserInfo({ ...currentUser, onboardingCompleted: true });
+            localStorage.removeItem("student_onboarding_data");
+            router.push("/dashboard/student");
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">

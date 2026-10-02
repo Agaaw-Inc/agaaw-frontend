@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import CategorySettingsCard from "@/components/categories/CategorySettingsCard";
 import Footer from "@/components/landing/Footer";
 import { getStudentProfile, updateStudentProfile, getStudentDocuments, uploadStudentDocument, deleteStudentDocument } from "@/lib/api";
 import { Loader2 } from "lucide-react";
@@ -142,6 +143,8 @@ export default function StudentProfilePage() {
                     onUploadClick={handleUploadClick} 
                     onDelete={handleDeleteDocument} 
                 />
+
+                <CategorySettingsCard role="student" />
 
                 <SkillsCard profile={profile} onEdit={() => setActiveModal("skills")} />
 
