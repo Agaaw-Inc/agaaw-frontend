@@ -109,7 +109,7 @@ export default function MentorshipRequests() {
                                         <div>
                                             <h3 className="font-bold text-gray-900 text-base">{studentName}</h3>
                                             <div className="flex items-center gap-1 mt-1">
-                                                <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                                <span className="bg-maroon-soft text-maroon text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                                                     <Clock size={10} /> Pending
                                                 </span>
                                             </div>

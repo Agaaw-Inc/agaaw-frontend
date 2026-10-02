@@ -3,6 +3,11 @@ import type { ComponentType, ReactNode } from "react";
 interface SectionCardProps {
     title: string;
     description?: string;
+    /**
+     * Kept for compatibility with existing callers, but no longer drawn:
+     * an icon in a tinted square on every card was the most template-like
+     * part of the dashboards. Titles carry the section on their own.
+     */
     icon?: ComponentType<{ size?: number; className?: string }>;
     iconClassName?: string;
     badge?: ReactNode;
@@ -12,40 +17,23 @@ interface SectionCardProps {
     className?: string;
 }
 
-export default function SectionCard({
-    title,
-    description,
-    icon: Icon,
-    iconClassName = "bg-teal-50 text-teal-600",
-    badge,
-    actions,
-    footer,
-    children,
-    className = "",
-}: SectionCardProps) {
+export default function SectionCard({ title, description, badge, actions, footer, children, className = "" }: SectionCardProps) {
     return (
-        <section className={`bg-white rounded-2xl border border-gray-100 ambient-shadow p-6 ${className}`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3 min-w-0">
-                    {Icon && (
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconClassName}`}>
-                            <Icon size={18} />
-                        </div>
-                    )}
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h2>
-                            {badge}
-                        </div>
-                        {description && <p className="text-sm text-gray-500 mt-0.5">{description}</p>}
+        <section className={`rounded-2xl bg-card p-6 ring-1 ring-ink/10 ${className}`}>
+            <div className="mb-5 flex flex-col justify-between gap-3 border-b border-ink/10 pb-4 sm:flex-row sm:items-end">
+                <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-display text-xl font-extrabold tracking-[-0.02em] text-ink">{title}</h2>
+                        {badge}
                     </div>
+                    {description && <p className="mt-0.5 text-sm text-ink-soft">{description}</p>}
                 </div>
-                {actions && <div className="flex items-center gap-3 shrink-0">{actions}</div>}
+                {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
             </div>
 
             <div className="flex-1">{children}</div>
 
-            {footer && <div className="mt-5 pt-5 border-t border-gray-100 text-center">{footer}</div>}
+            {footer && <div className="mt-5 border-t border-ink/10 pt-5 text-center">{footer}</div>}
         </section>
     );
 }

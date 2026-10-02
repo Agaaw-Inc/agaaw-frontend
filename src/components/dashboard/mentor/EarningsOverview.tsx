@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { DollarSign, TrendingUp, TrendingDown, Calendar, Clock, CreditCard, Wallet, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, Wallet, Loader2 } from "lucide-react";
 import SectionCard from "@/components/dashboard/common/SectionCard";
 import { getMentorEarningsOverview, type MentorEarningsOverview } from "@/lib/api";
 
@@ -47,30 +47,22 @@ export default function EarningsOverview() {
 
     const metrics = [
         {
-            icon: DollarSign,
             label: "Total Earnings",
             value: earnings ? formatMoney(earnings.totalEarnings, currency) : "৳0.00",
-            iconClass: "bg-teal-100 text-teal-600",
         },
         {
-            icon: Calendar,
             label: "This Month",
             value: earnings ? formatMoney(earnings.thisMonthEarnings, currency) : "৳0.00",
             trend: earnings?.trendPercentage || null,
             trendDirection: earnings?.trendDirection || "neutral",
-            iconClass: "bg-blue-100 text-blue-600",
         },
         {
-            icon: Clock,
             label: "On the Way",
             value: earnings ? formatMoney(earnings.pendingPayments, currency) : "৳0.00",
-            iconClass: "bg-amber-100 text-amber-600",
         },
         {
-            icon: CreditCard,
             label: "Completed Sessions",
             value: earnings ? String(earnings.completedSessions) : "0",
-            iconClass: "bg-violet-100 text-violet-600",
         },
     ];
 
@@ -83,7 +75,7 @@ export default function EarningsOverview() {
             actions={
                 <Link
                     href="/dashboard/mentor/wallet"
-                    className="text-sm font-semibold text-teal-600 hover:text-teal-700 bg-teal-50 hover:bg-teal-100 px-3.5 py-1.5 rounded-lg transition-colors"
+                    className="text-sm font-semibold text-ink border-2 border-ink/15 hover:border-ink px-3.5 py-1.5 rounded-full transition-colors"
                 >
                     Wallet &amp; Withdraw
                 </Link>
@@ -106,23 +98,18 @@ export default function EarningsOverview() {
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                        {metrics.map(({ icon: Icon, label, value, trend, trendDirection, iconClass }) => (
-                            <div key={label} className="bg-gray-50/80 rounded-xl p-4 border border-gray-100 flex flex-col justify-center">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${iconClass}`}>
-                                        <Icon size={16} />
-                                    </div>
-                                    <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">{label}</p>
-                                </div>
+                        {metrics.map(({ label, value, trend, trendDirection }) => (
+                            <div key={label} className="border-l-2 border-ink/10 pl-4">
+                                <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">{label}</p>
                                 <div className="flex items-end gap-2">
-                                    <p className="text-2xl font-bold text-gray-900">{value}</p>
+                                    <p className="font-display text-2xl font-extrabold text-ink">{value}</p>
                                     {trend && (
                                         <span
                                             className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full mb-1 ${
                                                 trendDirection === "down"
-                                                    ? "text-red-600 bg-red-50"
+                                                    ? "text-maroon bg-maroon-soft"
                                                     : trendDirection === "up"
-                                                    ? "text-green-600 bg-green-50"
+                                                    ? "text-elm bg-elm/10"
                                                     : "text-gray-600 bg-gray-100"
                                             }`}
                                         >
