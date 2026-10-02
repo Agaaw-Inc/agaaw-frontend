@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useSyncExternalStore } from "react";
-import MentorsSection from "@/components/dashboard/student/MentorsSection";
+import React, { useMemo, useSyncExternalStore } from "react";
 import StudentWelcome from "@/components/dashboard/student/StudentWelcome";
 import CategoryRail from "@/components/dashboard/student/CategoryRail";
 import ScholarshipBoard from "@/components/dashboard/student/ScholarshipBoard";
+import SuggestedMentors from "@/components/dashboard/student/SuggestedMentors";
+import SuggestedReading from "@/components/dashboard/student/SuggestedReading";
 import { MyMentorsCard, TargetCountriesCard } from "@/components/dashboard/student/DashboardSideCards";
 import Footer from "@/components/landing/Footer";
 import { useStudentDashboard } from "@/hooks/useStudentDashboard";
@@ -29,12 +30,17 @@ function subscribeToUserStore(onStoreChange: () => void) {
 }
 
 /**
- * The student's home: what's next, where to get help, and scholarships that
- * fit them — instead of every preview on the site stacked in one column.
+ * The student's home, shaped by the categories they chose: mentors and
+ * reading for those areas, and the scholarship tools only if they're
+ * studying abroad.
  */
 export default function StudentDashboardPage() {
     const user = useSyncExternalStore(subscribeToUserStore, getStoredUser, () => null);
     const { data, isLoading, setData } = useStudentDashboard();
+
+    const mySlugs = useMemo(() => new Set(data.myCategories.map((c) => c.slug)), [data.myCategories]);
+    // Students who haven't picked yet (older accounts) see everything.
+    const studyingAbroad = mySlugs.size === 0 || mySlugs.has("study-abroad");
 
     return (
         <div className="min-h-screen bg-paper">
@@ -42,27 +48,43 @@ export default function StudentDashboardPage() {
                 <StudentWelcome
                     firstName={user?.firstName || "there"}
                     sessions={data.sessions}
-                    scholarships={data.scholarships}
+                    // Deadlines only count for students who are studying abroad.
+                    scholarships={studyingAbroad ? data.scholarships : []}
                     isLoading={isLoading}
                 />
 
-                <CategoryRail categories={data.categories} isLoading={isLoading} />
+                <CategoryRail categories={data.categories} mySlugs={mySlugs} isLoading={isLoading} />
 
-                <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                    <ScholarshipBoard
-                        scholarships={data.scholarships}
-                        savedIds={data.savedIds}
-                        targetCountries={data.targetCountries}
-                        isLoading={isLoading}
-                        onSavedChange={(savedIds) => setData((d) => ({ ...d, savedIds }))}
-                    />
-                    <div className="space-y-6">
-                        <MyMentorsCard mentors={data.mentors} isLoading={isLoading} />
-                        <TargetCountriesCard countries={data.targetCountries} isLoading={isLoading} />
+                <SuggestedMentors
+                    mentors={data.mentors}
+                    myCategories={data.myCategories}
+                    connections={data.connections}
+                    pendingMentorIds={data.pendingMentorIds}
+                    isLoading={isLoading}
+                />
+
+                {studyingAbroad ? (
+                    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                        <ScholarshipBoard
+                            scholarships={data.scholarships}
+                            savedIds={data.savedIds}
+                            targetCountries={data.targetCountries}
+                            isLoading={isLoading}
+                            onSavedChange={(savedIds) => setData((d) => ({ ...d, savedIds }))}
+                        />
+                        <div className="space-y-6">
+                            <MyMentorsCard mentors={data.connections} isLoading={isLoading} />
+                            <TargetCountriesCard countries={data.targetCountries} isLoading={isLoading} />
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                        <SuggestedReading blogs={data.blogs} myCategories={data.myCategories} isLoading={isLoading} />
+                        <MyMentorsCard mentors={data.connections} isLoading={isLoading} />
+                    </div>
+                )}
 
-                <MentorsSection />
+                {studyingAbroad && <SuggestedReading blogs={data.blogs} myCategories={data.myCategories} isLoading={isLoading} />}
             </div>
 
             <Footer />
