@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Search, X } from "lucide-react";
@@ -18,6 +18,19 @@ import { useGridColumns } from "@/hooks/useGridColumns";
 import { getUserInfo, getToken, type UserInfo } from "@/lib/auth";
 import { getConnections, getMentorCount, getMentorsList, getMentorshipRequests, getScholarships } from "@/lib/api";
 import { getCategories, getPublicMentorDirectory, type CategoryWithCount, type PublicMentorCard } from "@/lib/categories";
+
+/** Who is looking: undefined while rendering on the server (not known yet). */
+function readViewer(): UserInfo | null {
+  return getToken() ? getUserInfo() : null;
+}
+function subscribeToAuth(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener("agaaw-auth-change", onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener("agaaw-auth-change", onChange);
+  };
+}
 
 const ROWS_PER_PAGE = 5;
 const CARD_MIN_WIDTH = 240;
@@ -72,15 +85,22 @@ function MentorDirectory() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [authReady, setAuthReady] = useState(false);
+  // undefined on the server, then the real answer on the client.
+  const viewer = useSyncExternalStore(subscribeToAuth, readViewer, () => undefined);
+  const authReady = viewer !== undefined;
+  const user = viewer ?? null;
   const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [mentorCount, setMentorCount] = useState(0);
   const [scholarshipCount, setScholarshipCount] = useState(0);
 
   const [mentors, setMentors] = useState<DirectoryMentor[]>([]);
   const [publicMeta, setPublicMeta] = useState<{ total: number; limit: number; countries: string[]; universities: string[] } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Loading is derived, not toggled: the page is loading whenever the data
+  // on screen was fetched for a different viewer/filter combination.
+  // Students get the whole list once and filter it here, so their key never
+  // changes with filters; guests refetch so the top-rated cap applies.
+  const fetchKey = user?.role === "student" ? "student" : `guest|${category}|${country}|${university}`;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
   const [statusMap, setStatusMap] = useState<Record<string, RequestStatus>>({});
   const [connectionIds, setConnectionIds] = useState<Record<string, string>>({});
   const [requestTarget, setRequestTarget] = useState<{ id: string; name: string } | null>(null);
@@ -90,10 +110,7 @@ function MentorDirectory() {
   const { ref: gridRef, columns } = useGridColumns(CARD_MIN_WIDTH, GAP);
   const pageSize = columns * ROWS_PER_PAGE;
 
-  // Who is looking? Read after mount: localStorage doesn't exist on the server.
   useEffect(() => {
-    setUser(getToken() ? getUserInfo() : null);
-    setAuthReady(true);
     getCategories().then(setCategories).catch(() => {});
     getMentorCount().then(setMentorCount).catch(() => {});
     getScholarships({ limit: 1 }).then((r) => setScholarshipCount(r.meta.total)).catch(() => {});
@@ -105,7 +122,7 @@ function MentorDirectory() {
   useEffect(() => {
     if (!authReady) return;
     let alive = true;
-    setIsLoading(true);
+    const key = fetchKey;
 
     const load = async () => {
       if (isStudent) {
@@ -136,12 +153,15 @@ function MentorDirectory() {
 
     load()
       .catch(() => alive && showToast("Couldn't load mentors. Please try again.", "error"))
-      .finally(() => alive && setIsLoading(false));
+      .finally(() => alive && setLoadedKey(key));
     return () => {
       alive = false;
     };
-    // Students filter client-side, so only guests refetch on filter change.
-  }, [authReady, isStudent, category, country, university, showToast]);
+    // fetchKey captures everything that should trigger a refetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authReady, fetchKey, showToast]);
+
+  const isLoading = loadedKey !== fetchKey;
 
   const setParam = useCallback(
     (key: string, value: string) => {
