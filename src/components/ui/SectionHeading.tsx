@@ -43,7 +43,9 @@ export default function SectionHeading({
   const light = tone === "light";
 
   return (
-    <div className={cn("flex flex-col justify-between gap-4 sm:flex-row sm:items-end", className)}>
+    // Only bottom-align when there's an action to line up with; on its own
+    // the heading sits at the top of its space.
+    <div className={cn("flex flex-col justify-between gap-4 sm:flex-row", action ? "sm:items-end" : "self-start", className)}>
       <div className="min-w-0">
         {eyebrow && (
           <Eyebrow tone={light ? "light" : "brand"} className="mb-3">

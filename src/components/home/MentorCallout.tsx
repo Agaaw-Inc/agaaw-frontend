@@ -1,5 +1,5 @@
-import Image from "next/image";
-import Link from "next/link";
+import PortraitCard from "@/components/ui/PortraitCard";
+import { ButtonLink } from "@/components/ui/Button";
 import { ArrowRight } from "lucide-react";
 import SectionHeading from "@/components/ui/SectionHeading";
 
@@ -25,27 +25,14 @@ export default function MentorCallout() {
               title="Help someone get there too."
               description="Mentor in the field you know — studying abroad, careers, business or research. Write your own services, set your own prices, and we handle the payments."
             />
-            <Link
-              href="/register/mentor"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 font-semibold text-ink transition-colors hover:bg-seagreen-soft"
-            >
+            <ButtonLink href="/register/mentor" variant="light" className="mt-8">
               Become a mentor <ArrowRight size={18} />
-            </Link>
+            </ButtonLink>
           </div>
 
           <div className="relative mx-auto flex h-[280px] items-center justify-center">
             {FACES.map((face) => (
-              <div
-                key={face.name}
-                className={`relative -mx-3 h-[240px] w-[160px] overflow-hidden rounded-xl border border-white/10 shadow-xl ${face.tilt}`}
-              >
-                <Image src={face.image} alt={face.name} fill sizes="160px" className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3">
-                  <p className="truncate text-xs text-gray-300">{face.role}</p>
-                  <p className="truncate text-sm font-semibold leading-tight">{face.name}</p>
-                </div>
-              </div>
+              <PortraitCard key={face.name} name={face.name} caption={face.role} image={face.image} className={`-mx-3 ${face.tilt}`} />
             ))}
           </div>
         </div>

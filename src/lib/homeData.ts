@@ -6,6 +6,7 @@
  */
 
 import type { PublicScholarship } from "./api";
+import type { OrderPricingConfig } from "./orders";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 const REVALIDATE_SECONDS = 300;
@@ -53,4 +54,9 @@ export async function getCountryCount(): Promise<number> {
 export function daysUntil(iso: string): number {
   const ms = new Date(iso).getTime() - Date.now();
   return Math.max(0, Math.ceil(ms / 86_400_000));
+}
+
+/** Platform fee and payout rules (public). Null if the API is unreachable. */
+export async function getPlatformPricing(): Promise<OrderPricingConfig | null> {
+  return getJson<OrderPricingConfig | null>("/platform/pricing", null);
 }

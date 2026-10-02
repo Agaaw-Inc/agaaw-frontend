@@ -40,10 +40,14 @@ export default function OnboardingCategoryStep({ role, initialIds = [], onContin
   }, []);
 
   // Pre-tick saved choices once they arrive (they may load after mount).
+  // React's "adjust state when a prop changes" pattern: compare with the
+  // last value we synced, during render — no effect, no extra render.
   const initialKey = initialIds.join(",");
-  useEffect(() => {
+  const [syncedKey, setSyncedKey] = useState(initialKey);
+  if (initialKey !== syncedKey) {
+    setSyncedKey(initialKey);
     if (initialKey) setSelected(new Set(initialKey.split(",")));
-  }, [initialKey]);
+  }
 
   const toggle = (id: string) =>
     setSelected((prev) => {
