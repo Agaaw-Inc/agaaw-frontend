@@ -11,7 +11,7 @@ export interface CategoryVisual {
   image: string;
   /** Describes the photo for screen readers — not the category name. */
   alt: string;
-  /** Solid accent behind the label chip. */
+  /** Palette colour for the bar on the label tab (seagreen, dark green, maroon, grey). */
   accent: string;
   /** Short human line under the name on photo cards. */
   tagline: string;
@@ -24,31 +24,31 @@ export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
   "study-abroad": {
     image: unsplash("1629308993023-bb7ca078abdc"),
     alt: "Travellers collecting luggage in an airport arrivals hall abroad",
-    accent: "#f2b33d",
+    accent: "#1d7a85",
     tagline: "Scholarships, applications, visas — from students already there.",
   },
   career: {
     image: unsplash("1621857768404-fc6a3babee48"),
     alt: "A young professional working on a laptop in a bright office",
-    accent: "#9fd3c7",
+    accent: "#12332f",
     tagline: "CVs, interviews and your first real job.",
   },
   business: {
     image: unsplash("1753184863498-72e77c60888b"),
     alt: "A small neighbourhood shop stocked with colourful snack packets",
-    accent: "#f0a58a",
+    accent: "#5e1820",
     tagline: "From a first shop to a funded startup.",
   },
   "research-publication": {
     image: unsplash("1618053448492-2b629c2c912c"),
     alt: "A young researcher holding a sample in a bright laboratory",
-    accent: "#c9d98f",
+    accent: "#227a60",
     tagline: "Proposals, papers and getting through peer review.",
   },
   legal: {
     image: unsplash("1589829545856-d10d557cf95f"),
     alt: "A bronze statue of Lady Justice holding scales",
-    accent: "#d8cfc0",
+    accent: "#9ca3a0",
     tagline: "Everyday legal questions, answered by professionals.",
   },
 };
@@ -56,7 +56,7 @@ export const CATEGORY_VISUALS: Record<string, CategoryVisual> = {
 export const FALLBACK_VISUAL: CategoryVisual = {
   image: unsplash("1524995997946-a1c2e315a42f"),
   alt: "Shelves of books curving around a library",
-  accent: "#d8cfc0",
+  accent: "#9ca3a0",
   tagline: "Guidance from people who have done it.",
 };
 

@@ -38,7 +38,7 @@ export default function HomeHero({ categories, mentorCount, scholarshipCount }: 
             <span className="relative whitespace-nowrap">
               already done it.
               {/* hand-drawn underline */}
-              <svg aria-hidden="true" viewBox="0 0 300 14" className="absolute -bottom-2 left-0 h-3 w-full text-marigold" preserveAspectRatio="none">
+              <svg aria-hidden="true" viewBox="0 0 300 14" className="absolute -bottom-2 left-0 h-3 w-full text-seagreen" preserveAspectRatio="none">
                 <path d="M2 9 C 60 3, 120 12, 180 6 S 270 4, 298 8" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
               </svg>
             </span>
@@ -101,11 +101,11 @@ export default function HomeHero({ categories, mentorCount, scholarshipCount }: 
           ))}
 
           {/* Margin note */}
-          <p className="absolute -bottom-2 right-2 max-w-[13rem] -rotate-3 text-right font-hand text-2xl leading-tight text-brick">
+          <p className="absolute -bottom-2 right-2 max-w-[13rem] -rotate-3 text-right font-hand text-2xl leading-tight text-maroon">
             real mentors,
             <br />
             not stock photos
-            <svg aria-hidden="true" viewBox="0 0 80 50" className="absolute -top-10 -left-12 h-10 w-16 -scale-x-100 rotate-[200deg] text-brick">
+            <svg aria-hidden="true" viewBox="0 0 80 50" className="absolute -top-10 -left-12 h-10 w-16 -scale-x-100 rotate-[200deg] text-maroon">
               <path d="M5 40 C 30 42, 55 30, 70 8 M70 8 l-12 3 M70 8 l1 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
             </svg>
           </p>

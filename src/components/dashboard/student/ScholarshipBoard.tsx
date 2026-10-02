@@ -36,7 +36,7 @@ function DeadlinePill({ deadline }: { deadline: string | null }) {
   if (days < 0) return <span className="rounded-full bg-ink/10 px-3 py-1 text-xs font-bold text-ink-soft">Closed</span>;
   const urgent = days <= 14;
   return (
-    <span className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold ${urgent ? "bg-brick text-white" : "bg-marigold/40 text-ink"}`}>
+    <span className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-bold ${urgent ? "bg-maroon text-white" : "bg-seagreen-soft text-ink"}`}>
       {days === 0 ? "Closes today" : `${days} day${days === 1 ? "" : "s"} left`}
     </span>
   );

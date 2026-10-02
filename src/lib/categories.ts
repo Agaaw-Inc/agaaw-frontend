@@ -195,3 +195,61 @@ export async function deleteService(id: string): Promise<void> {
   const res = await authFetch(`/mentor-services/${id}`, { method: "DELETE" });
   await readJson<unknown>(res, "Failed to delete service");
 }
+
+// ── Student: own categories ──────────────────────────────────────────────
+
+export async function getMyStudentCategories(): Promise<Category[]> {
+  const res = await authFetch("/student-categories/mine", { cache: "no-store" });
+  return readJson<Category[]>(res, "Failed to load your categories");
+}
+
+/** Replaces the student's whole selection. */
+export async function setMyStudentCategories(categoryIds: string[]): Promise<Category[]> {
+  const res = await authFetch("/student-categories/mine", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ categoryIds }),
+  });
+  return readJson<Category[]>(res, "Failed to save your categories");
+}
+
+// ── Public mentor directory (logged-out visitors) ────────────────────────
+
+export interface MentorRating {
+  average: number | null;
+  count: number;
+}
+
+/** A mentor card anyone may see — no bio, prices or contact details. */
+export interface PublicMentorCard {
+  id: string;
+  firstName: string;
+  lastName: string;
+  profileImage: string | null;
+  currentUniversity: string | null;
+  countryName: string | null;
+  subject: string | null;
+  expertise: string[];
+  categories: { slug: string; name: string }[];
+  identityVerified: boolean;
+  rating: MentorRating;
+}
+
+export interface PublicMentorDirectory {
+  total: number;
+  /** The most a logged-out visitor is shown. */
+  limit: number;
+  mentors: PublicMentorCard[];
+  filters: { countries: string[]; universities: string[] };
+}
+
+export async function getPublicMentorDirectory(filters: {
+  category?: string;
+  country?: string;
+  university?: string;
+}): Promise<PublicMentorDirectory> {
+  const qs = new URLSearchParams();
+  Object.entries(filters).forEach(([k, v]) => v && qs.set(k, v));
+  const res = await fetch(`${API_URL}/users/mentors/directory?${qs.toString()}`, { cache: "no-store" });
+  return readJson<PublicMentorDirectory>(res, "Failed to load mentors");
+}

@@ -43,7 +43,7 @@ export default function StudentWelcome({ firstName, sessions, scholarships, isLo
   return (
     <header className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-end">
       <div>
-        <p className="font-hand text-xl text-brick">{dateLine}</p>
+        <p className="font-hand text-xl text-maroon">{dateLine}</p>
         <h1 className="mt-1 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">
           {greeting(now)}, {firstName}.
         </h1>
@@ -61,7 +61,7 @@ export default function StudentWelcome({ firstName, sessions, scholarships, isLo
       {/* Next session — a dark card, because it's the one thing with a time attached */}
       {next ? (
         <div className="rounded-[24px] bg-forest p-5 text-paper">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-marigold">Next session</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-seagreen">Next session</p>
           <div className="mt-3 flex items-center gap-3">
             <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-paper/10 text-sm font-bold">
               <Avatar src={resolveFileUrl(next.counterpart.profileImage)} name={next.counterpart.firstName} />
@@ -75,7 +75,7 @@ export default function StudentWelcome({ firstName, sessions, scholarships, isLo
           </div>
           <Link
             href={next.canJoin ? `/session/${next.id}/call` : "/dashboard/student/sessions"}
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-marigold px-4 py-2 text-sm font-semibold text-ink hover:bg-paper"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-seagreen px-4 py-2 text-sm font-semibold text-ink hover:bg-paper"
           >
             {next.canJoin ? (
               <>

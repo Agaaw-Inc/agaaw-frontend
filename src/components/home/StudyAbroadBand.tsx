@@ -22,7 +22,7 @@ export default function StudyAbroadBand({ scholarships, scholarshipCount, countr
     <section className="bg-forest text-paper">
       <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div>
-          <p className="font-hand text-2xl text-marigold">where Agaaw began</p>
+          <p className="font-hand text-2xl text-seagreen">where Agaaw began</p>
           <h2 className="mt-2 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] md:text-5xl">
             Planning to study abroad?
           </h2>
@@ -35,20 +35,20 @@ export default function StudyAbroadBand({ scholarships, scholarshipCount, countr
               {scholarshipCount > 0 && (
                 <div className="flex items-baseline justify-between py-4">
                   <dt className="text-sm uppercase tracking-[0.16em] text-paper/60">Scholarships listed</dt>
-                  <dd className="font-display text-3xl font-extrabold text-marigold">{scholarshipCount}</dd>
+                  <dd className="font-display text-3xl font-extrabold text-seagreen">{scholarshipCount}</dd>
                 </div>
               )}
               {countryCount > 0 && (
                 <div className="flex items-baseline justify-between py-4">
                   <dt className="text-sm uppercase tracking-[0.16em] text-paper/60">Country guides</dt>
-                  <dd className="font-display text-3xl font-extrabold text-marigold">{countryCount}</dd>
+                  <dd className="font-display text-3xl font-extrabold text-seagreen">{countryCount}</dd>
                 </div>
               )}
             </dl>
           )}
 
           <div className="mt-10 flex flex-wrap gap-3">
-            <Link href="/study-abroad" className="inline-flex items-center gap-2 rounded-full bg-marigold px-6 py-3 font-semibold text-ink transition-colors hover:bg-paper">
+            <Link href="/study-abroad" className="inline-flex items-center gap-2 rounded-full bg-seagreen px-6 py-3 font-semibold text-ink transition-colors hover:bg-paper">
               Explore study abroad <ArrowRight size={18} />
             </Link>
             <Link href="/scholarships" className="inline-flex items-center gap-2 rounded-full border-2 border-paper/30 px-6 py-3 font-semibold text-paper transition-colors hover:border-paper">
@@ -91,7 +91,7 @@ export default function StudyAbroadBand({ scholarships, scholarshipCount, countr
                         </p>
                       </div>
                       <span
-                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${days <= 7 ? "bg-brick text-white" : "bg-paper-deep text-ink"}`}
+                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${days <= 7 ? "bg-maroon text-white" : "bg-paper-deep text-ink"}`}
                       >
                         {deadlineLabel(s.deadline!)}
                       </span>

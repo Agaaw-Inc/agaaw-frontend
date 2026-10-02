@@ -7,7 +7,7 @@ export default function MentorCallout() {
   return (
     <section className="bg-paper">
       <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
-        <div className="relative grid items-center gap-10 overflow-hidden rounded-[36px] bg-marigold px-8 py-12 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:px-14 md:py-16">
+        <div className="relative grid items-center gap-10 overflow-hidden rounded-[36px] bg-seagreen px-8 py-12 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:px-14 md:py-16">
           <div>
             <p className="font-hand text-2xl text-ink/70">been there?</p>
             <h2 className="mt-1 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">

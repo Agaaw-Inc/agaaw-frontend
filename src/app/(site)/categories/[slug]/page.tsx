@@ -58,7 +58,7 @@ export default async function CategoryPage({ params }: PageProps) {
               <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-soft">{category.description}</p>
             )}
             {category.isActive ? (
-              <p className="mt-8 inline-flex items-center rounded-full px-4 py-2 text-sm font-bold text-ink" style={{ backgroundColor: visual.accent }}>
+              <p className="mt-8 inline-flex items-center rounded-full px-4 py-2 text-sm font-bold text-white" style={{ backgroundColor: visual.accent }}>
                 {total === 0 ? "Mentors are joining now" : `${total} mentor${total === 1 ? "" : "s"} ready to help`}
               </p>
             ) : (
@@ -103,7 +103,7 @@ export default async function CategoryPage({ params }: PageProps) {
                 </p>
                 <Link
                   href={`/mentors?category=${category.slug}`}
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-marigold px-6 py-3 font-semibold text-ink transition-colors hover:bg-paper"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-seagreen px-6 py-3 font-semibold text-ink transition-colors hover:bg-paper"
                 >
                   Find your mentor <ArrowRight size={18} />
                 </Link>
@@ -121,7 +121,7 @@ export default async function CategoryPage({ params }: PageProps) {
 function Empty({ title, body, cta }: { title: string; body: string; cta?: { href: string; label: string } }) {
   return (
     <div className="rounded-[28px] border-2 border-dashed border-ink/15 px-6 py-16 text-center">
-      <p className="font-hand text-3xl text-brick">nothing here yet</p>
+      <p className="font-hand text-3xl text-maroon">nothing here yet</p>
       <h2 className="mt-2 font-display text-2xl font-bold text-ink">{title}</h2>
       <p className="mx-auto mt-2 max-w-md text-ink-soft">{body}</p>
       {cta && (

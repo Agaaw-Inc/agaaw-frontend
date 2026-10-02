@@ -40,7 +40,7 @@ export default async function StudyAbroadPage() {
       <main className="bg-paper">
         <section className="mx-auto grid max-w-7xl items-center gap-10 px-6 pb-16 pt-12 md:pt-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div>
-            <p className="font-hand text-2xl text-brick">where Agaaw began</p>
+            <p className="font-hand text-2xl text-maroon">where Agaaw began</p>
             <h1 className="mt-2 font-display text-5xl font-extrabold leading-[0.98] tracking-[-0.035em] text-ink md:text-7xl">
               Study abroad
             </h1>

@@ -9,17 +9,18 @@
   --color-bombay: #aeaeaf;
   --color-light: #ffffff;
 
-  /* Redesign palette: warm paper, deep ink, and two local accents used as
-     solid blocks (never gradients). Marigold and brick come from Bengali
-     festival colour; teal (elm) stays the brand. */
-  --color-paper: #f5f0e6;
-  --color-paper-deep: #ebe3d3;
-  --color-card: #fffcf6;
-  --color-ink: #17211e;
-  --color-ink-soft: #4a5450;
-  --color-marigold: #f2b33d;
-  --color-brick: #c4513a;
+  /* Agaaw palette — taken from the logo. White paper, black and greys,
+     with seagreen, dark green and maroon as the only accents. No yellow. */
+  --color-paper: #fcfcfa;
+  --color-paper-deep: #f1f2ef;
+  --color-card: #ffffff;
+  --color-ink: #141816;
+  --color-ink-soft: #5b6360;
+  --color-seagreen: #3fb994;
+  --color-seagreen-soft: #e3f4ee;
   --color-forest: #12332f;
+  --color-maroon: #5e1820;
+  --color-maroon-soft: #f4e8e9;
 
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-hand: var(--font-kalam), cursive;

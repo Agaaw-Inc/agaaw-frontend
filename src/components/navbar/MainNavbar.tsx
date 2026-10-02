@@ -4,9 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, GraduationCap, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard, Package, Wallet, Plane, BadgeCheck } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard, Package, Wallet, Plane, BadgeCheck, Home, LayoutGrid } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { resolveFileUrl } from "@/lib/api";
+import { getCategories, type CategoryWithCount } from "@/lib/categories";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 import Avatar from "@/components/ui/Avatar";
@@ -22,6 +23,21 @@ const STUDY_ABROAD_LINKS = [
 
 function isUnder(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
+}
+
+/** Where a category lives: study abroad has its own hub. */
+function categoryHref(slug: string) {
+  return slug === "study-abroad" ? "/study-abroad" : `/categories/${slug}`;
+}
+
+// One fetch per page load, shared by every navbar instance.
+let categoriesPromise: Promise<CategoryWithCount[]> | null = null;
+function loadCategories() {
+  categoriesPromise ??= getCategories().catch(() => {
+    categoriesPromise = null; // retry next time
+    return [];
+  });
+  return categoriesPromise;
 }
 
 function getStoredUser(): UserInfo | null {
@@ -54,6 +70,17 @@ export default function MainNavbar() {
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [categories, setCategories] = useState<CategoryWithCount[]>([]);
+
+  useEffect(() => {
+    let alive = true;
+    loadCategories().then((list) => alive && setCategories(list));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const handleLogout = () => {
     removeToken();
@@ -68,21 +95,22 @@ export default function MainNavbar() {
   const messagesActive = pathname.startsWith(messagesHref);
   const unreadMessages = useUnreadMessages(Boolean(user && user.role !== "admin"));
 
+  // "Category" sits between Home and Mentors; it is a dropdown, rendered
+  // separately below.
+  const leadLinks = [{ href: "/", label: "Home", icon: Home }];
   const navLinks: { href: string; label: string; icon: typeof Plane; matches?: string[] }[] = [
-    {
-      href: "/study-abroad",
-      label: "Study abroad",
-      icon: Plane,
-      matches: STUDY_ABROAD_LINKS.map((link) => link.href),
-    },
+    { href: "/mentors", label: "Mentors", icon: Users },
     ...(user?.role === "mentor" ? [{ href: "/students", label: "Students", icon: Users }] : []),
-    ...(user?.role === "student" ? [{ href: "/mentors", label: "Mentors", icon: Users }] : []),
     { href: "/blogs", label: "Blogs", icon: BookOpen },
-    { href: "/about-us", label: "About", icon: Info },
+    { href: "/about-us", label: "About Us", icon: Info },
   ];
 
   const linkActive = (link: { href: string; matches?: string[] }) =>
-    (link.matches ?? [link.href]).some((href) => isUnder(pathname, href));
+    link.href === "/"
+      ? pathname === "/"
+      : (link.matches ?? [link.href]).some((href) => isUnder(pathname, href));
+  const categoryActive =
+    isUnder(pathname, "/categories") || STUDY_ABROAD_LINKS.some((link) => isUnder(pathname, link.href));
   const onStudyAbroad = STUDY_ABROAD_LINKS.some((link) => isUnder(pathname, link.href));
 
   // Close menus on outside click
@@ -94,6 +122,9 @@ export default function MainNavbar() {
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
         setProfileDropdownOpen(false);
       }
+      if (categoryRef.current && !categoryRef.current.contains(e.target as Node)) {
+        setCategoryOpen(false);
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -104,6 +135,7 @@ export default function MainNavbar() {
     const timeout = window.setTimeout(() => {
       setMenuOpen(false);
       setProfileDropdownOpen(false);
+      setCategoryOpen(false);
     }, 0);
 
     return () => window.clearTimeout(timeout);
@@ -131,22 +163,58 @@ export default function MainNavbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const { href, label } = link;
-              const isActive = linkActive(link);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                    ? "text-teal-700 bg-teal-50"
-                    : "text-codgray hover:bg-gray-100"
-                    }`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
+            {leadLinks.map((link) => (
+              <NavLink key={link.href} href={link.href} label={link.label} active={linkActive(link)} />
+            ))}
+
+            {/* Category dropdown */}
+            <div
+              className="relative"
+              ref={categoryRef}
+              onMouseEnter={() => setCategoryOpen(true)}
+              onMouseLeave={() => setCategoryOpen(false)}
+            >
+              <button
+                type="button"
+                onClick={() => setCategoryOpen((v) => !v)}
+                aria-expanded={categoryOpen}
+                aria-haspopup="true"
+                className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${categoryActive || categoryOpen ? "text-elm bg-elm/10" : "text-codgray hover:bg-gray-100"}`}
+              >
+                Category
+                <ChevronDown size={15} className={`transition-transform ${categoryOpen ? "rotate-180" : ""}`} />
+              </button>
+              {categoryOpen && (
+                <div className="absolute left-0 top-full pt-2 z-50">
+                  <div className="w-72 rounded-xl border border-ink/10 bg-white py-2 shadow-lg">
+                    {categories.length === 0 && <p className="px-4 py-2 text-sm text-ink-soft">Loading…</p>}
+                    {categories.map((category) =>
+                      category.isActive ? (
+                        <Link
+                          key={category.id}
+                          href={categoryHref(category.slug)}
+                          className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-ink hover:bg-paper-deep"
+                        >
+                          <span className="font-medium">{category.name}</span>
+                          {category.mentorCount > 0 && (
+                            <span className="text-xs text-ink-soft">{category.mentorCount} mentor{category.mentorCount === 1 ? "" : "s"}</span>
+                          )}
+                        </Link>
+                      ) : (
+                        <span key={category.id} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-ink-soft/70 cursor-default">
+                          {category.name}
+                          <span className="text-[10px] font-bold uppercase tracking-wider">Soon</span>
+                        </span>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {navLinks.map((link) => (
+              <NavLink key={link.href} href={link.href} label={link.label} active={linkActive(link)} />
+            ))}
           </nav>
 
           {/* Desktop Login & Register */}
@@ -309,23 +377,23 @@ export default function MainNavbar() {
             className="md:hidden border-t border-gray-100 bg-white shadow-lg"
           >
             <div className="px-4 py-3 space-y-1">
-              {navLinks.map((link) => {
-                const { href, label, icon: Icon } = link;
-                const isActive = linkActive(link);
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive
-                      ? "text-teal-700 bg-teal-50"
-                      : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                  >
-                    <Icon size={18} className={isActive ? "text-teal-600" : "text-gray-400"} />
-                    {label}
-                  </Link>
-                );
-              })}
+              {leadLinks.map((link) => (
+                <MobileNavLink key={link.href} href={link.href} label={link.label} icon={link.icon} active={linkActive(link)} />
+              ))}
+              <p className="px-4 pt-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-gray-400">Categories</p>
+              {categories.filter((c) => c.isActive).map((category) => (
+                <MobileNavLink
+                  key={category.id}
+                  href={categoryHref(category.slug)}
+                  label={category.name}
+                  icon={LayoutGrid}
+                  active={isUnder(pathname, categoryHref(category.slug))}
+                />
+              ))}
+              <div className="my-2 h-px bg-gray-100" />
+              {navLinks.map((link) => (
+                <MobileNavLink key={link.href} href={link.href} label={link.label} icon={link.icon} active={linkActive(link)} />
+              ))}
               {user ? (
                 <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-teal-50/50 border border-teal-100/50">
@@ -518,5 +586,28 @@ export default function MainNavbar() {
         </div>
       )}
     </>
+  );
+}
+
+function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${active ? "text-elm bg-elm/10" : "text-codgray hover:bg-gray-100"}`}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function MobileNavLink({ href, label, icon: Icon, active }: { href: string; label: string; icon: typeof Plane; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${active ? "text-elm bg-elm/10" : "text-gray-700 hover:bg-gray-100"}`}
+    >
+      <Icon size={18} className={active ? "text-elm" : "text-gray-400"} />
+      {label}
+    </Link>
   );
 }

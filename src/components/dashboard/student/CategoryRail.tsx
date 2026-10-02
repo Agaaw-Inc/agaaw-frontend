@@ -39,7 +39,7 @@ export default function CategoryRail({ categories, isLoading }: { categories: Ca
                     sizes="(min-width: 768px) 25vw, 240px"
                     className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
                   />
-                  <div className="absolute bottom-3 left-3 right-3 rounded-xl px-3 py-2 text-ink" style={{ backgroundColor: visual.accent }}>
+                  <div className="absolute bottom-3 left-3 right-3 rounded-xl border-l-[5px] bg-card px-3 py-2 text-ink" style={{ borderLeftColor: visual.accent }}>
                     <p className="font-display text-base font-extrabold leading-tight">{category.name}</p>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-ink/70">
                       {category.mentorCount > 0

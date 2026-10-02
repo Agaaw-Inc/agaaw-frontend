@@ -95,7 +95,7 @@ function CategoryTile({ category, size }: { category: CategoryWithCount; size: "
 
       {/* Solid label tab — no gradient wash over the photo */}
       <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-        <div className="rounded-2xl px-4 py-3 text-ink shadow-sm" style={{ backgroundColor: visual.accent }}>
+        <div className="rounded-2xl border-l-[6px] bg-card px-4 py-3 text-ink shadow-sm" style={{ borderLeftColor: visual.accent }}>
           <p className={`font-display font-extrabold leading-tight tracking-[-0.02em] ${size === "large" ? "text-3xl" : "text-xl"}`}>
             {category.name}
           </p>

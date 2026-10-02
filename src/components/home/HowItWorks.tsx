@@ -23,7 +23,7 @@ export default function HowItWorks() {
     <section className="bg-paper-deep">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 md:py-28 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         <div>
-          <p className="font-hand text-2xl text-brick">no agencies, no middlemen</p>
+          <p className="font-hand text-2xl text-maroon">no agencies, no middlemen</p>
           <h2 className="mt-2 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">
             How Agaaw works
           </h2>
