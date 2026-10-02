@@ -23,7 +23,7 @@ export default function OrderDetailPage({ role }: { role: "student" | "mentor" }
     }, [id]);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-paper">
             <div className="max-w-4xl mx-auto px-6 py-10">
                 {error ? (
                     <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-4">{error}</p>

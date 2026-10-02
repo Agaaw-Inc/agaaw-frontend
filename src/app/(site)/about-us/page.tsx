@@ -44,7 +44,7 @@ const staggerContainer: Variants = {
 
 export default function AboutPage() {
     return (
-        <div className="flex flex-col min-h-screen bg-white selection:bg-elm/20">
+        <div className="flex flex-col min-h-screen bg-paper selection:bg-elm/20">
             <MainNavbar />
 
             <main className="flex-grow">
@@ -122,7 +122,7 @@ export default function AboutPage() {
                 </section>
 
                 {/* OUR STORY SECTION */}
-                <section className="py-24 bg-gray-50/50">
+                <section className="py-24 bg-paper/50">
                     <div className="container mx-auto px-6">
                         <div className="flex flex-col lg:flex-row gap-16 items-center">
                             <div className="lg:w-1/2 space-y-8">
@@ -208,7 +208,7 @@ export default function AboutPage() {
                 </section>
 
                 {/* MISSION & VISION */}
-                <section className="py-24 bg-white">
+                <section className="py-24 bg-paper">
                     <div className="container mx-auto px-6">
                         <div className="text-center max-w-3xl mx-auto mb-20">
                             <motion.h2
@@ -321,7 +321,7 @@ export default function AboutPage() {
                 </section>
 
                 {/* WHY AGAAW IS DIFFERENT */}
-                <section className="py-24 bg-white">
+                <section className="py-24 bg-paper">
                     <div className="container mx-auto px-6">
                         <div className="flex flex-col lg:flex-row gap-16">
                             <div className="lg:w-1/3">
@@ -407,7 +407,7 @@ export default function AboutPage() {
                 </section>
 
                 {/* FINAL CTA */}
-                <section className="py-24 bg-white overflow-hidden">
+                <section className="py-24 bg-paper overflow-hidden">
                     <div className="container mx-auto px-6">
                         <motion.div
                             className="bg-gradient-to-br from-elm to-elm-dark rounded-[3.5rem] p-10 lg:p-20 text-white relative overflow-hidden"

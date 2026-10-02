@@ -5,6 +5,8 @@ import { ArrowRight, Search, Video } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { resolveFileUrl, type PublicScholarship, type SessionListItem } from "@/lib/api";
 import { formatSessionWhen } from "@/lib/sessionFormat";
+import Eyebrow from "@/components/ui/Eyebrow";
+import EmptyState from "@/components/ui/EmptyState";
 
 function greeting(now: Date) {
   const h = now.getHours();
@@ -43,8 +45,8 @@ export default function StudentWelcome({ firstName, sessions, scholarships, isLo
   return (
     <header className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-end">
       <div>
-        <p className="font-hand text-xl text-maroon">{dateLine}</p>
-        <h1 className="mt-1 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">
+        <Eyebrow tone="muted">{dateLine}</Eyebrow>
+        <h1 className="mt-1 text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">
           {greeting(now)}, {firstName}.
         </h1>
         <p className="mt-3 max-w-xl text-ink-soft">{isLoading ? " " : statusLine(sessions.length, deadlines)}</p>
@@ -90,10 +92,11 @@ export default function StudentWelcome({ firstName, sessions, scholarships, isLo
         </div>
       ) : (
         !isLoading && (
-          <div className="rounded-[24px] border-2 border-dashed border-ink/15 p-5">
-            <p className="font-display text-lg font-bold text-ink">No sessions booked</p>
-            <p className="mt-1 text-sm text-ink-soft">Once a mentor accepts your request, you can schedule a call together.</p>
-          </div>
+          <EmptyState
+            className="px-5 py-5 text-left"
+            title="No sessions booked"
+            body="Once a mentor accepts your request, you can schedule a call together."
+          />
         )
       )}
     </header>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { PublicScholarship } from "@/lib/api";
 import { daysUntil } from "@/lib/homeData";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 interface StudyAbroadBandProps {
   scholarships: PublicScholarship[];
@@ -22,26 +23,25 @@ export default function StudyAbroadBand({ scholarships, scholarshipCount, countr
     <section className="bg-forest text-paper">
       <div className="mx-auto grid max-w-7xl gap-14 px-6 py-20 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div>
-          <p className="font-hand text-2xl text-seagreen">where Agaaw began</p>
-          <h2 className="mt-2 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] md:text-5xl">
-            Planning to study abroad?
-          </h2>
-          <p className="mt-6 max-w-md leading-relaxed text-paper/75">
-            Scholarships, country guides and mentors who made the move themselves — all in one place, free to browse.
-          </p>
+          <SectionHeading
+            tone="light"
+            eyebrow="Where Agaaw began"
+            title="Planning to study abroad?"
+            description="Scholarships, country guides and mentors who made the move themselves — all in one place, free to browse."
+          />
 
           {(scholarshipCount > 0 || countryCount > 0) && (
             <dl className="mt-10 max-w-md divide-y divide-paper/15 border-y border-paper/15">
               {scholarshipCount > 0 && (
                 <div className="flex items-baseline justify-between py-4">
                   <dt className="text-sm uppercase tracking-[0.16em] text-paper/60">Scholarships listed</dt>
-                  <dd className="font-display text-3xl font-extrabold text-seagreen">{scholarshipCount}</dd>
+                  <dd className="text-3xl font-extrabold text-seagreen">{scholarshipCount}</dd>
                 </div>
               )}
               {countryCount > 0 && (
                 <div className="flex items-baseline justify-between py-4">
                   <dt className="text-sm uppercase tracking-[0.16em] text-paper/60">Country guides</dt>
-                  <dd className="font-display text-3xl font-extrabold text-seagreen">{countryCount}</dd>
+                  <dd className="text-3xl font-extrabold text-seagreen">{countryCount}</dd>
                 </div>
               )}
             </dl>
@@ -60,7 +60,7 @@ export default function StudyAbroadBand({ scholarships, scholarshipCount, countr
         {/* Next deadlines */}
         <div>
           <div className="mb-4 flex items-baseline justify-between">
-            <h3 className="font-display text-xl font-bold">Next deadlines</h3>
+            <h3 className="text-xl font-bold">Next deadlines</h3>
             <span className="text-sm text-paper/60">soonest first</span>
           </div>
 

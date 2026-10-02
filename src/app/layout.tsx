@@ -1,5 +1,5 @@
 import "./globals.css";
-import { bricolage, inter, kalam } from "./fonts";
+import { brand } from "./fonts";
 
 export const metadata = {
   title: "Agaaw — mentorship from people who've done it",
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${bricolage.variable} ${kalam.variable}`}>
+    <html lang="en" className={brand.variable}>
       <body className="font-sans">{children}</body>
     </html>
   );

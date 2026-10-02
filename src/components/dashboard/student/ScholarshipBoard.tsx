@@ -5,6 +5,9 @@ import Link from "next/link";
 import { ArrowRight, Bookmark, BookmarkCheck } from "lucide-react";
 import { saveScholarship, unsaveScholarship, type PublicScholarship } from "@/lib/api";
 import type { TargetCountry } from "@/hooks/useStudentDashboard";
+import SectionHeading from "@/components/ui/SectionHeading";
+import Card from "@/components/ui/Card";
+import EmptyState from "@/components/ui/EmptyState";
 
 type Tab = "soon" | "countries" | "saved";
 
@@ -98,9 +101,11 @@ export default function ScholarshipBoard({ scholarships, savedIds, targetCountri
   ];
 
   return (
-    <section className="rounded-[28px] bg-card p-5 ring-1 ring-ink/10 sm:p-7">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <h2 className="font-display text-2xl font-extrabold tracking-[-0.02em] text-ink">Scholarships for you</h2>
+    <Card as="section" className="sm:p-7">
+      <SectionHeading
+        size="card"
+        title="Scholarships for you"
+        action={
         <div role="tablist" aria-label="Scholarship views" className="flex gap-1 rounded-full bg-paper-deep p-1">
           {tabs.map((t) => (
             <button
@@ -115,7 +120,8 @@ export default function ScholarshipBoard({ scholarships, savedIds, targetCountri
             </button>
           ))}
         </div>
-      </div>
+        }
+      />
 
       <div className="mt-6">
         {isLoading ? (
@@ -125,7 +131,7 @@ export default function ScholarshipBoard({ scholarships, savedIds, targetCountri
             ))}
           </ul>
         ) : rows.length === 0 ? (
-          <EmptyState tab={tab} hasTargets={targetCountries.length > 0} />
+          <EmptyState {...emptyCopy(tab, targetCountries.length > 0)} />
         ) : (
           <ul className="space-y-3">
             {rows.slice(0, SHOW).map((s) => {
@@ -190,26 +196,22 @@ export default function ScholarshipBoard({ scholarships, savedIds, targetCountri
           Browse all scholarships <ArrowRight size={16} />
         </Link>
       </div>
-    </section>
+    </Card>
   );
 }
 
-function EmptyState({ tab, hasTargets }: { tab: Tab; hasTargets: boolean }) {
-  const content = {
-    soon: { title: "No open deadlines right now", body: "New scholarships are added regularly.", href: "/scholarships", cta: "Browse all" },
-    countries: hasTargets
-      ? { title: "Nothing open in your countries yet", body: "We'll show them here as soon as they're listed.", href: "/scholarships", cta: "Browse all" }
-      : { title: "Tell us where you want to study", body: "Add target countries and we'll match scholarships to them.", href: "/dashboard/student/profile", cta: "Add countries" },
-    saved: { title: "Nothing saved yet", body: "Tap the bookmark on any scholarship to keep it here.", href: "/scholarships", cta: "Find some" },
+/** What to say when a tab has nothing in it. */
+function emptyCopy(tab: Tab, hasTargets: boolean) {
+  if (tab === "countries" && !hasTargets) {
+    return {
+      title: "Tell us where you want to study",
+      body: "Add target countries and we'll match scholarships to them.",
+      action: { href: "/dashboard/student/profile", label: "Add countries" },
+    };
+  }
+  return {
+    soon: { title: "No open deadlines right now", body: "New scholarships are added regularly.", action: { href: "/scholarships", label: "Browse all" } },
+    countries: { title: "Nothing open in your countries yet", body: "We'll show them here as soon as they're listed.", action: { href: "/scholarships", label: "Browse all" } },
+    saved: { title: "Nothing saved yet", body: "Tap the bookmark on any scholarship to keep it here.", action: { href: "/scholarships", label: "Find some" } },
   }[tab];
-
-  return (
-    <div className="rounded-2xl border-2 border-dashed border-ink/15 px-6 py-10 text-center">
-      <p className="font-display text-lg font-bold text-ink">{content.title}</p>
-      <p className="mt-1 text-sm text-ink-soft">{content.body}</p>
-      <Link href={content.href} className="mt-4 inline-flex rounded-full bg-ink px-5 py-2 text-sm font-semibold text-paper hover:bg-forest">
-        {content.cta}
-      </Link>
-    </div>
-  );
 }

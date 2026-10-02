@@ -203,7 +203,7 @@ export default function MessageThread({
     .find((m) => m.senderId === currentUserId && m.readAt)?.id;
 
   return (
-    <section ref={scrollRef} className="flex-1 overflow-y-auto bg-slate-50 px-4 py-6 sm:px-8">
+    <section ref={scrollRef} className="flex-1 overflow-y-auto bg-paper px-4 py-6 sm:px-8">
       <div className="mx-auto flex max-w-5xl flex-col gap-7">
         {hasMore && (
           <button

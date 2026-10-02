@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 /**
  * Real Agaaw mentors, shown as portrait cards in the same style as
@@ -18,14 +19,12 @@ export default function MentorCallout() {
       <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
         <div className="relative grid items-center gap-12 overflow-hidden rounded-[2rem] bg-forest px-8 py-12 text-white md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] md:px-14 md:py-16">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.18em] text-seagreen">Been there?</p>
-            <h2 className="mt-3 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] md:text-5xl">
-              Help someone get there too.
-            </h2>
-            <p className="mt-5 max-w-lg text-lg leading-relaxed text-white/75">
-              Mentor in the field you know — studying abroad, careers, business or research. Write your own services, set your
-              own prices, and we handle the payments.
-            </p>
+            <SectionHeading
+              tone="light"
+              eyebrow="Been there?"
+              title="Help someone get there too."
+              description="Mentor in the field you know — studying abroad, careers, business or research. Write your own services, set your own prices, and we handle the payments."
+            />
             <Link
               href="/register/mentor"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 font-semibold text-ink transition-colors hover:bg-seagreen-soft"

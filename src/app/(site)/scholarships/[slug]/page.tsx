@@ -98,7 +98,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
     const applicationSteps = parseList(scholarship.howToApply);
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-paper flex flex-col">
             <MainNavbar />
 
             {/* Hero Section */}
@@ -164,7 +164,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                     {/* Left Column (Details) */}
                     <div className="lg:col-span-2 space-y-8">
                         {/* Coverage Card */}
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                        <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                             <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                 <div className="bg-emerald-100 p-3 rounded-2xl">
                                     <Award className="w-7 h-7 text-emerald-700" />
@@ -207,7 +207,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
 
                         {/* Benefits Card */}
                         {benefits.length > 0 && (
-                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                            <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                                 <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                     <div className="bg-emerald-100 p-3 rounded-2xl">
                                         <CheckCircle2 className="w-7 h-7 text-emerald-700" />
@@ -241,7 +241,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
 
                         {/* Eligibility Card */}
                         {eligibility.length > 0 && (
-                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                            <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                                 <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                     <div className="bg-amber-100 p-3 rounded-2xl">
                                         <Award className="w-7 h-7 text-amber-700" />
@@ -275,7 +275,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
 
                         {/* Required Documents Card */}
                         {requiredDocuments.length > 0 && (
-                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                            <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                                 <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                     <div className="bg-amber-100 p-3 rounded-2xl">
                                         <FileText className="w-7 h-7 text-amber-700" />
@@ -309,7 +309,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
 
                         {/* Application Steps Card */}
                         {applicationSteps.length > 0 && (
-                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                            <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                                 <div className="flex items-center gap-4 mb-10 border-b border-slate-100 pb-6">
                                     <div className="bg-blue-100 p-3 rounded-2xl">
                                         <ListOrdered className="w-7 h-7 text-blue-700" />
@@ -344,7 +344,7 @@ export default async function ScholarshipDetails({ params }: PageProps) {
                         )}
 
                         {scholarship.faqs && scholarship.faqs.length > 0 && (
-                            <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
+                            <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100">
                                 <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                     <div className="bg-teal-100 p-3 rounded-2xl">
                                         <HelpCircle className="w-7 h-7 text-teal-700" />

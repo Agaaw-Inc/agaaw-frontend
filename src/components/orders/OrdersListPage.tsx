@@ -41,7 +41,7 @@ export default function OrdersListPage({ role }: { role: "student" | "mentor" })
     const actionCount = tabCount(NEEDS_ACTION[role]);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-paper">
             <div className="max-w-5xl mx-auto px-6 py-10 space-y-6">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>

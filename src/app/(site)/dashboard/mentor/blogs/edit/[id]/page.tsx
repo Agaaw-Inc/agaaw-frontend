@@ -56,7 +56,7 @@ export default function MentorEditBlogPage({ params }: { params: Promise<{ id: s
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-paper flex flex-col items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-teal-600 mb-2" />
                 <p className="text-sm font-semibold text-gray-500">Loading blog details...</p>
             </div>
@@ -78,7 +78,7 @@ export default function MentorEditBlogPage({ params }: { params: Promise<{ id: s
         : "";
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-10 px-4 sm:px-6">
+        <div className="min-h-screen bg-paper py-10 px-4 sm:px-6">
             <div className="space-y-6 max-w-4xl mx-auto">
                 <div className="flex items-center gap-3">
                     <Link href="/dashboard/mentor/blogs" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">

@@ -104,7 +104,7 @@ export default async function CountryDetails({ params }: CountryProps) {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-paper flex flex-col">
             <MainNavbar />
 
             {/* Hero Section */}
@@ -140,7 +140,7 @@ export default async function CountryDetails({ params }: CountryProps) {
 
                     {/* Scholarships Overview (spans 2 on desktop) */}
                     {data.scholarshipsOverview && data.scholarshipsOverview.trim() !== "" && (
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                        <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                             <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-6">
                                 <div className="bg-violet-100 p-3 rounded-2xl">
                                     <GraduationCap className="w-7 h-7 text-violet-700" />
@@ -154,7 +154,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                     )}
 
                     {/* Opportunities & Cons Card (spans 2 on desktop) */}
-                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                    <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             {/* Opportunities (Pros) */}
                             <div>
@@ -203,7 +203,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                     </section>
 
                     {/* Admission & Requirements Card (spans 2 on desktop) */}
-                    <section className="bg-white rounded-3xl p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                    <section className="bg-paper rounded-3xl p-8 md:p-10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <ClipboardCheck className="w-5 h-5 text-orange-500" />
@@ -255,7 +255,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                     </section>
 
                     {/* Visa Documents Card (spans 2 on desktop) */}
-                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                    <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                         <div>
                             <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
                                 <div className="bg-teal-100 p-2.5 rounded-xl">
@@ -279,7 +279,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                     </section>
 
                     {/* Costs & Tuition Fees Card (spans 2 on desktop) */}
-                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                    <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                             {/* Living Cost */}
                             <div>
@@ -329,7 +329,7 @@ export default async function CountryDetails({ params }: CountryProps) {
 
                     {/* Application Deadlines Card (spans 2 on desktop) */}
                     {whenToApplyContent && whenToApplyContent.trim() !== "" && (
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                        <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                             <div>
                                 <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
                                     <div className="bg-blue-100 p-2.5 rounded-xl">
@@ -350,7 +350,7 @@ export default async function CountryDetails({ params }: CountryProps) {
                     )}
 
                     {/* Work Rights & Regulations Card (1 column in 50/50 split) */}
-                    <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">
+                    <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-between min-h-[300px]">
                         <div>
                             <div className="flex items-center gap-4 mb-6 border-b border-slate-100 pb-4">
                                 <div className="bg-amber-100 p-2.5 rounded-xl">
@@ -375,7 +375,7 @@ export default async function CountryDetails({ params }: CountryProps) {
 
                     {/* Top Universities Card (spans 2 on desktop) */}
                     {data.universities && data.universities.length > 0 && (
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                        <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                             <div className="flex items-center gap-4 mb-8 border-b border-slate-100 pb-6">
                                 <div className="bg-indigo-100 p-3 rounded-2xl">
                                     <Library className="w-7 h-7 text-indigo-700" />
@@ -397,7 +397,7 @@ export default async function CountryDetails({ params }: CountryProps) {
 
                     {/* How to Apply Card (spans 2 on desktop) */}
                     {data.howToApply && data.howToApply.length > 0 && (
-                        <section className="bg-white rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
+                        <section className="bg-paper rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 lg:col-span-2">
                             <div className="flex items-center gap-4 mb-10 border-b border-slate-100 pb-6">
                                 <div className="bg-blue-100 p-3 rounded-2xl">
                                     <ListOrdered className="w-7 h-7 text-blue-700" />

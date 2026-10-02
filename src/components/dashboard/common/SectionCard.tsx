@@ -1,4 +1,6 @@
 import type { ComponentType, ReactNode } from "react";
+import Card from "@/components/ui/Card";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 interface SectionCardProps {
     title: string;
@@ -17,23 +19,24 @@ interface SectionCardProps {
     className?: string;
 }
 
-export default function SectionCard({ title, description, badge, actions, footer, children, className = "" }: SectionCardProps) {
+/** A dashboard section: the shared Card with a shared heading and optional footer. */
+export default function SectionCard({ title, description, badge, actions, footer, children, className }: SectionCardProps) {
     return (
-        <section className={`rounded-2xl bg-card p-6 ring-1 ring-ink/10 ${className}`}>
-            <div className="mb-5 flex flex-col justify-between gap-3 border-b border-ink/10 pb-4 sm:flex-row sm:items-end">
-                <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="font-display text-xl font-extrabold tracking-[-0.02em] text-ink">{title}</h2>
+        <Card as="section" className={className}>
+            <SectionHeading
+                size="card"
+                title={
+                    <span className="flex flex-wrap items-center gap-2">
+                        {title}
                         {badge}
-                    </div>
-                    {description && <p className="mt-0.5 text-sm text-ink-soft">{description}</p>}
-                </div>
-                {actions && <div className="flex shrink-0 items-center gap-3">{actions}</div>}
-            </div>
-
+                    </span>
+                }
+                description={description}
+                action={actions}
+                className="mb-5 border-b border-ink/10 pb-4"
+            />
             <div className="flex-1">{children}</div>
-
             {footer && <div className="mt-5 border-t border-ink/10 pt-5 text-center">{footer}</div>}
-        </section>
+        </Card>
     );
 }

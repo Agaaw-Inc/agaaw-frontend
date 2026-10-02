@@ -5,22 +5,21 @@ import { MessageCircle } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
 import { resolveFileUrl, type ConnectionItem } from "@/lib/api";
 import type { TargetCountry } from "@/hooks/useStudentDashboard";
+import Card from "@/components/ui/Card";
+import SectionHeading from "@/components/ui/SectionHeading";
 
-function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+function SideCard({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="rounded-[28px] bg-card p-6 ring-1 ring-ink/10">
-      <div className="mb-4 flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-xl font-extrabold tracking-[-0.02em] text-ink">{title}</h2>
-        {action}
-      </div>
+    <Card as="section">
+      <SectionHeading size="card" as="h2" title={title} action={action} className="mb-4" />
       {children}
-    </section>
+    </Card>
   );
 }
 
 export function MyMentorsCard({ mentors, isLoading }: { mentors: ConnectionItem[]; isLoading: boolean }) {
   return (
-    <Card
+    <SideCard
       title="Your mentors"
       action={
         mentors.length > 0 ? (
@@ -61,13 +60,13 @@ export function MyMentorsCard({ mentors, isLoading }: { mentors: ConnectionItem[
           ))}
         </ul>
       )}
-    </Card>
+    </SideCard>
   );
 }
 
 export function TargetCountriesCard({ countries, isLoading }: { countries: TargetCountry[]; isLoading: boolean }) {
   return (
-    <Card title="Where you're aiming">
+    <SideCard title="Where you're aiming">
       {isLoading ? (
         <div className="h-10 animate-pulse rounded-2xl bg-paper-deep" />
       ) : countries.length === 0 ? (
@@ -94,6 +93,6 @@ export function TargetCountriesCard({ countries, isLoading }: { countries: Targe
           ))}
         </div>
       )}
-    </Card>
+    </SideCard>
   );
 }

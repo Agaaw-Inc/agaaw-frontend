@@ -8,6 +8,7 @@ import { resolveFileUrl } from "@/lib/api";
 import { calculateMentorProfileCompletion } from "@/lib/mentorProfileUtils";
 import { getMyCategories, type Category } from "@/lib/categories";
 import { getMyVerification, type MyVerification } from "@/lib/verification";
+import Card from "@/components/ui/Card";
 
 function greeting(now: Date) {
   const h = now.getHours();
@@ -85,7 +86,7 @@ export default function MentorWelcome({ profile, isLoading, stats }: MentorWelco
           </div>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-ink-soft">{dateLine}</p>
-            <h1 className="mt-1 font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">
+            <h1 className="mt-1 text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">
               {greeting(now)}, {isLoading ? "…" : firstName}.
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -104,10 +105,10 @@ export default function MentorWelcome({ profile, isLoading, stats }: MentorWelco
         </div>
 
         {/* Profile completeness — a plain bar, no gradient card */}
-        <div className="rounded-2xl bg-card p-5 ring-1 ring-ink/10">
+        <Card padding="sm" className="p-5">
           <div className="flex items-baseline justify-between">
             <p className="text-sm font-semibold text-ink">Profile complete</p>
-            <p className="font-display text-2xl font-extrabold text-ink">{isLoading ? "—" : `${percentage}%`}</p>
+            <p className="text-2xl font-extrabold text-ink">{isLoading ? "—" : `${percentage}%`}</p>
           </div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-paper-deep">
             <div className="h-full rounded-full bg-elm transition-all duration-700" style={{ width: `${isLoading ? 0 : percentage}%` }} />
@@ -117,7 +118,7 @@ export default function MentorWelcome({ profile, isLoading, stats }: MentorWelco
               Finish your profile <ArrowRight size={14} />
             </Link>
           )}
-        </div>
+        </Card>
       </div>
 
       {/* Numbers on hairlines, not coloured icon tiles */}
@@ -125,7 +126,7 @@ export default function MentorWelcome({ profile, isLoading, stats }: MentorWelco
         {stats.map((stat) => (
           <div key={stat.label} className="border-l-2 border-ink/10 pl-4">
             <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">{stat.label}</dt>
-            <dd className="mt-1 font-display text-3xl font-extrabold text-ink">{stat.value}</dd>
+            <dd className="mt-1 text-3xl font-extrabold text-ink">{stat.value}</dd>
             {stat.sub && <dd className="text-sm text-ink-soft">{stat.sub}</dd>}
           </div>
         ))}

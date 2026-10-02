@@ -37,7 +37,7 @@ export default function MentorCreateBlogPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] py-10 px-4 sm:px-6">
+        <div className="min-h-screen bg-paper py-10 px-4 sm:px-6">
             <div className="space-y-6 max-w-4xl mx-auto">
                 <div className="flex items-center gap-3">
                     <Link href="/dashboard/mentor/blogs" className="p-2 rounded-xl hover:bg-gray-100 transition-colors">

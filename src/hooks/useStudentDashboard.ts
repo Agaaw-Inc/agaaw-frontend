@@ -16,7 +16,7 @@ import {
   type SessionListItem,
 } from "@/lib/api";
 import { getCategories, getMyStudentCategories, type Category, type CategoryWithCount } from "@/lib/categories";
-import type { DirectoryMentor } from "@/components/mentors/MentorDirectoryCard";
+import { fromStudentList, type MentorCardData } from "@/lib/mentorCards";
 
 export interface TargetCountry {
   id: string;
@@ -34,7 +34,7 @@ export interface StudentDashboardData {
   sessions: SessionListItem[];
   connections: ConnectionItem[];
   targetCountries: TargetCountry[];
-  mentors: DirectoryMentor[];
+  mentors: MentorCardData[];
   /** mentor user id → request state, for the suggested-mentor cards. */
   pendingMentorIds: Set<string>;
   blogs: PublicBlog[];
@@ -52,8 +52,6 @@ const EMPTY: StudentDashboardData = {
   pendingMentorIds: new Set(),
   blogs: [],
 };
-
-const real = (v: string | null | undefined) => (v && v !== "Not specified" ? v : null);
 
 /**
  * Everything the student dashboard shows, loaded in parallel once. Each
@@ -91,19 +89,7 @@ export function useStudentDashboard() {
         targetCountries: (profile?.preferredCountries ?? [])
           .map((pc: { country?: TargetCountry }) => pc.country)
           .filter(Boolean),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- getMentorsList is untyped in lib/api
-        mentors: mentorList.map((m: any) => ({
-          id: m.id,
-          name: m.name,
-          image: m.image ?? null,
-          university: real(m.university),
-          country: real(m.country),
-          subject: null,
-          expertise: m.expertise ?? [],
-          categories: m.categories ?? [],
-          identityVerified: !!m.identityVerified,
-          rating: m.rating ?? { average: null, count: 0 },
-        })),
+        mentors: mentorList.map(fromStudentList),
         pendingMentorIds: new Set(pending.data.map((r: { mentorId: string }) => r.mentorId)),
         blogs: blogs.data,
       });

@@ -56,7 +56,7 @@ export default function ScholarshipsPreview() {
   }, []);
 
   return (
-    <section className="py-20 bg-white px-6 w-full">
+    <section className="py-20 bg-paper px-6 w-full">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-center mb-12">
           Trending <span className="text-teal-700">Scholarships</span>

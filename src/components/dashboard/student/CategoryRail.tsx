@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CategoryWithCount } from "@/lib/categories";
 import { visualFor } from "@/lib/categoryVisuals";
+import SectionHeading from "@/components/ui/SectionHeading";
+import ArrowLink from "@/components/ui/ArrowLink";
 
 /**
  * Every open category, as photographs — the student's way into mentors
@@ -25,12 +27,12 @@ export default function CategoryRail({
 
   return (
     <section>
-      <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="font-display text-2xl font-extrabold tracking-[-0.02em] text-ink">Get help with…</h2>
-        <Link href="/dashboard/student/profile" className="text-sm font-semibold text-ink-soft hover:text-ink hover:underline">
-          Change my categories
-        </Link>
-      </div>
+      <SectionHeading
+        size="card"
+        title="Get help with…"
+        action={<ArrowLink href="/dashboard/student/profile">Change my categories</ArrowLink>}
+        className="mb-4"
+      />
 
       <div className="-mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-2 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0">
         {isLoading
@@ -58,7 +60,7 @@ export default function CategoryRail({
                     </span>
                   )}
                   <div className="absolute bottom-3 left-3 right-3 rounded-xl border-l-[5px] bg-card px-3 py-2 text-ink" style={{ borderLeftColor: visual.accent }}>
-                    <p className="font-display text-base font-extrabold leading-tight">{category.name}</p>
+                    <p className="text-base font-extrabold leading-tight">{category.name}</p>
                     <p className="text-[11px] font-bold uppercase tracking-wider text-ink/70">
                       {category.mentorCount > 0
                         ? `${category.mentorCount} mentor${category.mentorCount === 1 ? "" : "s"}`

@@ -76,7 +76,7 @@ export default function MentorVerificationPage() {
     const showForm = !verification || status === "rejected" || (status === "pending" && isEditing);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-paper">
             <Toast toast={toast} onHide={hideToast} />
             <div className="max-w-3xl mx-auto px-6 py-10 space-y-6">
                 <div>

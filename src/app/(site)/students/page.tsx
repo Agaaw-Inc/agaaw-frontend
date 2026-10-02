@@ -165,7 +165,7 @@ function StudentList() {
         setCurrentPage(1);
     };
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-paper flex flex-col">
             <MainNavbar />
             {isLoading ? (
                 <main className="flex-grow flex items-center justify-center">
@@ -340,7 +340,7 @@ export default function StudentsPage() {
     return (
         <Suspense
             fallback={
-                <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+                <div className="min-h-screen bg-paper flex flex-col items-center justify-center">
                     <Loader2 className="w-10 h-10 animate-spin text-elm mb-4" />
                     <p className="text-bombay font-semibold">Preparing students...</p>
                 </div>

@@ -1,14 +1,16 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2, Search, X } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
 import HomeHero from "@/components/home/HomeHero";
 import MentorCallout from "@/components/home/MentorCallout";
-import MentorDirectoryCard, { type DirectoryMentor, type DirectoryViewer } from "@/components/mentors/MentorDirectoryCard";
+import MentorCard, { type MentorCardViewer } from "@/components/mentors/MentorCard";
+import EmptyState from "@/components/ui/EmptyState";
+import Button, { ButtonLink } from "@/components/ui/Button";
+import { fromPublicCard, fromStudentList, type MentorCardData } from "@/lib/mentorCards";
 import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
 import OrderServiceModal from "@/components/orders/OrderServiceModal";
 import Pagination from "@/components/ui/Pagination";
@@ -17,7 +19,8 @@ import { useToast } from "@/hooks/useToast";
 import { useGridColumns } from "@/hooks/useGridColumns";
 import { getUserInfo, getToken, type UserInfo } from "@/lib/auth";
 import { getConnections, getMentorCount, getMentorsList, getMentorshipRequests, getScholarships } from "@/lib/api";
-import { getCategories, getPublicMentorDirectory, type CategoryWithCount, type PublicMentorCard } from "@/lib/categories";
+import { getCategories, getPublicMentorDirectory, type CategoryWithCount } from "@/lib/categories";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 /** Who is looking: undefined while rendering on the server (not known yet). */
 function readViewer(): UserInfo | null {
@@ -37,40 +40,6 @@ const CARD_MIN_WIDTH = 240;
 const GAP = 20;
 
 type RequestStatus = "none" | "pending" | "connected";
-
-/** The student list says "Not specified" for empty fields; treat that as empty. */
-const real = (v: string | null | undefined) => (v && v !== "Not specified" ? v : null);
-
-function fromPublic(m: PublicMentorCard): DirectoryMentor {
-  return {
-    id: m.id,
-    name: `${m.firstName} ${m.lastName}`.trim(),
-    image: m.profileImage,
-    university: m.currentUniversity,
-    country: m.countryName,
-    subject: m.subject,
-    expertise: m.expertise,
-    categories: m.categories,
-    identityVerified: m.identityVerified,
-    rating: m.rating,
-  };
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- getMentorsList is untyped in lib/api
-function fromStudentList(m: any): DirectoryMentor {
-  return {
-    id: m.id,
-    name: m.name,
-    image: m.image ?? null,
-    university: real(m.university),
-    country: real(m.country),
-    subject: null,
-    expertise: m.expertise ?? [],
-    categories: m.categories ?? [],
-    identityVerified: !!m.identityVerified,
-    rating: m.rating ?? { average: null, count: 0 },
-  };
-}
 
 function MentorDirectory() {
   const searchParams = useSearchParams();
@@ -93,7 +62,7 @@ function MentorDirectory() {
   const [mentorCount, setMentorCount] = useState(0);
   const [scholarshipCount, setScholarshipCount] = useState(0);
 
-  const [mentors, setMentors] = useState<DirectoryMentor[]>([]);
+  const [mentors, setMentors] = useState<MentorCardData[]>([]);
   const [publicMeta, setPublicMeta] = useState<{ total: number; limit: number; countries: string[]; universities: string[] } | null>(null);
   // Loading is derived, not toggled: the page is loading whenever the data
   // on screen was fetched for a different viewer/filter combination.
@@ -146,7 +115,7 @@ function MentorDirectory() {
       } else {
         const directory = await getPublicMentorDirectory({ category, country, university });
         if (!alive) return;
-        setMentors(directory.mentors.map(fromPublic));
+        setMentors(directory.mentors.map(fromPublicCard));
         setPublicMeta({ total: directory.total, limit: directory.limit, ...directory.filters });
       }
     };
@@ -208,7 +177,7 @@ function MentorDirectory() {
   const hasFilters = !!(category || country || university || search);
   const activeCategory = categories.find((c) => c.slug === category);
 
-  const viewerFor = (m: DirectoryMentor): DirectoryViewer => {
+  const viewerFor = (m: MentorCardData): MentorCardViewer => {
     if (!user) return { kind: "guest" };
     if (!isStudent) return { kind: "other" };
     return {
@@ -274,10 +243,11 @@ function MentorDirectory() {
           </div>
         </div>
 
-        <div className="mt-8 mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-ink/10 pb-4">
-          <h2 className="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink">
-            {activeCategory ? `${activeCategory.name} mentors` : "All mentors"}
-          </h2>
+        <SectionHeading
+          size="card"
+          title={activeCategory ? `${activeCategory.name} mentors` : "All mentors"}
+          className="mt-8 mb-6 border-b border-ink/10 pb-4"
+          action={
           <div className="flex items-center gap-4 text-sm text-ink-soft">
             {!isLoading && <span>{filtered.length} mentor{filtered.length === 1 ? "" : "s"}</span>}
             {hasFilters && (
@@ -286,7 +256,8 @@ function MentorDirectory() {
               </button>
             )}
           </div>
-        </div>
+          }
+        />
 
         {/* Guests see the top-rated few; the full directory needs an account */}
         {!user && publicMeta && publicMeta.total > publicMeta.limit && (
@@ -296,12 +267,12 @@ function MentorDirectory() {
               everyone and request mentorship.
             </p>
             <div className="flex shrink-0 gap-2">
-              <Link href="/register/student" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-seagreen-soft">
+              <ButtonLink href="/register/student" variant="light" size="sm">
                 Sign up free
-              </Link>
-              <Link href={`/login?redirect=${encodeURIComponent("/mentors")}`} className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold hover:border-white">
+              </ButtonLink>
+              <ButtonLink href={`/login?redirect=${encodeURIComponent("/mentors")}`} variant="outline" size="sm" className="border-white/40 text-white hover:border-white">
                 Log in
-              </Link>
+              </ButtonLink>
             </div>
           </div>
         )}
@@ -312,19 +283,15 @@ function MentorDirectory() {
               <Loader2 className="h-8 w-8 animate-spin text-elm" />
             </div>
           ) : visible.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-ink/15 px-6 py-16 text-center">
-              <p className="font-display text-xl font-bold text-ink">No mentors match these filters</p>
-              <p className="mt-1 text-sm text-ink-soft">Try another country or university, or clear the filters.</p>
-              {hasFilters && (
-                <button onClick={clearFilters} className="mt-5 rounded-full bg-ink px-5 py-2 text-sm font-semibold text-white hover:bg-forest">
-                  Clear filters
-                </button>
-              )}
-            </div>
+            <EmptyState
+              title="No mentors match these filters"
+              body="Try another country or university, or clear the filters."
+              action={hasFilters ? <Button size="sm" onClick={clearFilters}>Clear filters</Button> : undefined}
+            />
           ) : (
             <div className="grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: GAP }}>
               {visible.map((mentor) => (
-                <MentorDirectoryCard key={mentor.id} mentor={mentor} viewer={viewerFor(mentor)} />
+                <MentorCard key={mentor.id} mentor={mentor} viewer={viewerFor(mentor)} />
               ))}
             </div>
           )}

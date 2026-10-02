@@ -72,7 +72,7 @@ export default function BlogsPage() {
   return (
     <>
       <MainNavbar />
-      <main className="pt-16 pb-20 bg-slate-50 min-h-screen flex flex-col">
+      <main className="pt-16 pb-20 bg-paper min-h-screen flex flex-col">
         {/* Hero Section */}
         <section className="relative px-8 pt-10 pb-20 max-w-7xl mx-auto overflow-hidden w-full">
           <div className="relative z-10 lg:w-2/3">

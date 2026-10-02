@@ -3,26 +3,22 @@
 import Link from "next/link";
 import { BadgeCheck, Clock, GraduationCap, MapPin, Package, Send, Star, Users } from "lucide-react";
 import Avatar from "@/components/ui/Avatar";
+import Card from "@/components/ui/Card";
+import { buttonClasses } from "@/components/ui/Button";
 import { resolveFileUrl } from "@/lib/api";
-import type { MentorRating } from "@/lib/categories";
+import type { MentorCardData } from "@/lib/mentorCards";
 
-/** One shape for both directory sources (public cards and the student list). */
-export interface DirectoryMentor {
-  id: string;
-  name: string;
-  image: string | null;
-  university: string | null;
-  country: string | null;
-  subject: string | null;
-  expertise: string[];
-  categories: { slug: string; name: string }[];
-  identityVerified: boolean;
-  rating: MentorRating;
-}
-
-export type DirectoryViewer =
+/**
+ * Who is looking at the card decides its action:
+ * - guest:   "Sign up to view profile"
+ * - other:   a logged-in mentor or admin — "View profile"
+ * - student: request mentorship / order a service / status
+ * - preview: no button at all (the whole card links to the profile)
+ */
+export type MentorCardViewer =
   | { kind: "guest" }
-  | { kind: "other" } // a logged-in mentor or admin — can look, can't book
+  | { kind: "other" }
+  | { kind: "preview" }
   | {
       kind: "student";
       status: "none" | "pending" | "connected";
@@ -40,20 +36,19 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export default function MentorDirectoryCard({ mentor, viewer }: { mentor: DirectoryMentor; viewer: DirectoryViewer }) {
+/** The one mentor card — directory, category pages, dashboard, sign-up gate. */
+export default function MentorCard({ mentor, viewer }: { mentor: MentorCardData; viewer: MentorCardViewer }) {
   // One link for everyone. For guests the profile page shows a sign-up /
   // log-in screen instead of the profile, and brings them back after.
   const profileHref = `/profile/mentor/${mentor.id}`;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-ink/10 transition-shadow hover:shadow-[0_10px_30px_-12px_rgba(20,24,22,0.25)]">
+    <Card as="article" padding="none" interactive className="flex h-full flex-col overflow-hidden">
       <Link href={profileHref} className="relative block aspect-[4/3] bg-paper-deep" aria-label={`${mentor.name}'s profile`}>
         {mentor.image ? (
           <Avatar src={resolveFileUrl(mentor.image)} name={mentor.name} className="h-full w-full object-cover" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center font-display text-5xl font-extrabold text-ink/20">
-            {initials(mentor.name)}
-          </span>
+          <span className="flex h-full w-full items-center justify-center text-5xl font-extrabold text-ink/20">{initials(mentor.name)}</span>
         )}
         {mentor.identityVerified && (
           <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-card px-2.5 py-1 text-xs font-bold text-elm">
@@ -65,7 +60,7 @@ export default function MentorDirectoryCard({ mentor, viewer }: { mentor: Direct
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start justify-between gap-2">
           <Link href={profileHref} className="min-w-0">
-            <h3 className="truncate font-display text-lg font-bold tracking-[-0.01em] text-ink hover:underline">{mentor.name}</h3>
+            <h3 className="truncate text-lg font-bold tracking-[-0.01em] text-ink hover:underline">{mentor.name}</h3>
           </Link>
           {mentor.rating.average !== null && (
             <span className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-ink" title={`${mentor.rating.count} reviews`}>
@@ -98,44 +93,46 @@ export default function MentorDirectoryCard({ mentor, viewer }: { mentor: Direct
           </p>
         )}
 
-        <div className="mt-auto pt-4">
-          <Actions viewer={viewer} profileHref={profileHref} />
-        </div>
+        {viewer.kind !== "preview" && (
+          <div className="mt-auto pt-4">
+            <Actions viewer={viewer} profileHref={profileHref} />
+          </div>
+        )}
       </div>
-    </article>
+    </Card>
   );
 }
 
-function Actions({ viewer, profileHref }: { viewer: DirectoryViewer; profileHref: string }) {
-  const primary = "inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors";
+function Actions({ viewer, profileHref }: { viewer: Exclude<MentorCardViewer, { kind: "preview" }>; profileHref: string }) {
+  const full = "w-full rounded-xl";
 
   if (viewer.kind !== "student") {
     return (
-      <Link href={profileHref} className={`${primary} border-2 border-ink/15 text-ink hover:border-ink`}>
+      <Link href={profileHref} className={buttonClasses({ variant: "outline", size: "sm", className: full })}>
         {viewer.kind === "guest" ? "Sign up to view profile" : "View profile"}
       </Link>
     );
   }
   if (viewer.status === "connected") {
     return viewer.onOrder ? (
-      <button type="button" onClick={viewer.onOrder} className={`${primary} bg-elm text-white hover:bg-elm-dark`}>
+      <button type="button" onClick={viewer.onOrder} className={buttonClasses({ variant: "brand", size: "sm", className: full })}>
         <Package size={16} /> Order a service
       </button>
     ) : (
-      <span className={`${primary} bg-seagreen-soft text-forest`}>
+      <span className={buttonClasses({ size: "sm", className: `${full} cursor-default bg-seagreen-soft text-forest hover:bg-seagreen-soft` })}>
         <Users size={16} /> Connected
       </span>
     );
   }
   if (viewer.status === "pending") {
     return (
-      <span className={`${primary} cursor-default bg-paper-deep text-ink-soft`}>
+      <span className={buttonClasses({ size: "sm", className: `${full} cursor-default bg-paper-deep text-ink-soft hover:bg-paper-deep` })}>
         <Clock size={16} /> Request sent
       </span>
     );
   }
   return (
-    <button type="button" onClick={viewer.onRequest} className={`${primary} bg-ink text-white hover:bg-forest`}>
+    <button type="button" onClick={viewer.onRequest} className={buttonClasses({ size: "sm", className: full })}>
       <Send size={16} /> Request mentorship
     </button>
   );

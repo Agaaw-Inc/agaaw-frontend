@@ -52,7 +52,7 @@ export default function NotificationsPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-paper">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between gap-3 flex-wrap">

@@ -74,12 +74,12 @@ export default function OnboardingCategoryStep({ role, initialIds = [], onContin
     <div className="min-h-screen bg-paper">
       <header className="flex items-center gap-3 border-b border-ink/10 bg-white px-6 py-4">
         <Image src="/Agaaw_logo_noBG.png" alt="" width={36} height={36} />
-        <span className="font-display text-lg font-bold text-ink">Agaaw</span>
+        <span className="text-lg font-bold text-ink">Agaaw</span>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-12 md:py-16">
         <p className="text-sm font-bold uppercase tracking-[0.16em] text-elm">Getting started</p>
-        <h1 className="mt-2 font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-ink md:text-5xl">{copy.title}</h1>
+        <h1 className="mt-2 text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-ink md:text-5xl">{copy.title}</h1>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-soft">{copy.body}</p>
 
         <div className="mt-10">

@@ -2,9 +2,13 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { ArrowRight, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import type { PublicBlog } from "@/lib/api";
 import type { Category } from "@/lib/categories";
+import SectionHeading from "@/components/ui/SectionHeading";
+import ArrowLink from "@/components/ui/ArrowLink";
+import EmptyState from "@/components/ui/EmptyState";
+import { cardClasses } from "@/components/ui/Card";
 
 /**
  * Which blog categories serve which mentorship category. Blog posts still
@@ -49,27 +53,18 @@ export default function SuggestedReading({
 
   return (
     <section>
-      <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="font-display text-2xl font-extrabold tracking-[-0.02em] text-ink">
-          Worth reading
-        </h2>
-        <Link
-          href="/blogs"
-          className="inline-flex items-center gap-1 text-sm font-semibold text-ink hover:underline"
-        >
-          All articles <ArrowRight size={15} />
-        </Link>
-      </div>
+      <SectionHeading
+        size="card"
+        title="Worth reading"
+        action={<ArrowLink href="/blogs">All articles</ArrowLink>}
+        className="mb-4"
+      />
 
       {!isLoading && picks.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-ink/15 px-6 py-10 text-center">
-          <p className="font-display text-lg font-bold text-ink">
-            No articles in your areas yet
-          </p>
-          <p className="mt-1 text-sm text-ink-soft">
-            Mentors are writing guides — new ones appear here first.
-          </p>
-        </div>
+        <EmptyState
+          title="No articles in your areas yet"
+          body="Mentors are writing guides — new ones appear here first."
+        />
       ) : (
         <div className="grid gap-5 md:grid-cols-3">
           {isLoading
@@ -83,7 +78,7 @@ export default function SuggestedReading({
                 <Link
                   key={blog.id}
                   href={`/blogs/${blog.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl bg-card ring-1 ring-ink/10 transition-shadow hover:shadow-[0_10px_30px_-12px_rgba(20,24,22,0.25)]"
+                  className={cardClasses({ padding: "none", interactive: true, className: "group flex flex-col overflow-hidden" })}
                 >
                   <div className="aspect-[16/9] overflow-hidden bg-paper-deep">
                     {/* eslint-disable-next-line @next/next/no-img-element -- covers are admin-entered URLs on several hosts */}
@@ -97,7 +92,7 @@ export default function SuggestedReading({
                     <p className="text-xs font-semibold uppercase tracking-wider text-elm">
                       {LABEL[blog.category]}
                     </p>
-                    <h3 className="mt-1 line-clamp-2 font-display text-lg font-bold leading-snug text-ink group-hover:underline">
+                    <h3 className="mt-1 line-clamp-2 text-lg font-bold leading-snug text-ink group-hover:underline">
                       {blog.title}
                     </h3>
                     {blog.excerpt && (

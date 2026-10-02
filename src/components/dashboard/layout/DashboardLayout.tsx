@@ -6,7 +6,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex flex-col relative">
+        <div className="min-h-screen bg-paper flex flex-col relative">
             {/* Navbar */}
             <MainNavbar />
 

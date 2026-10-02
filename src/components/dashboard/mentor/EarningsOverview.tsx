@@ -102,7 +102,7 @@ export default function EarningsOverview() {
                             <div key={label} className="border-l-2 border-ink/10 pl-4">
                                 <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">{label}</p>
                                 <div className="flex items-end gap-2">
-                                    <p className="font-display text-2xl font-extrabold text-ink">{value}</p>
+                                    <p className="text-2xl font-extrabold text-ink">{value}</p>
                                     {trend && (
                                         <span
                                             className={`flex items-center text-xs font-bold px-2 py-0.5 rounded-full mb-1 ${

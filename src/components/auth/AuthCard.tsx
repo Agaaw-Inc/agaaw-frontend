@@ -23,7 +23,7 @@ export default function AuthCard({ children, className = "" }: AuthCardProps) {
   return (
     <div
       className={`
-        w-full min-h-screen bg-white
+        w-full min-h-screen bg-paper
         flex flex-col md:flex-row
         ${className}
       `}

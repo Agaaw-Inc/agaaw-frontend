@@ -40,11 +40,11 @@ export default function HomeHero({
         {/* Words */}
         <div>
           <p className="mb-6 inline-flex items-baseline gap-3 text-ink-soft">
-            <span className="font-display text-2xl font-bold text-elm" lang="bn">আগাও</span>
-            <span className="font-hand text-2xl leading-none">— it means “move forward”</span>
+            <span className="text-2xl font-bold text-elm" lang="bn">আগাও</span>
+            <span className="text-lg">— it means “move forward”</span>
           </p>
 
-          <h1 className="font-display text-[2.6rem] font-extrabold leading-[0.98] tracking-[-0.035em] text-ink sm:text-6xl xl:text-[4.4rem]">
+          <h1 className="text-[2.6rem] font-extrabold leading-[0.98] tracking-[-0.035em] text-ink sm:text-6xl xl:text-[4.4rem]">
             Ask someone{" "}
             <br className="hidden sm:block" />
             who&apos;s{" "}
@@ -117,14 +117,14 @@ export default function HomeHero({
               <div className="relative aspect-[4/5] overflow-hidden bg-paper-deep">
                 <Image src={p.src} alt={`${p.name}, an Agaaw mentor`} fill sizes="(min-width: 1024px) 280px, 60vw" className="object-cover" priority />
               </div>
-              <figcaption className="mt-3 whitespace-nowrap px-1 font-hand text-xl leading-none text-ink">
+              <figcaption className="mt-3 whitespace-nowrap px-1 text-base font-semibold leading-none text-ink">
                 {p.name} <span className="text-ink-soft">· {p.note}</span>
               </figcaption>
             </figure>
           ))}
 
           {/* Margin note */}
-          <p className="absolute -bottom-2 right-2 max-w-[13rem] -rotate-3 text-right font-hand text-2xl leading-tight text-maroon">
+          <p className="absolute -bottom-2 right-2 max-w-[13rem] text-right text-sm font-bold uppercase leading-snug tracking-[0.14em] text-maroon">
             real mentors,
             <br />
             not stock photos

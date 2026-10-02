@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { CategoryWithCount } from "@/lib/categories";
 import { visualFor } from "@/lib/categoryVisuals";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 function mentorLabel(count: number) {
   if (count === 0) return "New category";
@@ -25,14 +26,12 @@ export default function CategoryShowcase({ categories }: { categories: CategoryW
   return (
     <section id="categories" className="scroll-mt-24 bg-paper">
       <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <h2 className="max-w-xl font-display text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-ink md:text-5xl">
-            What do you need help with?
-          </h2>
-          <p className="max-w-sm text-ink-soft">
-            Pick an area. Every mentor in it has done the thing you&apos;re trying to do, and was approved by the Agaaw team before they could join.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Mentorship for every next step"
+          title="What do you need help with?"
+          description="Pick an area. Every mentor in it has done the thing you're trying to do, and was approved by the Agaaw team before they could join."
+          className="mb-12"
+        />
 
         <div className="grid gap-5 lg:grid-cols-2">
           <CategoryTile category={featured} size="large" />
@@ -58,7 +57,7 @@ export default function CategoryShowcase({ categories }: { categories: CategoryW
                     <Image src={visual.image} alt={visual.alt} fill sizes="96px" className="object-cover" />
                   </div>
                   <div>
-                    <p className="font-display text-lg font-bold text-ink">
+                    <p className="text-lg font-bold text-ink">
                       {category.name}{" "}
                       <span className="ml-1 rounded-full bg-ink/10 px-2 py-0.5 align-middle text-[11px] font-bold uppercase tracking-wider text-ink-soft">
                         Coming soon
@@ -96,7 +95,7 @@ function CategoryTile({ category, size }: { category: CategoryWithCount; size: "
       {/* Solid label tab — no gradient wash over the photo */}
       <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
         <div className="rounded-2xl border-l-[6px] bg-card px-4 py-3 text-ink shadow-sm" style={{ borderLeftColor: visual.accent }}>
-          <p className={`font-display font-extrabold leading-tight tracking-[-0.02em] ${size === "large" ? "text-3xl" : "text-xl"}`}>
+          <p className={`font-extrabold leading-tight tracking-[-0.02em] ${size === "large" ? "text-3xl" : "text-xl"}`}>
             {category.name}
           </p>
           {size === "large" && <p className="mt-1 max-w-xs text-sm font-medium text-ink/80">{visual.tagline}</p>}

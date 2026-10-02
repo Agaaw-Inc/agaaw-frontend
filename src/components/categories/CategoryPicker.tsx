@@ -41,7 +41,7 @@ export default function CategoryPicker({ categories, selected, onToggle, disable
             </div>
             <div className="flex flex-1 items-start justify-between gap-3 p-4">
               <div>
-                <p className="font-display text-lg font-bold leading-tight text-ink">{category.name}</p>
+                <p className="text-lg font-bold leading-tight text-ink">{category.name}</p>
                 <p className="mt-1 text-sm leading-snug text-ink-soft">{visual.tagline}</p>
               </div>
               <span
