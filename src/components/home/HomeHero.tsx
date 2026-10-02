@@ -16,9 +16,22 @@ interface HomeHeroProps {
   categories: CategoryWithCount[];
   mentorCount: number;
   scholarshipCount: number;
+  /**
+   * Where the "I need help with" chips go. "category" opens the category
+   * page; "filter" filters the mentors page it sits on.
+   */
+  chipTarget?: "category" | "filter";
+  /** The category currently filtered, highlighted when chipTarget is "filter". */
+  activeCategory?: string;
 }
 
-export default function HomeHero({ categories, mentorCount, scholarshipCount }: HomeHeroProps) {
+export default function HomeHero({
+  categories,
+  mentorCount,
+  scholarshipCount,
+  chipTarget = "category",
+  activeCategory,
+}: HomeHeroProps) {
   const open = categories.filter((c) => c.isActive);
 
   return (
@@ -56,8 +69,18 @@ export default function HomeHero({ categories, mentorCount, scholarshipCount }: 
               {open.map((category) => (
                 <Link
                   key={category.id}
-                  href={`/categories/${category.slug}`}
-                  className="group inline-flex items-center gap-1.5 rounded-full border-2 border-ink bg-card px-5 py-2.5 text-[15px] font-semibold text-ink transition-colors hover:bg-ink hover:text-paper"
+                  href={
+                    chipTarget === "filter"
+                      ? activeCategory === category.slug
+                        ? "/mentors"
+                        : `/mentors?category=${category.slug}`
+                      : `/categories/${category.slug}`
+                  }
+                  scroll={chipTarget !== "filter"}
+                  aria-pressed={chipTarget === "filter" ? activeCategory === category.slug : undefined}
+                  className={`group inline-flex items-center gap-1.5 rounded-full border-2 border-ink px-5 py-2.5 text-[15px] font-semibold transition-colors hover:bg-ink hover:text-paper ${
+                    activeCategory === category.slug ? "bg-ink text-paper" : "bg-card text-ink"
+                  }`}
                 >
                   {category.name}
                   <ArrowUpRight size={16} className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

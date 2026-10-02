@@ -253,3 +253,10 @@ export async function getPublicMentorDirectory(filters: {
   const res = await fetch(`${API_URL}/users/mentors/directory?${qs.toString()}`, { cache: "no-store" });
   return readJson<PublicMentorDirectory>(res, "Failed to load mentors");
 }
+
+/** One mentor's public card. Null if they don't exist or aren't approved. */
+export async function getPublicMentorCard(id: string): Promise<PublicMentorCard | null> {
+  const res = await fetch(`${API_URL}/users/mentors/directory/${encodeURIComponent(id)}`, { cache: "no-store" });
+  if (res.status === 404 || res.status === 400) return null;
+  return readJson<PublicMentorCard>(res, "Failed to load mentor");
+}

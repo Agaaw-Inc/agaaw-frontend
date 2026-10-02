@@ -27,8 +27,10 @@ import WriteReviewModal from "@/components/reviews/WriteReviewModal";
 import OrderServiceModal from "@/components/orders/OrderServiceModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
+import GuestProfileGate from "@/components/mentors/GuestProfileGate";
+import { getPublicMentorCard, type PublicMentorCard } from "@/lib/categories";
 
-type Status = "loading" | "ready" | "denied" | "not-found";
+type Status = "loading" | "ready" | "denied" | "not-found" | "guest";
 
 export default function MentorPublicProfilePage() {
     const params = useParams();
@@ -46,11 +48,19 @@ export default function MentorPublicProfilePage() {
     const [reviews, setReviews] = useState<MentorReviewsResult | null>(null);
     const { toast, showToast, hideToast } = useToast();
     const viewer = getUserInfo();
+    const [guestCard, setGuestCard] = useState<PublicMentorCard | null>(null);
 
     useEffect(() => {
 
+        // Guests see the public card and a sign-up screen — the full
+        // profile is for members (the API refuses it without a login anyway).
         if (!viewer) {
-            router.replace("/login");
+            getPublicMentorCard(id)
+                .then((card) => {
+                    setGuestCard(card);
+                    setStatus(card ? "guest" : "not-found");
+                })
+                .catch(() => setStatus("not-found"));
             return;
         }
 
@@ -116,6 +126,16 @@ export default function MentorPublicProfilePage() {
             <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-teal-600 mb-2" />
                 <p className="text-sm font-semibold text-gray-500">Loading mentor profile...</p>
+            </div>
+        );
+    }
+
+    if (status === "guest") {
+        return (
+            <div className="min-h-screen flex flex-col">
+                <MainNavbar />
+                <GuestProfileGate mentor={guestCard} returnTo={`/profile/mentor/${id}`} />
+                <Footer />
             </div>
         );
     }

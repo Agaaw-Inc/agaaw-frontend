@@ -1,450 +1,364 @@
 "use client";
-import MentorCard, { type MentorListItem, type MentorRequestStatus } from "@/components/mentors/MentorCard";
-import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
-import OrderServiceModal from "@/components/orders/OrderServiceModal";
+
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Loader2, Search, X } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
+import HomeHero from "@/components/home/HomeHero";
+import MentorCallout from "@/components/home/MentorCallout";
+import MentorDirectoryCard, { type DirectoryMentor, type DirectoryViewer } from "@/components/mentors/MentorDirectoryCard";
+import RequestMentorshipModal from "@/components/mentors/RequestMentorshipModal";
+import OrderServiceModal from "@/components/orders/OrderServiceModal";
 import Pagination from "@/components/ui/Pagination";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
-import { Search, ChevronDown, Loader2, X, ArrowRight } from "lucide-react";
-import { getUserInfo, type UserInfo } from "@/lib/auth";
-import { getMentorsList, getStudentProfile, getMentorshipRequests, getConnections } from "@/lib/api";
-import { useState, useMemo, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useGridColumns } from "@/hooks/useGridColumns";
+import { getUserInfo, getToken, type UserInfo } from "@/lib/auth";
+import { getConnections, getMentorCount, getMentorsList, getMentorshipRequests, getScholarships } from "@/lib/api";
+import { getCategories, getPublicMentorDirectory, type CategoryWithCount, type PublicMentorCard } from "@/lib/categories";
 
-const popularExpertiseTags = [
-    "Scholarship Essays",
-    "Student Visa",
-    "IELTS Strategy",
-    "Financial Aid",
-    "Interview Coaching",
-];
+const ROWS_PER_PAGE = 5;
+const CARD_MIN_WIDTH = 240;
+const GAP = 20;
 
-function MentorList() {
-    const searchParams = useSearchParams();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchDebounced, setSearchDebounced] = useState("");
-    const [countryFilter, setCountryFilter] = useState("");
-    const [expertiseFilter, setExpertiseFilter] = useState("");
-    const [matchTargets, setMatchTargets] = useState(false);
-    const [hideConnected, setHideConnected] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [targetCountries, setTargetCountries] = useState<string[]>([]);
-    const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-    const [mentors, setMentors] = useState<MentorListItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [accessDenied, setAccessDenied] = useState(false);
-    const [requestStatusMap, setRequestStatusMap] = useState<Record<string, MentorRequestStatus>>({});
-    const [requestModalMentor, setRequestModalMentor] = useState<{ id: string; name: string } | null>(null);
-    // mentor user id → active connection id; an order is placed on a connection.
-    const [connectionIds, setConnectionIds] = useState<Record<string, string>>({});
-    const [orderModalMentor, setOrderModalMentor] = useState<{ id: string; name: string; connectionId: string } | null>(null);
-    const { toast, showToast, hideToast } = useToast();
+type RequestStatus = "none" | "pending" | "connected";
 
-    // Load user session and mentors
-    useEffect(() => {
-        async function fetchData() {
-            setIsLoading(true);
-            try {
-                const info = getUserInfo();
-                setUserInfo(info);
+/** The student list says "Not specified" for empty fields; treat that as empty. */
+const real = (v: string | null | undefined) => (v && v !== "Not specified" ? v : null);
 
-                if (!info) {
-                    setAccessDenied(true);
-                    return;
-                }
-
-                // Mentors don't browse other mentors — they get a dedicated
-                // banner (rendered below) pointing them to /students instead.
-                if (info.role === "mentor") {
-                    return;
-                }
-
-                const mentorsData = await getMentorsList();
-                setMentors(Array.isArray(mentorsData) ? mentorsData : []);
-
-                if (info.role === "student") {
-                    const [profile, pendingRequests, activeConnections] = await Promise.all([
-                        getStudentProfile(),
-                        getMentorshipRequests({ status: "pending", limit: 50 }),
-                        getConnections("active"),
-                    ]);
-
-                    const countries = (profile?.preferredCountries || [])
-                        .map((pc: any) => pc.country?.name)
-                        .filter(Boolean);
-                    setTargetCountries(countries);
-
-                    const statusMap: Record<string, MentorRequestStatus> = {};
-                    pendingRequests.data.forEach((req) => {
-                        statusMap[req.mentorId] = "pending";
-                    });
-                    const connIds: Record<string, string> = {};
-                    activeConnections.forEach((conn) => {
-                        statusMap[conn.counterpart.id] = "connected";
-                        connIds[conn.counterpart.id] = conn.id;
-                    });
-                    setRequestStatusMap(statusMap);
-                    setConnectionIds(connIds);
-                }
-            } catch (error) {
-                console.error("Error fetching mentors:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-        fetchData();
-    }, []);
-
-    // Update filter from search parameters if any
-    useEffect(() => {
-        const country = searchParams.get("country") || "";
-        if (country) setCountryFilter(country);
-        const expertise = searchParams.get("expertise") || "";
-        if (expertise) setExpertiseFilter(expertise);
-    }, [searchParams]);
-
-    // Debounce search
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setSearchDebounced(searchQuery);
-            setCurrentPage(1);
-        }, 300);
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
-
-    // Unique country options from fetched mentors
-    const countryOptions = useMemo(() => {
-        return Array.from(new Set(mentors.map((m) => m.country))).sort();
-    }, [mentors]);
-
-    // Filter and Sort Mentors
-    const processedMentors = useMemo(() => {
-        let filtered = mentors.filter((mentor) => {
-            const nameMatch = mentor.name.toLowerCase().includes(searchDebounced.toLowerCase());
-            const uniMatch = mentor.university.toLowerCase().includes(searchDebounced.toLowerCase());
-            const expertMatch = mentor.expertise.some((exp) =>
-                exp.toLowerCase().includes(searchDebounced.toLowerCase())
-            );
-            const matchesSearch = !searchDebounced || nameMatch || uniMatch || expertMatch;
-            const matchesCountry = !countryFilter || mentor.country === countryFilter;
-
-            const matchesExpertise =
-                !expertiseFilter ||
-                mentor.expertise.some((exp) =>
-                    exp.toLowerCase().includes(expertiseFilter.toLowerCase())
-                );
-            let matchesTargetsFilter = true;
-            if (matchTargets && targetCountries.length > 0) {
-                matchesTargetsFilter = targetCountries.includes(mentor.country);
-            }
-            let matchesConnectionFilter = true;
-            if (hideConnected) {
-                matchesConnectionFilter = requestStatusMap[mentor.id] !== "connected";
-            }
-            return matchesSearch && matchesCountry && matchesExpertise && matchesTargetsFilter && matchesConnectionFilter;
-        });
-
-        // Sort: prioritized by student's target countries, then verified, then experience
-        return [...filtered].sort((a, b) => {
-            if (targetCountries.length > 0) {
-                const aMatchesTarget = targetCountries.includes(a.country) ? 1 : 0;
-                const bMatchesTarget = targetCountries.includes(b.country) ? 1 : 0;
-                if (aMatchesTarget !== bMatchesTarget) {
-                    return bMatchesTarget - aMatchesTarget;
-                }
-            }
-            const aVerified = a.isVerified ? 1 : 0;
-            const bVerified = b.isVerified ? 1 : 0;
-            if (aVerified !== bVerified) {
-                return bVerified - aVerified;
-            }
-            return (b.experienceYears || 0) - (a.experienceYears || 0);
-        });
-    }, [mentors, searchDebounced, countryFilter, expertiseFilter, matchTargets, targetCountries, hideConnected, requestStatusMap]);
-
-    const itemsPerPage = 16;
-    const totalPages = Math.ceil(processedMentors.length / itemsPerPage);
-    const currentMentors = processedMentors.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
-    const clearFilters = () => {
-        setSearchQuery("");
-        setSearchDebounced("");
-        setCountryFilter("");
-        setExpertiseFilter("");
-        setMatchTargets(false);
-        setHideConnected(false);
-        setCurrentPage(1);
-    };
-
-    return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
-            <MainNavbar />
-            {isLoading ? (
-                <main className="flex-grow flex items-center justify-center">
-                    <div className="flex flex-col items-center gap-4 text-slate-400">
-                        <Loader2 className="w-10 h-10 animate-spin text-elm" />
-                        <p className="text-sm">Loading mentors...</p>
-                    </div>
-                </main>
-            ) : accessDenied ? (
-                <main className="flex-grow flex items-center justify-center">
-                    <div className="text-center px-6">
-                        <div className="text-5xl mb-4">🔒</div>
-                        <h2 className="text-xl font-bold text-slate-700 mb-2">Access Restricted</h2>
-                        <p className="text-slate-500 mb-6">Only students can browse the mentor directory.<br />Please log in with a student account.</p>
-                        <Link href="/login" className="px-6 py-3 bg-elm text-white rounded-lg font-semibold hover:bg-elm/90 transition-colors">
-                            Log in as Student
-                        </Link>
-                    </div>
-                </main>
-            ) : userInfo?.role === "mentor" ? (
-                <main className="flex-grow flex items-center justify-center">
-                    <div className="text-center px-6 max-w-lg">
-                        <h2 className="text-xl font-bold text-slate-700 mb-2">The Mentor Directory Is for Students</h2>
-                        <p className="text-slate-500 mb-6">As a mentor, you can browse students who are seeking mentorship and guidance for their studies abroad.</p>
-                        <Link href="/students" className="inline-flex items-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 transition-colors">
-                            Browse Students <ArrowRight className="w-4 h-4" />
-                        </Link>
-                    </div>
-                </main>
-            ) : (
-            <main className="flex-grow pt-16 pb-20">
-                {/* Hero Section */}
-                <section className="relative px-8 pt-6 pb-16 max-w-7xl mx-auto overflow-hidden">
-                    <div className="relative z-10 lg:w-2/3">
-                        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-codgray mb-6 leading-[1.1]">
-                            Connect with <br />
-                            <span className="text-elm">Expert Mentors</span>
-                        </h1>
-                        <p className="text-lg md:text-xl text-bombay max-w-xl leading-relaxed mb-8">
-                            Gain a massive competitive edge with direct guidance from students and alumni at the world's most prestigious universities.
-                        </p>
-                    </div>
-                    <div className="absolute top-0 right-[-5%] w-[45%] h-full pointer-events-none hidden lg:block opacity-10">
-                        <div
-                            className="w-full h-full bg-[#20B2AA]"
-                            style={{
-                                maskImage: "url('/world-map.svg')",
-                                WebkitMaskImage: "url('/world-map.svg')",
-                                maskSize: "contain",
-                                WebkitMaskSize: "contain",
-                                maskRepeat: "no-repeat",
-                                WebkitMaskRepeat: "no-repeat",
-                                maskPosition: "center right",
-                            }}
-                        />
-                    </div>
-                </section>
-                {/* Filters Section */}
-                <section className="px-8 mb-12 max-w-7xl mx-auto">
-                    <div className="bg-slate-50 p-2 rounded-xl flex flex-col lg:flex-row gap-2 border border-slate-100 shadow-sm bg-white">
-                        {/* Search Input */}
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-elm" />
-                            <input
-                                className="w-full pl-12 pr-5 py-5 bg-transparent border-none rounded-lg focus:ring-0 outline-none text-codgray"
-                                placeholder="Search mentors by name, university, or expertise..."
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => {
-                                    setSearchQuery(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                            />
-                        </div>
-                        {/* Select Dropdowns */}
-                        <div className="flex flex-col sm:flex-row gap-2 border-t lg:border-t-0 lg:border-l border-slate-100 pt-2 lg:pt-0 lg:pl-2">
-                            <div className="relative group flex-1 sm:flex-initial">
-                                <select
-                                    className="appearance-none w-full sm:w-48 bg-transparent border-none px-6 py-4 pr-12 rounded-lg text-codgray font-medium outline-none cursor-pointer"
-                                    value={countryFilter}
-                                    onChange={(e) => {
-                                        setCountryFilter(e.target.value);
-                                        setCurrentPage(1);
-                                    }}
-                                >
-                                    <option value="">All Countries</option>
-                                    {countryOptions.map((country) => (
-                                        <option key={country} value={country}>
-                                            {country}
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none text-codgray" />
-                            </div>
-                            {/* Personalization Toggle */}
-                            {targetCountries.length > 0 && (
-                                <div className="flex items-center gap-3 px-6 py-3 sm:py-0 border-t sm:border-t-0 sm:border-l border-slate-100">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={matchTargets}
-                                            onChange={(e) => {
-                                                setMatchTargets(e.target.checked);
-                                                setCurrentPage(1);
-                                            }}
-                                        />
-                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600" />
-                                        <span className="ml-3 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Match My Targets
-                                        </span>
-                                    </label>
-                                </div>
-                            )}
-                            {/* Exclude already-connected mentors */}
-                            {Object.values(requestStatusMap).includes("connected") && (
-                                <div className="flex items-center gap-3 px-6 py-3 sm:py-0 border-t sm:border-t-0 sm:border-l border-slate-100">
-                                    <label className="relative inline-flex items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            className="sr-only peer"
-                                            checked={hideConnected}
-                                            onChange={(e) => {
-                                                setHideConnected(e.target.checked);
-                                                setCurrentPage(1);
-                                            }}
-                                        />
-                                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-350 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600" />
-                                        <span className="ml-3 text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Hide My Mentors
-                                        </span>
-                                    </label>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    {/* Popular / Quick Filter Tags */}
-                    <div className="flex flex-wrap gap-3 mt-6 items-center">
-                        <span className="text-xs font-bold uppercase tracking-widest text-bombay pr-2">Popular:</span>
-                        {popularExpertiseTags.map((tag) => (
-                            <button
-                                key={tag}
-                                onClick={() => {
-                                    setExpertiseFilter(expertiseFilter === tag ? "" : tag);
-                                    setCurrentPage(1);
-                                }}
-                                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all flex items-center border ${expertiseFilter === tag
-                                    ? "bg-elm/10 text-elm border-elm/20 hover:bg-elm/20"
-                                    : "bg-white border-slate-200 text-codgray hover:bg-slate-50"
-                                    }`}
-                            >
-                                {tag}
-                                {expertiseFilter === tag && <X className="w-3.5 h-3.5 ml-1.5" />}
-                            </button>
-                        ))}
-                    </div>
-                </section>
-                {/* Mentors Grid Section */}
-                <section className="px-8 max-w-7xl mx-auto">
-                    <div className="flex justify-between items-end mb-8 border-b border-slate-200 pb-4">
-                        <h2 className="text-2xl font-extrabold text-slate-800">
-                            {matchTargets ? "Recommended Mentors" : "All Mentors"}
-                        </h2>
-                        <span className="text-sm font-semibold text-slate-500">
-                            Showing {processedMentors.length} mentor{processedMentors.length !== 1 && "s"}
-                        </span>
-                    </div>
-                    {currentMentors.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {currentMentors.map((mentor) => {
-                                const isMatch = targetCountries.includes(mentor.country);
-                                return (
-                                    <MentorCard
-                                        key={mentor.id}
-                                        mentor={mentor}
-                                        isMatch={isMatch}
-                                        requestStatus={
-                                            userInfo?.role === "student"
-                                                ? requestStatusMap[mentor.id] || "none"
-                                                : undefined
-                                        }
-                                        onRequestMentorship={() =>
-                                            setRequestModalMentor({ id: mentor.id, name: mentor.name })
-                                        }
-                                        onOrderService={
-                                            connectionIds[mentor.id]
-                                                ? () =>
-                                                      setOrderModalMentor({
-                                                          id: mentor.id,
-                                                          name: mentor.name,
-                                                          connectionId: connectionIds[mentor.id],
-                                                      })
-                                                : undefined
-                                        }
-                                    />
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className="text-center py-20 bg-white rounded-2xl border border-slate-100 shadow-sm max-w-xl mx-auto px-6">
-                            <p className="text-lg font-bold text-slate-700">No mentors match your current criteria</p>
-                            <p className="text-sm text-slate-500 mt-1">Try relaxing your filters or search terms to see more results.</p>
-                            <button
-                                onClick={clearFilters}
-                                className="mt-6 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all shadow-sm shadow-teal-600/10 active:scale-[0.98]"
-                            >
-                                Clear all filters
-                            </button>
-                        </div>
-                    )}
-                    {/* Pagination */}
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
-                </section>
-            </main>
-            )}
-            <Footer />
-
-            {requestModalMentor && (
-                <RequestMentorshipModal
-                    mentorId={requestModalMentor.id}
-                    mentorName={requestModalMentor.name}
-                    onClose={() => setRequestModalMentor(null)}
-                    onSuccess={() => {
-                        setRequestStatusMap((prev) => ({ ...prev, [requestModalMentor.id]: "pending" }));
-                        setRequestModalMentor(null);
-                        showToast("Mentorship request sent!");
-                    }}
-                />
-            )}
-            {orderModalMentor && (
-                <OrderServiceModal
-                    connectionId={orderModalMentor.connectionId}
-                    mentorId={orderModalMentor.id}
-                    mentorName={orderModalMentor.name}
-                    onClose={() => setOrderModalMentor(null)}
-                />
-            )}
-            <Toast toast={toast} onHide={hideToast} />
-        </div>
-    );
+function fromPublic(m: PublicMentorCard): DirectoryMentor {
+  return {
+    id: m.id,
+    name: `${m.firstName} ${m.lastName}`.trim(),
+    image: m.profileImage,
+    university: m.currentUniversity,
+    country: m.countryName,
+    subject: m.subject,
+    expertise: m.expertise,
+    categories: m.categories,
+    identityVerified: m.identityVerified,
+    rating: m.rating,
+  };
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- getMentorsList is untyped in lib/api
+function fromStudentList(m: any): DirectoryMentor {
+  return {
+    id: m.id,
+    name: m.name,
+    image: m.image ?? null,
+    university: real(m.university),
+    country: real(m.country),
+    subject: null,
+    expertise: m.expertise ?? [],
+    categories: m.categories ?? [],
+    identityVerified: !!m.identityVerified,
+    rating: m.rating ?? { average: null, count: 0 },
+  };
+}
+
+function MentorDirectory() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const { toast, showToast, hideToast } = useToast();
+
+  // Filters live in the URL, so a filtered view can be shared or bookmarked.
+  const category = searchParams.get("category") ?? "";
+  const country = searchParams.get("country") ?? "";
+  const university = searchParams.get("university") ?? "";
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [categories, setCategories] = useState<CategoryWithCount[]>([]);
+  const [mentorCount, setMentorCount] = useState(0);
+  const [scholarshipCount, setScholarshipCount] = useState(0);
+
+  const [mentors, setMentors] = useState<DirectoryMentor[]>([]);
+  const [publicMeta, setPublicMeta] = useState<{ total: number; limit: number; countries: string[]; universities: string[] } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [statusMap, setStatusMap] = useState<Record<string, RequestStatus>>({});
+  const [connectionIds, setConnectionIds] = useState<Record<string, string>>({});
+  const [requestTarget, setRequestTarget] = useState<{ id: string; name: string } | null>(null);
+  const [orderTarget, setOrderTarget] = useState<{ id: string; name: string; connectionId: string } | null>(null);
+
+  const isStudent = user?.role === "student";
+  const { ref: gridRef, columns } = useGridColumns(CARD_MIN_WIDTH, GAP);
+  const pageSize = columns * ROWS_PER_PAGE;
+
+  // Who is looking? Read after mount: localStorage doesn't exist on the server.
+  useEffect(() => {
+    setUser(getToken() ? getUserInfo() : null);
+    setAuthReady(true);
+    getCategories().then(setCategories).catch(() => {});
+    getMentorCount().then(setMentorCount).catch(() => {});
+    getScholarships({ limit: 1 }).then((r) => setScholarshipCount(r.meta.total)).catch(() => {});
+  }, []);
+
+  // Students: the whole directory once, filtered here. Everyone else: the
+  // public directory, filtered by the server so the top-rated cap applies
+  // to the filtered set.
+  useEffect(() => {
+    if (!authReady) return;
+    let alive = true;
+    setIsLoading(true);
+
+    const load = async () => {
+      if (isStudent) {
+        const [list, pending, active] = await Promise.all([
+          getMentorsList(),
+          getMentorshipRequests({ status: "pending", limit: 50 }).catch(() => ({ data: [] })),
+          getConnections("active").catch(() => []),
+        ]);
+        if (!alive) return;
+        const status: Record<string, RequestStatus> = {};
+        const conns: Record<string, string> = {};
+        pending.data.forEach((r: { mentorId: string }) => (status[r.mentorId] = "pending"));
+        active.forEach((c) => {
+          status[c.counterpart.id] = "connected";
+          conns[c.counterpart.id] = c.id;
+        });
+        setStatusMap(status);
+        setConnectionIds(conns);
+        setMentors(list.map(fromStudentList));
+        setPublicMeta(null);
+      } else {
+        const directory = await getPublicMentorDirectory({ category, country, university });
+        if (!alive) return;
+        setMentors(directory.mentors.map(fromPublic));
+        setPublicMeta({ total: directory.total, limit: directory.limit, ...directory.filters });
+      }
+    };
+
+    load()
+      .catch(() => alive && showToast("Couldn't load mentors. Please try again.", "error"))
+      .finally(() => alive && setIsLoading(false));
+    return () => {
+      alive = false;
+    };
+    // Students filter client-side, so only guests refetch on filter change.
+  }, [authReady, isStudent, category, country, university, showToast]);
+
+  const setParam = useCallback(
+    (key: string, value: string) => {
+      const next = new URLSearchParams(searchParams.toString());
+      if (value) next.set(key, value);
+      else next.delete(key);
+      const qs = next.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      setPage(1);
+    },
+    [pathname, router, searchParams]
+  );
+
+  const clearFilters = () => {
+    setSearch("");
+    router.replace(pathname, { scroll: false });
+    setPage(1);
+  };
+
+  const countryOptions = useMemo(
+    () => publicMeta?.countries ?? [...new Set(mentors.map((m) => m.country).filter(Boolean) as string[])].sort(),
+    [publicMeta, mentors]
+  );
+  const universityOptions = useMemo(
+    () => publicMeta?.universities ?? [...new Set(mentors.map((m) => m.university).filter(Boolean) as string[])].sort(),
+    [publicMeta, mentors]
+  );
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return mentors.filter((m) => {
+      // The public endpoint already applied these; re-applying is harmless.
+      if (category && !m.categories.some((c) => c.slug === category)) return false;
+      if (country && m.country?.toLowerCase() !== country.toLowerCase()) return false;
+      if (university && !m.university?.toLowerCase().includes(university.toLowerCase())) return false;
+      if (!q) return true;
+      return [m.name, m.university, m.subject, ...m.expertise].some((v) => v?.toLowerCase().includes(q));
+    });
+  }, [mentors, category, country, university, search]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const visible = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const hasFilters = !!(category || country || university || search);
+  const activeCategory = categories.find((c) => c.slug === category);
+
+  const viewerFor = (m: DirectoryMentor): DirectoryViewer => {
+    if (!user) return { kind: "guest" };
+    if (!isStudent) return { kind: "other" };
+    return {
+      kind: "student",
+      status: statusMap[m.id] ?? "none",
+      onRequest: () => setRequestTarget({ id: m.id, name: m.name }),
+      onOrder: connectionIds[m.id]
+        ? () => setOrderTarget({ id: m.id, name: m.name, connectionId: connectionIds[m.id] })
+        : undefined,
+    };
+  };
+
+  const selectClass =
+    "w-full rounded-xl border border-ink/15 bg-card px-3 py-2.5 text-sm text-ink focus:border-elm focus:outline-none sm:w-48";
+
+  return (
+    <div className="min-h-screen bg-paper">
+      <MainNavbar />
+
+      <HomeHero
+        categories={categories}
+        mentorCount={mentorCount}
+        scholarshipCount={scholarshipCount}
+        chipTarget="filter"
+        activeCategory={category}
+      />
+
+      <main id="directory" className="mx-auto max-w-[1600px] px-6 py-14">
+        {/* Filters */}
+        <div className="flex flex-col gap-3 rounded-2xl bg-card p-3 ring-1 ring-ink/10 lg:flex-row lg:items-center">
+          <label className="relative flex-1">
+            <span className="sr-only">Search mentors</span>
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-soft" />
+            <input
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search by name, university or expertise"
+              className="w-full rounded-xl bg-transparent py-2.5 pl-10 pr-3 text-sm text-ink placeholder:text-ink-soft focus:outline-none"
+            />
+          </label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <select aria-label="Category" value={category} onChange={(e) => setParam("category", e.target.value)} className={selectClass}>
+              <option value="">All categories</option>
+              {categories.filter((c) => c.isActive).map((c) => (
+                <option key={c.id} value={c.slug}>{c.name}</option>
+              ))}
+            </select>
+            <select aria-label="Country" value={country} onChange={(e) => setParam("country", e.target.value)} className={selectClass}>
+              <option value="">All countries</option>
+              {countryOptions.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <select aria-label="University" value={university} onChange={(e) => setParam("university", e.target.value)} className={selectClass}>
+              <option value="">All universities</option>
+              {universityOptions.map((u) => (
+                <option key={u} value={u}>{u}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-8 mb-6 flex flex-wrap items-end justify-between gap-3 border-b border-ink/10 pb-4">
+          <h2 className="font-display text-3xl font-extrabold tracking-[-0.03em] text-ink">
+            {activeCategory ? `${activeCategory.name} mentors` : "All mentors"}
+          </h2>
+          <div className="flex items-center gap-4 text-sm text-ink-soft">
+            {!isLoading && <span>{filtered.length} mentor{filtered.length === 1 ? "" : "s"}</span>}
+            {hasFilters && (
+              <button onClick={clearFilters} className="inline-flex items-center gap-1 font-semibold text-ink hover:underline">
+                <X size={14} /> Clear filters
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Guests see the top-rated few; the full directory needs an account */}
+        {!user && publicMeta && publicMeta.total > publicMeta.limit && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl bg-forest px-5 py-4 text-white sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm">
+              You&apos;re seeing the <strong>{publicMeta.limit} top-rated</strong> of {publicMeta.total} mentors. Create a free account to see
+              everyone and request mentorship.
+            </p>
+            <div className="flex shrink-0 gap-2">
+              <Link href="/register/student" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-seagreen-soft">
+                Sign up free
+              </Link>
+              <Link href={`/login?redirect=${encodeURIComponent("/mentors")}`} className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold hover:border-white">
+                Log in
+              </Link>
+            </div>
+          </div>
+        )}
+
+        <div ref={gridRef}>
+          {isLoading ? (
+            <div className="flex justify-center py-24">
+              <Loader2 className="h-8 w-8 animate-spin text-elm" />
+            </div>
+          ) : visible.length === 0 ? (
+            <div className="rounded-2xl border-2 border-dashed border-ink/15 px-6 py-16 text-center">
+              <p className="font-display text-xl font-bold text-ink">No mentors match these filters</p>
+              <p className="mt-1 text-sm text-ink-soft">Try another country or university, or clear the filters.</p>
+              {hasFilters && (
+                <button onClick={clearFilters} className="mt-5 rounded-full bg-ink px-5 py-2 text-sm font-semibold text-white hover:bg-forest">
+                  Clear filters
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="grid" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: GAP }}>
+              {visible.map((mentor) => (
+                <MentorDirectoryCard key={mentor.id} mentor={mentor} viewer={viewerFor(mentor)} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        <Pagination
+          className="mt-12"
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(p) => {
+            setPage(p);
+            document.getElementById("directory")?.scrollIntoView({ behavior: "smooth" });
+          }}
+        />
+      </main>
+
+      <MentorCallout />
+      <Footer />
+
+      {requestTarget && (
+        <RequestMentorshipModal
+          mentorId={requestTarget.id}
+          mentorName={requestTarget.name}
+          onClose={() => setRequestTarget(null)}
+          onSuccess={() => {
+            setStatusMap((prev) => ({ ...prev, [requestTarget.id]: "pending" }));
+            setRequestTarget(null);
+            showToast("Mentorship request sent!");
+          }}
+        />
+      )}
+      {orderTarget && (
+        <OrderServiceModal
+          connectionId={orderTarget.connectionId}
+          mentorId={orderTarget.id}
+          mentorName={orderTarget.name}
+          onClose={() => setOrderTarget(null)}
+        />
+      )}
+      <Toast toast={toast} onHide={hideToast} />
+    </div>
+  );
+}
+
 export default function MentorsPage() {
-    return (
-        <Suspense
-            fallback={
-                <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
-                    <Loader2 className="w-10 h-10 animate-spin text-elm mb-4" />
-                    <p className="text-bombay font-semibold">Preparing mentors...</p>
-                </div>
-            }
-        >
-            <MentorList />
-        </Suspense>
-    );
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-paper">
+          <Loader2 className="h-8 w-8 animate-spin text-elm" />
+        </div>
+      }
+    >
+      <MentorDirectory />
+    </Suspense>
+  );
 }
