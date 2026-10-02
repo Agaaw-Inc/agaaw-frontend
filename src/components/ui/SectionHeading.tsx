@@ -26,6 +26,8 @@ interface SectionHeadingProps {
   as?: "h1" | "h2" | "h3";
   /** "light" for dark backgrounds. */
   tone?: "dark" | "light";
+  /** Centre the heading (no action column). */
+  align?: "left" | "center";
   className?: string;
 }
 
@@ -37,10 +39,27 @@ export default function SectionHeading({
   size = "section",
   as,
   tone = "dark",
+  align = "left",
   className,
 }: SectionHeadingProps) {
   const Tag = as ?? (size === "display" ? "h1" : "h2");
   const light = tone === "light";
+
+  if (align === "center") {
+    return (
+      <div className={cn("mx-auto max-w-3xl text-center", className)}>
+        {eyebrow && (
+          <Eyebrow tone={light ? "light" : "brand"} className="mb-3">
+            {eyebrow}
+          </Eyebrow>
+        )}
+        <Tag className={cn("font-extrabold", SIZES[size], light ? "text-white" : "text-ink")}>{title}</Tag>
+        {description && (
+          <p className={cn("mx-auto mt-4 max-w-2xl text-lg leading-relaxed", light ? "text-white/75" : "text-ink-soft")}>{description}</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     // Only bottom-align when there's an action to line up with; on its own

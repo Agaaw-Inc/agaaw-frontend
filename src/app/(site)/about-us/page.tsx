@@ -1,273 +1,321 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import MainNavbar from "@/components/navbar/MainNavbar";
 import Footer from "@/components/landing/Footer";
-import CategoryShowcase from "@/components/home/CategoryShowcase";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Eyebrow from "@/components/ui/Eyebrow";
+import Card from "@/components/ui/Card";
 import PortraitCard from "@/components/ui/PortraitCard";
 import { ButtonLink } from "@/components/ui/Button";
 import { getCategories } from "@/lib/categories";
-import { getApprovedMentorCount, getClosingSoonScholarships, getCountryCount, getPlatformPricing } from "@/lib/homeData";
+import { visualFor } from "@/lib/categoryVisuals";
 
 export const metadata: Metadata = {
-  title: "About Agaaw — mentorship from people who've done it",
+  title: "About Agaaw — mentorship for every next step",
   description:
-    "Agaaw connects people in Bangladesh with mentors who have already studied abroad, built careers, started businesses and published research. Real people, prices agreed upfront, money protected until the work is done.",
+    "Agaaw is an all-in-one mentorship platform: study abroad, careers, business and research, with mentors who have already done it, prices agreed upfront and payments protected until the work is done.",
 };
 
-/** Real Agaaw people. Update captions here if anyone's details change. */
+/** Real Agaaw people for the closing block. Update captions here if details change. */
 const PEOPLE = [
   { name: "Mahamudul Hasan Fuad", caption: "Mentor · Texas State University", image: "/mentors/fuad.JPG", tilt: "-rotate-6 translate-y-6" },
   { name: "Omar Faruk", caption: "Agaaw team", image: "/images/omar.jpg", tilt: "z-10 -translate-y-2" },
   { name: "Maynuddin Tuhin Joy", caption: "Mentor · Japan", image: "/mentors/joy.JPG", tilt: "rotate-6 translate-y-8" },
 ];
 
-const TRUST = [
+const STEPS = [
   {
-    title: "People are checked by people",
-    body: "Every mentor is approved by our team before students can find them, and can verify their identity with an ID card and a university or work email.",
+    title: "Choose your area",
+    description: "Studying abroad, your career, a business or research. Start with what you need, and see the mentors who work in it.",
   },
   {
-    title: "Private stays private",
-    body: "Mentors' phone numbers and ID documents are visible only to Agaaw admins — never to students, never in the public directory.",
+    title: "Pick someone who's done it",
+    description: "Read where they studied or worked, check their reviews and whether their identity is verified, then send a request.",
   },
   {
-    title: "Your money waits for the work",
-    body: "Students pay Agaaw, not the mentor. We hold the payment until the student confirms the work is done, or the review window ends.",
+    title: "Talk, then pay safely",
+    description: "Message and video-call inside Agaaw. Pay by bKash or bank — we hold it until you confirm the work is done.",
+  },
+];
+
+const PROMISES = [
+  "Every mentor approved by our team",
+  "Identity checks with ID and a work or university email",
+  "Prices agreed upfront, in taka",
+  "Your payment held until you confirm the work",
+];
+
+const DIFFERENCES = [
+  {
+    title: "Clear prices, protected payments",
+    description:
+      "Mentors list their services and prices before you order. You pay Agaaw, not the mentor, and the money is only released when you confirm the work is done.",
   },
   {
-    title: "A human settles disputes",
-    body: "If something goes wrong, our team reviews it and can refund the student, release the payment, or send the work back for a revision.",
+    title: "Mentors who've done it",
+    description:
+      "Students and graduates who studied abroad, working professionals, founders and researchers — each approved by our team before anyone can find them.",
   },
   {
-    title: "Reviews you can believe",
-    body: "Only students who have actually worked with a mentor can review them.",
+    title: "Everything in one place",
+    description:
+      "Find a mentor, message them, book a video call, order a service and pay. For study abroad, scholarships and country guides are right there too.",
+  },
+  {
+    title: "Many areas, one standard",
+    description:
+      "Study abroad, careers, business and research today, with more opening as experienced mentors join. The same rules apply in every one of them.",
   },
 ];
 
 export default async function AboutPage() {
-  const [categories, mentorCount, scholarships, countryCount, pricing] = await Promise.all([
-    getCategories(),
-    getApprovedMentorCount(),
-    getClosingSoonScholarships(0),
-    getCountryCount(),
-    getPlatformPricing(),
-  ]);
-
-  const openCategories = categories.filter((c) => c.isActive);
-  const upcoming = categories.filter((c) => !c.isActive);
-
-  // Pricing comes from the API, never hard-coded — fall back to plain words.
-  const feePct = pricing ? Math.round(pricing.commissionRate * 100) : null;
-  const reviewDays = pricing ? Math.round(pricing.disputeWindowHours / 24) : null;
-  const minPayout = pricing ? `৳${Number(pricing.minPayout).toLocaleString("en-US")}` : null;
-
-  // Only numbers we can stand behind, and only when they're not zero.
-  const numbers = [
-    { label: "Approved mentors", value: mentorCount },
-    { label: "Areas of mentorship", value: openCategories.length },
-    { label: "Scholarships listed", value: scholarships.total },
-    { label: "Country guides", value: countryCount },
-  ].filter((n) => n.value > 0);
-
-  const audiences = [
-    {
-      who: "For students",
-      title: "Ask before you spend.",
-      points: [
-        "Browsing mentors, scholarships and guides is free.",
-        "See where a mentor studied or worked, and what other students say about them.",
-        reviewDays
-          ? `Your payment is held by Agaaw and released only when you confirm the work — or after ${reviewDays} days if you raise nothing.`
-          : "Your payment is held by Agaaw and released only when you confirm the work is done.",
-      ],
-      cta: { href: "/register/student", label: "Create a free account" },
-    },
-    {
-      who: "For mentors",
-      title: "Get paid for what you already know.",
-      points: [
-        "Write your own services and set your own prices in taka.",
-        feePct !== null
-          ? `Keep ${100 - feePct}% of every order. Agaaw's fee is ${feePct}%, and only on work that's completed.`
-          : "Keep most of every order — Agaaw takes a small fee only on completed work.",
-        minPayout ? `Withdraw to bKash, Nagad or your bank once you've earned ${minPayout}.` : "Withdraw to bKash, Nagad or your bank.",
-      ],
-      cta: { href: "/register/mentor", label: "Become a mentor" },
-    },
-    {
-      who: "For partners and investors",
-      title: "A trust layer for advice in Bangladesh.",
-      points: [
-        feePct !== null
-          ? `A marketplace model: a ${feePct}% fee on completed orders, earned only when the student is satisfied.`
-          : "A marketplace model: a fee on completed orders, earned only when the student is satisfied.",
-        `Not tied to one field — ${openCategories.map((c) => c.name.toLowerCase()).join(", ")} today${upcoming.length ? `, ${upcoming.map((c) => c.name.toLowerCase()).join(", ")} next` : ""}.`,
-        "Trust built in: identity checks, admin-verified payments and a human-run dispute process.",
-      ],
-      cta: { href: "mailto:support@agaaw.com?subject=Partnership%20with%20Agaaw", label: "Talk to us" },
-    },
-  ];
+  // The story image shows the real areas Agaaw covers, from the database.
+  const categories = (await getCategories()).filter((c) => c.isActive).slice(0, 4);
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col bg-paper selection:bg-elm/20">
       <MainNavbar />
 
-      <main className="bg-paper">
-        {/* ── Hero ── */}
-        <section className="mx-auto grid max-w-7xl items-center gap-14 px-6 pb-20 pt-14 md:pt-20 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-          <div>
+      <main className="flex-grow">
+        {/* HERO */}
+        <section className="pb-20 pt-16 lg:pb-32 lg:pt-14">
+          <div className="container mx-auto px-6">
             <SectionHeading
-              size="display"
+              align="center"
+              size="section"
+              as="h1"
               eyebrow="About Agaaw"
-              title="Every next step has been taken by someone. We help you find them."
-              description="Agaaw began as a way for students in Bangladesh to get honest advice about studying abroad from people already living it. Today it does the same for careers, business and research — real mentors, real experience, paid fairly and safely."
+              title={
+                <>
+                  Mentorship for every next step, <br className="hidden md:block" />
+                  <span className="text-elm">from people who&apos;ve taken it.</span>
+                </>
+              }
+              description="Agaaw is an all-in-one mentorship platform. Study abroad, build your career, start a business or publish your research — with mentors who have already done it, prices agreed upfront, and your payment protected until the work is done."
             />
-            <div className="mt-10 flex flex-wrap gap-3">
-              <ButtonLink href="/mentors" size="lg">
+
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <ButtonLink href="/mentors" variant="brand" size="lg">
                 Find a mentor
               </ButtonLink>
-              <ButtonLink href="/register/mentor" variant="outline" size="lg">
-                Become a mentor
+              <ButtonLink href="/register/mentor" variant="ghost" size="lg">
+                Become a mentor <ArrowRight className="h-5 w-5" />
               </ButtonLink>
             </div>
-          </div>
 
-          <div className="relative mx-auto flex h-[340px] items-center justify-center">
-            {PEOPLE.map((person) => (
-              <PortraitCard
-                key={person.name}
-                name={person.name}
-                caption={person.caption}
-                image={person.image}
-                className={`-mx-4 ${person.tilt}`}
-              />
-            ))}
-          </div>
-        </section>
-
-        <div className="stitch mx-auto max-w-7xl text-ink/15" />
-
-        {/* ── Story ── */}
-        <section className="mx-auto grid max-w-7xl gap-12 px-6 py-20 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <SectionHeading eyebrow="Why we started" title="Guidance shouldn't be a luxury." />
-          <div className="space-y-6 text-lg leading-relaxed text-ink-soft">
-            <p>
-              For years, studying abroad from Bangladesh meant trusting an agency: high fees, vague promises, and advice from
-              people who had never made the trip themselves. We met students who lost their savings to advisors who simply
-              disappeared.
-            </p>
-            <p>
-              So we built the obvious alternative. The people who have actually done it — the student who won the
-              scholarship, the graduate who landed the job — guide the people who are about to. No middlemen. Prices agreed
-              upfront. Money protected until the work is done.
-            </p>
-            <p className="text-ink">
-              Then students started asking the same mentors about their CV, their first job, their research paper, their
-              small business. That&apos;s why Agaaw is no longer only about studying abroad.
-            </p>
-          </div>
-        </section>
-
-        {/* ── Numbers (live) ── */}
-        {numbers.length > 0 && (
-          <section className="mx-auto max-w-7xl px-6 pb-20">
-            <dl className="grid grid-cols-2 gap-y-8 border-y-2 border-ink/10 py-8 md:grid-cols-4">
-              {numbers.map((n) => (
-                <div key={n.label} className="border-l-2 border-ink/10 pl-5">
-                  <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft">{n.label}</dt>
-                  <dd className="mt-1 text-4xl font-extrabold tracking-tight text-ink md:text-5xl">{n.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </section>
-        )}
-
-        {/* ── What Agaaw covers (the same section as the homepage) ── */}
-        <CategoryShowcase categories={categories} />
-
-        {/* ── Who it's for ── */}
-        <section className="bg-paper-deep">
-          <div className="mx-auto max-w-7xl px-6 py-20 md:py-28">
-            <SectionHeading eyebrow="Who it's for" title="Built for three kinds of people." className="mb-14" />
-            <div className="grid gap-12 md:grid-cols-3 md:gap-0 md:divide-x-2 md:divide-ink/10">
-              {audiences.map((a, i) => (
-                <div key={a.who} className={i === 0 ? "md:pr-10" : i === 1 ? "md:px-10" : "md:pl-10"}>
-                  <Eyebrow tone={i === 2 ? "maroon" : "brand"}>{a.who}</Eyebrow>
-                  <h3 className="mt-3 text-2xl font-extrabold leading-tight tracking-[-0.02em] text-ink">{a.title}</h3>
-                  <ul className="mt-5 space-y-3">
-                    {a.points.map((point) => (
-                      <li key={point} className="border-t border-ink/10 pt-3 text-ink-soft">
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                  <ButtonLink href={a.cta.href} variant={i === 2 ? "outline" : "primary"} size="sm" className="mt-6">
-                    {a.cta.label}
-                  </ButtonLink>
-                </div>
-              ))}
+            {/* VIDEO */}
+            <div className="relative mx-auto mt-16 max-w-5xl px-4">
+              <div className="overflow-hidden rounded-[2rem] border border-ink/10 bg-white shadow-xl">
+                <video src="/videos/about-us.mp4" autoPlay loop muted playsInline className="h-full w-full rounded-[2rem] object-cover" />
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ── Trust ── */}
-        <section className="bg-forest text-white">
-          <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 md:py-28 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+        {/* OUR STORY */}
+        <section className="py-24">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col items-center gap-16 lg:flex-row">
+              <div className="space-y-8 lg:w-1/2">
+                <SectionHeading
+                  eyebrow="Our story"
+                  title={
+                    <>
+                      Built from a simple realization: <br />
+                      <span className="text-elm">guidance shouldn&apos;t be a luxury.</span>
+                    </>
+                  }
+                />
+
+                <div className="space-y-6 text-lg leading-relaxed text-ink-soft">
+                  <p>
+                    Studying abroad from Bangladesh used to mean trusting an agency: high fees, vague promises, and advice
+                    from people who had never made the trip themselves. We met students who lost their savings to advisors
+                    who simply disappeared.
+                  </p>
+                  <p className="font-medium text-ink">So we built the obvious alternative.</p>
+                  <p>
+                    On Agaaw, the people who have actually done it guide the people who are about to. It started with
+                    students abroad helping students at home. Then those same students asked for help with their CV, their
+                    first job, their research paper, their small business — so today Agaaw covers all of it. No middlemen,
+                    no hidden fees, just people who have been there.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6 pt-2">
+                  <Card>
+                    <p className="mb-1 text-sm font-bold text-ink">No agencies</p>
+                    <p className="text-sm text-ink-soft">No middlemen and no hidden fees — you deal with the mentor directly.</p>
+                  </Card>
+                  <Card>
+                    <p className="mb-1 text-sm font-bold text-ink">Direct access</p>
+                    <p className="text-sm text-ink-soft">Talk to the person who actually did the thing you&apos;re trying to do.</p>
+                  </Card>
+                </div>
+              </div>
+
+              {/* The areas Agaaw covers, as real photographs */}
+              <div className="w-full lg:w-1/2">
+                <div className="grid grid-cols-2 gap-4">
+                  {categories.map((category, i) => {
+                    const visual = visualFor(category.slug);
+                    return (
+                      <figure
+                        key={category.id}
+                        className={`relative overflow-hidden rounded-3xl bg-paper-deep ${i % 2 === 1 ? "mt-10" : ""} aspect-[4/5]`}
+                      >
+                        <Image src={visual.image} alt={visual.alt} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
+                        <figcaption className="absolute bottom-3 left-3 rounded-full bg-white px-3 py-1 text-xs font-bold text-ink">
+                          {category.name}
+                        </figcaption>
+                      </figure>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* MISSION & VISION */}
+        <section className="py-24">
+          <div className="container mx-auto px-6">
             <SectionHeading
-              tone="light"
-              eyebrow="Trust and safety"
-              title="How we keep it honest."
-              description="Advice is only worth paying for if you can trust who's giving it. These rules are built into the product, not written in a policy nobody reads."
+              align="center"
+              title={
+                <>
+                  Good guidance, <br />
+                  <span className="text-elm">for everyone who asks.</span>
+                </>
+              }
+              description="No one should be held back by who they know or where they live."
+              className="mb-16"
             />
-            <ol className="divide-y divide-white/15 border-y border-white/15">
-              {TRUST.map((item, i) => (
-                <li key={item.title} className="grid grid-cols-[3rem_1fr] gap-4 py-6">
-                  <span className="text-2xl font-extrabold text-seagreen">{String(i + 1).padStart(2, "0")}</span>
-                  <div>
-                    <p className="text-lg font-bold">{item.title}</p>
-                    <p className="mt-1 text-white/70">{item.body}</p>
+
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+              <Card padding="lg" className="rounded-[2rem] border-t-4 border-elm">
+                <Eyebrow>Our mission</Eyebrow>
+                <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+                  To connect anyone with an ambition — studying abroad, a first job, a new business, a research paper — directly
+                  with a mentor who has already done it, with clear prices and protected payments.
+                </p>
+              </Card>
+              <Card padding="lg" className="rounded-[2rem] border-t-4 border-maroon">
+                <Eyebrow tone="maroon">Our vision</Eyebrow>
+                <p className="mt-4 text-lg leading-relaxed text-ink-soft">
+                  To become the first place people go when they need advice from someone who&apos;s been there — starting in
+                  Bangladesh, and reaching wherever our mentors are.
+                </p>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS */}
+        <section className="bg-ink py-24 text-white">
+          <div className="container mx-auto px-6">
+            <SectionHeading
+              align="center"
+              tone="light"
+              title="Simple, transparent, safe."
+              description="Whatever you need help with, it works the same way."
+              className="mb-20"
+            />
+
+            <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+              {STEPS.map((step, idx) => (
+                <div key={step.title} className="relative flex flex-col items-center text-center">
+                  <div className="mb-8 flex h-20 w-20 items-center justify-center rounded-full border border-white/15 text-2xl font-extrabold">
+                    {String(idx + 1).padStart(2, "0")}
                   </div>
-                </li>
+                  <h3 className="mb-4 text-2xl font-bold">{step.title}</h3>
+                  <p className="leading-relaxed text-white/70">{step.description}</p>
+                  {idx < STEPS.length - 1 && <div className="absolute left-[70%] top-10 hidden h-px w-full bg-white/15 md:block" />}
+                </div>
               ))}
-            </ol>
+            </div>
           </div>
         </section>
 
-        {/* ── Where we're going ── */}
-        <section className="mx-auto grid max-w-7xl gap-12 px-6 py-20 md:py-28 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <SectionHeading eyebrow="Where we're going" title="The place you ask someone who's done it." />
-          <div className="space-y-6 text-lg leading-relaxed text-ink-soft">
-            <p>
-              {upcoming.length > 0
-                ? `${upcoming.map((c) => c.name).join(" and ")} opens next, and new areas follow as experienced mentors join.`
-                : "New areas open as experienced mentors join."}{" "}
-              The rule stays the same in every one: real people, real experience, prices agreed upfront, money protected.
-            </p>
-            <p>
-              If you&apos;ve walked a path others are about to start — a degree abroad, a career switch, a first business, a
-              published paper — there&apos;s someone on Agaaw who needs exactly what you know.
-            </p>
+        {/* WHY AGAAW IS DIFFERENT */}
+        <section className="py-24">
+          <div className="container mx-auto px-6">
+            <div className="flex flex-col gap-16 lg:flex-row">
+              <div className="lg:w-1/3">
+                <SectionHeading
+                  eyebrow="Why us"
+                  title="The trust gap ends here."
+                  description="We didn't build another agency. We built a place where the people who've done it are paid fairly to help the people who are about to."
+                  className="mb-8"
+                />
+                <ul className="space-y-4">
+                  {PROMISES.map((item) => (
+                    <li key={item} className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 shrink-0 text-elm" />
+                      <span className="font-medium text-ink">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:w-2/3">
+                {DIFFERENCES.map((item, i) => (
+                  <Card key={item.title} padding="lg" interactive className="rounded-3xl">
+                    <p className="text-sm font-extrabold text-elm">{String(i + 1).padStart(2, "0")}</p>
+                    <h3 className="mb-3 mt-2 text-xl font-bold text-ink">{item.title}</h3>
+                    <p className="text-ink-soft">{item.description}</p>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* ── Closing call ── */}
-        <section className="mx-auto max-w-7xl px-6 pb-20 md:pb-28">
-          <div className="flex flex-col items-start justify-between gap-8 rounded-[2rem] bg-ink px-8 py-12 text-white md:flex-row md:items-center md:px-14">
-            <SectionHeading tone="light" size="card" title="Your next step is someone else's last one." className="max-w-xl" />
-            <div className="flex flex-wrap gap-3">
-              <ButtonLink href="/mentors" variant="light">
-                Find a mentor
-              </ButtonLink>
-              <ButtonLink href="/register/mentor" variant="outline" className="border-white/40 text-white hover:border-white">
-                Become a mentor
-              </ButtonLink>
+        {/* FINAL CTA */}
+        <section className="overflow-hidden py-24">
+          <div className="container mx-auto px-6">
+            <div className="rounded-[3rem] bg-forest p-10 text-white lg:p-20">
+              <div className="flex flex-col items-center gap-16 lg:flex-row">
+                <div className="text-center lg:w-1/2 lg:text-left">
+                  <SectionHeading
+                    tone="light"
+                    title={
+                      <>
+                        Ready to take <br />
+                        <span className="text-seagreen">your next step?</span>
+                      </>
+                    }
+                    description="Create a free account to find a mentor, or share what you know as one. You only pay when you order a service."
+                  />
+                  <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+                    <ButtonLink href="/register/student" variant="light" size="lg" className="w-full whitespace-nowrap sm:w-auto">
+                      Join as a student
+                    </ButtonLink>
+                    <ButtonLink
+                      href="/register/mentor"
+                      variant="outline"
+                      size="lg"
+                      className="w-full whitespace-nowrap border-white/30 text-white hover:border-white sm:w-auto"
+                    >
+                      Become a mentor <ArrowRight className="h-5 w-5" />
+                    </ButtonLink>
+                  </div>
+                </div>
+
+                {/* Real people instead of an illustration */}
+                <div className="flex h-[320px] items-center justify-center lg:w-1/2">
+                  {PEOPLE.map((person) => (
+                    <PortraitCard key={person.name} name={person.name} caption={person.caption} image={person.image} className={`-mx-4 ${person.tilt}`} />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
       </main>
 
       <Footer />
-    </>
+    </div>
   );
 }
