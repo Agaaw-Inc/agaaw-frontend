@@ -195,7 +195,7 @@ export default function StudentPublicProfilePage() {
 
     if (status === "loading") {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-paper flex flex-col items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-teal-600 mb-2" />
                 <p className="text-sm font-semibold text-gray-500">Loading student profile...</p>
             </div>
@@ -204,7 +204,7 @@ export default function StudentPublicProfilePage() {
 
     if (status === "denied" || status === "not-found") {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col">
+            <div className="min-h-screen bg-paper flex flex-col">
                 <MainNavbar />
                 <main className="flex-grow flex items-center justify-center">
                     <div className="text-center px-6">
@@ -252,7 +252,7 @@ export default function StudentPublicProfilePage() {
     const hasDocuments = hasFullAccess && documents.length > 0;
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+        <div className="min-h-screen bg-paper flex flex-col">
             <MainNavbar />
             <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6 w-full">
                 <StudentProfileHeader

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, ShieldAlert } from "lucide-react";
@@ -27,8 +27,11 @@ import WriteReviewModal from "@/components/reviews/WriteReviewModal";
 import OrderServiceModal from "@/components/orders/OrderServiceModal";
 import Toast from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
+import SignUpGate from "@/components/mentors/SignUpGate";
 
 type Status = "loading" | "ready" | "denied" | "not-found";
+
+const noSubscribe = () => () => {};
 
 export default function MentorPublicProfilePage() {
     const params = useParams();
@@ -46,13 +49,14 @@ export default function MentorPublicProfilePage() {
     const [reviews, setReviews] = useState<MentorReviewsResult | null>(null);
     const { toast, showToast, hideToast } = useToast();
     const viewer = getUserInfo();
+    // undefined on the server, then the real answer on the client.
+    const signedIn = useSyncExternalStore(noSubscribe, () => !!getUserInfo(), () => undefined);
 
     useEffect(() => {
 
-        if (!viewer) {
-            router.replace("/login");
-            return;
-        }
+        // Guests see a sign-up screen (rendered below) — the full profile is
+        // for members, and the API refuses it without a login anyway.
+        if (!viewer) return;
 
         // Mentors manage/preview their own profile from the dashboard, not here.
         if (viewer.role === "mentor" && viewer.id === id) {
@@ -111,9 +115,21 @@ export default function MentorPublicProfilePage() {
         };
     }, [id, router]);
 
+    if (signedIn === false) {
+        return (
+            <div className="min-h-screen flex flex-col">
+                <MainNavbar />
+                <main className="flex-grow bg-paper">
+                    <SignUpGate title="Create a free account to see this mentor's full profile" returnTo={`/profile/mentor/${id}`} />
+                </main>
+                <Footer />
+            </div>
+        );
+    }
+
     if (status === "loading") {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-paper flex flex-col items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-teal-600 mb-2" />
                 <p className="text-sm font-semibold text-gray-500">Loading mentor profile...</p>
             </div>
@@ -122,7 +138,7 @@ export default function MentorPublicProfilePage() {
 
     if (status === "denied" || status === "not-found") {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col">
+            <div className="min-h-screen bg-paper flex flex-col">
                 <MainNavbar />
                 <main className="flex-grow flex items-center justify-center">
                     <div className="text-center px-6">
@@ -161,7 +177,7 @@ export default function MentorPublicProfilePage() {
     const hasServices = hasItems(profile.services);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] flex flex-col">
+        <div className="min-h-screen bg-paper flex flex-col">
             <MainNavbar />
             <main className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-6 w-full">
                 <MentorProfileHeader

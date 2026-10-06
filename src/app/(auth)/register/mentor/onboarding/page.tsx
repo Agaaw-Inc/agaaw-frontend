@@ -215,7 +215,7 @@ export default function MentorOnboarding() {
     // but has no controller/service methods). Hourly rate is the only step-2 data that can be saved.
     const step2Valid = !!hourlyRate;
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
+        <div className="min-h-screen bg-paper flex flex-col font-sans text-slate-800">
             {/* Header */}
             <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-40">
                 <div className="flex items-center gap-2">

@@ -64,7 +64,7 @@ export default function SessionsPageContent({ role }: SessionsPageContentProps) 
     const profileBase = role === "mentor" ? "/profile/student" : "/profile/mentor";
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-paper">
             <div className="max-w-5xl mx-auto px-6 py-10 space-y-6">
                 <div>
                     <h1 className="text-3xl font-extrabold text-gray-900">Sessions</h1>

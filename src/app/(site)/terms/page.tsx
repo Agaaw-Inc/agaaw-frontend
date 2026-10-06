@@ -36,12 +36,12 @@ export default function TermsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-paper flex flex-col">
       <MainNavbar />
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="bg-slate-50 py-20 px-8 border-b border-slate-100">
+        <section className="bg-paper py-20 px-8 border-b border-slate-100">
           <div className="max-w-4xl mx-auto text-center">
             <div className="w-16 h-16 bg-elm/10 rounded-2xl flex items-center justify-center text-elm mx-auto mb-8">
               <Scale className="w-8 h-8" />

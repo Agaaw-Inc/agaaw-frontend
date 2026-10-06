@@ -4,13 +4,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useRef, useEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, Briefcase, MessageSquare, Star, Bell, LayoutDashboard, Package, Wallet } from "lucide-react";
+import { Menu, X, BookOpen, GraduationCap, Globe, Info, LogIn, UserPlus, LogOut, User, ChevronDown, FileText, Bookmark, Settings, Users, Inbox, MessageSquare, Star, Bell, LayoutDashboard, Package, Wallet, Home } from "lucide-react";
 import { getToken, getUserInfo, removeToken, removeUserInfo, type UserInfo } from "@/lib/auth";
 import { resolveFileUrl } from "@/lib/api";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import NotificationDropdown from "@/components/notifications/NotificationDropdown";
 import Avatar from "@/components/ui/Avatar";
 import { useRouter } from "next/navigation";
+
+function isUnder(pathname: string, href: string) {
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 function getStoredUser(): UserInfo | null {
   const token = getToken();
@@ -56,14 +60,19 @@ export default function MainNavbar() {
   const messagesActive = pathname.startsWith(messagesHref);
   const unreadMessages = useUnreadMessages(Boolean(user && user.role !== "admin"));
 
-  const navLinks = [
+  // Mentors browse students, not other mentors.
+  const navLinks: { href: string; label: string; icon: typeof Home }[] = [
+    { href: "/", label: "Home", icon: Home },
+    ...(user?.role === "mentor"
+      ? [{ href: "/students", label: "Students", icon: Users }]
+      : [{ href: "/mentors", label: "Mentors", icon: Users }]),
     { href: "/scholarships", label: "Scholarships", icon: GraduationCap },
     { href: "/countries", label: "Countries", icon: Globe },
-    ...(user?.role === "mentor" ? [{ href: "/students", label: "Students", icon: Users }] : []),
-    ...(user?.role === "student" ? [{ href: "/mentors", label: "Mentors", icon: Users }] : []),
     { href: "/blogs", label: "Blogs", icon: BookOpen },
-    { href: "/about-us", label: "About", icon: Info },
+    { href: "/about-us", label: "About Us", icon: Info },
   ];
+
+  const linkActive = (link: { href: string }) => (link.href === "/" ? pathname === "/" : isUnder(pathname, link.href));
 
   // Close menus on outside click
   useEffect(() => {
@@ -91,7 +100,7 @@ export default function MainNavbar() {
 
   return (
     <>
-      <header className="w-full border-b border-bombay/20 bg-white/95 backdrop-blur-sm sticky top-0 z-50">
+      <header className="w-full border-b border-ink/10 bg-card/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
 
           {/* Logo */}
@@ -111,21 +120,9 @@ export default function MainNavbar() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map(({ href, label }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/");
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                    ? "text-teal-700 bg-teal-50"
-                    : "text-codgray hover:bg-gray-100"
-                    }`}
-                >
-                  {label}
-                </Link>
-              );
-            })}
+            {navLinks.map((link) => (
+              <NavLink key={link.href} href={link.href} label={link.label} active={linkActive(link)} />
+            ))}
           </nav>
 
           {/* Desktop Login & Register */}
@@ -282,22 +279,9 @@ export default function MainNavbar() {
             className="md:hidden border-t border-gray-100 bg-white shadow-lg"
           >
             <div className="px-4 py-3 space-y-1">
-              {navLinks.map(({ href, label, icon: Icon }) => {
-                const isActive = pathname === href || pathname.startsWith(href + "/");
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive
-                      ? "text-teal-700 bg-teal-50"
-                      : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                  >
-                    <Icon size={18} className={isActive ? "text-teal-600" : "text-gray-400"} />
-                    {label}
-                  </Link>
-                );
-              })}
+              {navLinks.map((link) => (
+                <MobileNavLink key={link.href} href={link.href} label={link.label} icon={link.icon} active={linkActive(link)} />
+              ))}
               {user ? (
                 <div className="pt-2 mt-2 border-t border-gray-100 flex flex-col gap-2">
                   <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-teal-50/50 border border-teal-100/50">
@@ -328,9 +312,6 @@ export default function MainNavbar() {
                       </Link>
                       <Link href='/dashboard/mentor/wallet' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <Wallet size={18} className="text-gray-400" /> Wallet
-                      </Link>
-                      <Link href='/dashboard/mentor/services' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
-                        <Briefcase size={18} className="text-gray-400" /> Services
                       </Link>
                       <Link href='/dashboard/mentor/blogs' className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
                         <BookOpen size={18} className="text-gray-400" /> Blog & Resources
@@ -464,5 +445,28 @@ export default function MainNavbar() {
         </div>
       )}
     </>
+  );
+}
+
+function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${active ? "text-elm bg-elm/10" : "text-codgray hover:bg-gray-100"}`}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function MobileNavLink({ href, label, icon: Icon, active }: { href: string; label: string; icon: typeof Home; active: boolean }) {
+  return (
+    <Link
+      href={href}
+      className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${active ? "text-elm bg-elm/10" : "text-gray-700 hover:bg-gray-100"}`}
+    >
+      <Icon size={18} className={active ? "text-elm" : "text-gray-400"} />
+      {label}
+    </Link>
   );
 }

@@ -53,7 +53,7 @@ function AuthCallbackContent() {
   }, [searchParams, router]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-paper">
       <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 flex flex-col items-center max-w-sm w-full">
         {error ? (
           <div className="text-center">
@@ -77,7 +77,7 @@ function AuthCallbackContent() {
 export default function AuthCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-paper">
         <Loader2 className="w-12 h-12 text-teal-600 animate-spin mb-4" />
         <p className="text-sm text-gray-500 text-center">Loading authentication...</p>
       </div>

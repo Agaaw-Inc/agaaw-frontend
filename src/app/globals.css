@@ -1,19 +1,185 @@
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL,GRAD@100..700,0..1,-50..200&display=swap');
 @import "tailwindcss";
 
+/*
+ * Agaaw design system — one place for type and colour.
+ *
+ * TYPE: one typeface everywhere (Bricolage Grotesque, loaded in app/fonts.ts).
+ * It's a variable font, so every weight comes from a single file, and its
+ * optical-size axis draws small text open and big headlines tight on its own.
+ *
+ * COLOUR: taken from the logo — white paper, black and greys, with seagreen,
+ * dark green and maroon as the only accents. No yellow.
+ */
 @theme {
+  --font-sans: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Brand tokens (use these in new code) ─────────────────────────── */
   --color-elm: #1d7a85;
   --color-elm-light: #2b9ca1;
   --color-elm-dark: #145e63;
-  --color-codgray: #191919;
-  --color-bombay: #aeaeaf;
+  --color-codgray: #141816;
+  --color-bombay: #8f9693;
   --color-light: #ffffff;
+
+  --color-paper: #fcfcfa;
+  --color-paper-deep: #f1f2ef;
+  --color-card: #ffffff;
+  --color-ink: #141816;
+  --color-ink-soft: #5b6360;
+  --color-seagreen: #3fb994;
+  --color-seagreen-soft: #e3f4ee;
+  --color-forest: #12332f;
+  --color-maroon: #5e1820;
+  --color-maroon-soft: #f4e8e9;
+
+  /*
+   * ── Legacy colour families, remapped onto the palette ───────────────
+   * Older pages use Tailwind's stock teal/amber/blue/… classes (190+ of
+   * them). Instead of editing each one, those names now render palette
+   * colours, so every page matches without per-file changes:
+   *   teal               → brand teal (primary)
+   *   emerald, green     → seagreen (success)
+   *   amber, yellow, orange, pink, rose → maroon tints (attention)
+   *   blue, sky, indigo, violet, purple → dark-green tints (information)
+   * Red is left alone on purpose: errors should still read as errors.
+   */
+  --color-teal-50: #eef7f8;
+  --color-teal-100: #d5ecee;
+  --color-teal-200: #acd8dc;
+  --color-teal-300: #7dbfc5;
+  --color-teal-400: #4aa2aa;
+  --color-teal-500: #2b8a94;
+  --color-teal-600: #1d7a85;
+  --color-teal-700: #186670;
+  --color-teal-800: #145e63;
+  --color-teal-900: #0f4549;
+  --color-teal-950: #0a2e31;
+
+  --color-emerald-50: #edf9f4;
+  --color-emerald-100: #d3f0e5;
+  --color-emerald-200: #a8e1cb;
+  --color-emerald-300: #74cdaa;
+  --color-emerald-400: #5cc6a3;
+  --color-emerald-500: #3fb994;
+  --color-emerald-600: #2f9b7a;
+  --color-emerald-700: #247a60;
+  --color-emerald-800: #1d6150;
+  --color-emerald-900: #164a3d;
+  --color-green-50: #edf9f4;
+  --color-green-100: #d3f0e5;
+  --color-green-200: #a8e1cb;
+  --color-green-300: #74cdaa;
+  --color-green-400: #5cc6a3;
+  --color-green-500: #3fb994;
+  --color-green-600: #2f9b7a;
+  --color-green-700: #247a60;
+  --color-green-800: #1d6150;
+  --color-green-900: #164a3d;
+
+  --color-amber-50: #fbf3f4;
+  --color-amber-100: #f4e8e9;
+  --color-amber-200: #e7cdd0;
+  --color-amber-300: #d2a5aa;
+  --color-amber-400: #b5727a;
+  --color-amber-500: #93434d;
+  --color-amber-600: #7a2e38;
+  --color-amber-700: #5e1820;
+  --color-amber-800: #4b131a;
+  --color-amber-900: #3a0f14;
+  --color-amber-950: #2a0b0f;
+  --color-yellow-50: #fbf3f4;
+  --color-yellow-100: #f4e8e9;
+  --color-yellow-200: #e7cdd0;
+  --color-yellow-300: #d2a5aa;
+  --color-yellow-400: #b5727a;
+  --color-yellow-500: #93434d;
+  --color-yellow-600: #7a2e38;
+  --color-yellow-700: #5e1820;
+  --color-yellow-800: #4b131a;
+  --color-yellow-900: #3a0f14;
+  --color-orange-50: #fbf3f4;
+  --color-orange-100: #f4e8e9;
+  --color-orange-200: #e7cdd0;
+  --color-orange-300: #d2a5aa;
+  --color-orange-400: #b5727a;
+  --color-orange-500: #93434d;
+  --color-orange-600: #7a2e38;
+  --color-orange-700: #5e1820;
+  --color-orange-800: #4b131a;
+  --color-orange-900: #3a0f14;
+  --color-pink-50: #fbf3f4;
+  --color-pink-100: #f4e8e9;
+  --color-pink-500: #93434d;
+  --color-pink-600: #7a2e38;
+  --color-pink-700: #5e1820;
+  --color-rose-50: #fbf3f4;
+  --color-rose-100: #f4e8e9;
+  --color-rose-500: #93434d;
+  --color-rose-600: #7a2e38;
+  --color-rose-700: #5e1820;
+
+  --color-blue-50: #eef3f2;
+  --color-blue-100: #d8e4e2;
+  --color-blue-200: #b1c9c5;
+  --color-blue-300: #84aaa4;
+  --color-blue-400: #5a8a83;
+  --color-blue-500: #3c6d66;
+  --color-blue-600: #2a5751;
+  --color-blue-700: #1f4540;
+  --color-blue-800: #12332f;
+  --color-blue-900: #0c2421;
+  --color-sky-50: #eef3f2;
+  --color-sky-100: #d8e4e2;
+  --color-sky-500: #3c6d66;
+  --color-sky-600: #2a5751;
+  --color-sky-700: #1f4540;
+  --color-indigo-50: #eef3f2;
+  --color-indigo-100: #d8e4e2;
+  --color-indigo-500: #3c6d66;
+  --color-indigo-600: #2a5751;
+  --color-indigo-700: #1f4540;
+  --color-violet-50: #eef3f2;
+  --color-violet-100: #d8e4e2;
+  --color-violet-500: #3c6d66;
+  --color-violet-600: #2a5751;
+  --color-violet-700: #1f4540;
+  --color-purple-50: #eef3f2;
+  --color-purple-100: #d8e4e2;
+  --color-purple-500: #3c6d66;
+  --color-purple-600: #2a5751;
+  --color-purple-700: #1f4540;
+}
+
+/* Every page sits on the same white paper, in the same typeface. */
+@layer base {
+  html {
+    background-color: var(--color-paper);
+  }
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
 
 @layer utilities {
-  .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-      font-family: 'Material Symbols Outlined';
+  /* Kantha stitch: the running stitch of Bengali quilts, as a divider. */
+  .stitch {
+      background-image: repeating-linear-gradient(
+        90deg,
+        currentColor 0 10px,
+        transparent 10px 18px
+      );
+      height: 2px;
+  }
+
+  /* Faint paper grain so large flat areas don't look digital. */
+  .paper-grain {
+      background-image: radial-gradient(rgba(23, 33, 30, 0.035) 1px, transparent 1px);
+      background-size: 4px 4px;
   }
 
   .ambient-shadow {

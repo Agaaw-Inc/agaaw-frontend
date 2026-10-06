@@ -1,28 +1,38 @@
 import MainNavbar from "@/components/navbar/MainNavbar";
 import HeroSection from "@/components/landing/HeroSection";
-import ImageCarousel from "@/components/landing/ImageCorousel";
-import WhyChooseSection from "@/components/landing/WhyChooseSection";
 import MentorBanner from "@/components/landing/MentorBanner";
-import ResourceBanner from "@/components/landing/ResourceBanner";
 import Footer from "@/components/landing/Footer";
+import HowItWorks from "@/components/home/HowItWorks";
+import StudyAbroadBand from "@/components/home/StudyAbroadBand";
+import { getClosingSoonScholarships, getCountryCount } from "@/lib/homeData";
 
-export default function HomePage() {
+/**
+ * A server component: data is fetched at build time and refreshed every 5
+ * minutes, so the page is served pre-built and fast, with no loading spinners.
+ */
+export default async function HomePage() {
+  const [closingSoon, countryCount] = await Promise.all([
+    getClosingSoonScholarships(4),
+    getCountryCount(),
+  ]);
+
   return (
     <>
       <MainNavbar />
-
-      <HeroSection />
-
-      <ImageCarousel />
-
-      <WhyChooseSection />
-
-      <div className="bg-white py-12 md:py-24">
-        <div className="mx-auto max-w-7xl px-6 flex flex-col items-center">
-          <MentorBanner />
-          <ResourceBanner />
-        </div>
-      </div>
+      <main className="bg-paper">
+        <HeroSection />
+        <HowItWorks />
+        <StudyAbroadBand
+          scholarships={closingSoon.scholarships}
+          scholarshipCount={closingSoon.total}
+          countryCount={countryCount}
+        />
+        <section className="bg-paper py-16 md:py-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <MentorBanner />
+          </div>
+        </section>
+      </main>
       <Footer />
     </>
   );

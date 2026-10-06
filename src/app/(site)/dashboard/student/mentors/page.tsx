@@ -29,7 +29,7 @@ export default function StudentMentorsPage() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-paper">
             <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>

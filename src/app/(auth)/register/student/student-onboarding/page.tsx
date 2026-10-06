@@ -270,7 +270,7 @@ export default function StudentOnboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-paper flex flex-col font-sans text-slate-800">
       {/* ------------------------------------------------------------- */}
       {/* Header bar (For Steps 2, 3, 4) */}
       {/* ------------------------------------------------------------- */}

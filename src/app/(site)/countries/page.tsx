@@ -85,7 +85,7 @@ export default function CountriesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-paper flex flex-col">
             <MainNavbar />
 
             <main className="flex-grow pt-16 pb-20">

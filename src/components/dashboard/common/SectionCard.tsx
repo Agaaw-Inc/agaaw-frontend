@@ -1,8 +1,15 @@
 import type { ComponentType, ReactNode } from "react";
+import Card from "@/components/ui/Card";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 interface SectionCardProps {
     title: string;
     description?: string;
+    /**
+     * Kept for compatibility with existing callers, but no longer drawn:
+     * an icon in a tinted square on every card was the most template-like
+     * part of the dashboards. Titles carry the section on their own.
+     */
     icon?: ComponentType<{ size?: number; className?: string }>;
     iconClassName?: string;
     badge?: ReactNode;
@@ -12,40 +19,24 @@ interface SectionCardProps {
     className?: string;
 }
 
-export default function SectionCard({
-    title,
-    description,
-    icon: Icon,
-    iconClassName = "bg-teal-50 text-teal-600",
-    badge,
-    actions,
-    footer,
-    children,
-    className = "",
-}: SectionCardProps) {
+/** A dashboard section: the shared Card with a shared heading and optional footer. */
+export default function SectionCard({ title, description, badge, actions, footer, children, className }: SectionCardProps) {
     return (
-        <section className={`bg-white rounded-2xl border border-gray-100 ambient-shadow p-6 ${className}`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-3 min-w-0">
-                    {Icon && (
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${iconClassName}`}>
-                            <Icon size={18} />
-                        </div>
-                    )}
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="text-lg font-bold text-gray-900 tracking-tight">{title}</h2>
-                            {badge}
-                        </div>
-                        {description && <p className="text-sm text-gray-500 mt-0.5">{description}</p>}
-                    </div>
-                </div>
-                {actions && <div className="flex items-center gap-3 shrink-0">{actions}</div>}
-            </div>
-
+        <Card as="section" className={className}>
+            <SectionHeading
+                size="card"
+                title={
+                    <span className="flex flex-wrap items-center gap-2">
+                        {title}
+                        {badge}
+                    </span>
+                }
+                description={description}
+                action={actions}
+                className="mb-5 border-b border-ink/10 pb-4"
+            />
             <div className="flex-1">{children}</div>
-
-            {footer && <div className="mt-5 pt-5 border-t border-gray-100 text-center">{footer}</div>}
-        </section>
+            {footer && <div className="mt-5 border-t border-ink/10 pt-5 text-center">{footer}</div>}
+        </Card>
     );
 }

@@ -48,7 +48,7 @@ export default function MentorBlogCard({ blog, onTogglePublish, onDelete }: Ment
                         onClick={onTogglePublish ? () => onTogglePublish(blog.id, blog.isPublished) : undefined}
                         disabled={!onTogglePublish}
                         className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg shadow-sm backdrop-blur-md ${
-                            blog.isPublished ? "bg-emerald-500/90 text-white" : "bg-amber-500/90 text-white"
+                            blog.isPublished ? "bg-elm text-white" : "bg-maroon text-white"
                         } ${onTogglePublish ? "cursor-pointer" : "cursor-default"}`}
                     >
                         {blog.isPublished ? <Eye size={12} /> : <EyeOff size={12} />}

@@ -73,7 +73,7 @@ export default function MentorWalletPage() {
 
     if (!wallet) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex justify-center pt-32 text-gray-400">
+            <div className="min-h-screen bg-paper flex justify-center pt-32 text-gray-400">
                 <Loader2 className="w-8 h-8 animate-spin" />
             </div>
         );
@@ -82,7 +82,7 @@ export default function MentorWalletPage() {
     const pct = Math.round(config.commissionRate * 100);
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC]">
+        <div className="min-h-screen bg-paper">
             <Toast toast={toast} onHide={hideToast} />
             <div className="max-w-5xl mx-auto px-6 py-10 space-y-6">
                 <div>

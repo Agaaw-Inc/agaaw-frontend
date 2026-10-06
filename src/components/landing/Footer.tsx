@@ -1,11 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Facebook, Linkedin, Send, ArrowRight, Globe } from "lucide-react";
-import Button from "@/components/ui/Button";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0B0F14] text-white">
+    <footer className="bg-ink text-white">
       <div className="mx-auto max-w-7xl px-8 pt-20 pb-10">
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">

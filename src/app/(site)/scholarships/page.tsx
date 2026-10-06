@@ -170,7 +170,7 @@ function ScholarshipList() {
     <>
       <MainNavbar />
 
-      <main className="pt-15 pb-20 bg-white">
+      <main className="pt-15 pb-20 bg-paper">
         {/* Hero Section */}
         <section className="relative px-8 pt-10 pb-20 max-w-7xl mx-auto overflow-hidden">
           <div className="relative z-10 lg:w-2/3">
@@ -184,7 +184,7 @@ function ScholarshipList() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link href="/countries">
-                <Button className="text-gray-500 hover:text-[#20B2AA] transition-colors font-medium">
+                <Button variant="ghost" className="font-medium text-gray-500 hover:text-elm">
                   Explore Countries
                 </Button>
               </Link>
@@ -409,7 +409,7 @@ function ScholarshipList() {
 export default function ScholarshipsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-paper flex flex-col items-center justify-center">
         <Loader2 className="w-10 h-10 animate-spin text-elm mb-4" />
         <p className="text-bombay font-medium">Preparing scholarships...</p>
       </div>

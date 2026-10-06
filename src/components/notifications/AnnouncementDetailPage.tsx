@@ -57,7 +57,7 @@ export default function AnnouncementDetailPage({
   const notificationsHref = `/dashboard/${dashboardRole}/notifications`;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-paper">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-6">
         <Link
           href={notificationsHref}

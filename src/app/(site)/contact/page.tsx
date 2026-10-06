@@ -23,12 +23,12 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-paper flex flex-col">
       <MainNavbar />
 
       <main className="flex-grow pb-24">
         {/* Hero Section */}
-        <section className="bg-white py-20 px-8 border-b border-slate-100">
+        <section className="bg-paper py-20 px-8 border-b border-slate-100">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-codgray mb-6">
               Get in <span className="text-elm">Touch</span>

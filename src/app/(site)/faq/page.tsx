@@ -136,7 +136,7 @@ export default function FAQPage() {
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-white selection:bg-elm/20">
+        <div className="flex flex-col min-h-screen bg-paper selection:bg-elm/20">
             <MainNavbar />
 
             <main className="flex-grow pt-32 pb-24">

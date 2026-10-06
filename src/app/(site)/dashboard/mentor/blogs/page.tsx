@@ -69,7 +69,7 @@ export default function MentorBlogsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-paper flex flex-col items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-teal-600 mb-2" />
         <p className="text-sm font-semibold text-gray-500">Loading your blogs...</p>
       </div>
@@ -77,7 +77,7 @@ export default function MentorBlogsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] py-10 px-4 sm:px-6">
+    <div className="min-h-screen bg-paper py-10 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

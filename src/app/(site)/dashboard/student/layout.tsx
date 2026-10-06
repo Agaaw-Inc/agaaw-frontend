@@ -26,7 +26,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
     if (!authorized) {
         return (
-            <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+            <div className="min-h-screen bg-paper flex flex-col items-center justify-center">
                 <Loader2 className="w-8 h-8 animate-spin text-teal-600 mb-2" />
                 <p className="text-sm font-semibold text-gray-500">Checking authorization...</p>
             </div>

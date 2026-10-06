@@ -24,7 +24,7 @@ export default async function SingleBlogPage({ params }: { params: Promise<{ slu
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-paper flex flex-col">
       <MainNavbar />
       
       {/* Hero Section */}
