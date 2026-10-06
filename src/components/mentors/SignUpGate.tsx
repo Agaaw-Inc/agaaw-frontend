@@ -21,9 +21,6 @@ export default function SignUpGate({ title, returnTo }: { title: string; returnT
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-16 md:py-24">
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-maroon-soft px-3 py-1 text-xs font-bold uppercase tracking-wider text-maroon">
-        <Lock size={13} /> Members only
-      </span>
       <SectionHeading className="mt-4" title={title} />
       <ul className="mt-6 space-y-3">
         {UNLOCKS.map((item) => (
